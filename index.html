@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peta Sebaran Terdampak Bencana</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Dasar Halaman */
+        html, body {
+            height: 100%; width: 100%; margin: 0; padding: 0;
+            font-family: 'Roboto', sans-serif; overflow: hidden;
+            background-color: #f4f4f4;
+        }
+        /* Header Halaman */
+        #header {
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 50px;
+            background-color: #ffffff;
+            z-index: 1001; /* Di atas segalanya */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #333;
+        }
+        /* Kontainer Peta, diposisikan di bawah header */
+        #map {
+            position: absolute; top: 50px; left: 0; right: 0; bottom: 0;
+        }
+        /* Pengaturan Sidebar Detail */
+        #sidebar {
+            position: absolute; left: -380px; top: 60px; bottom: 10px;
+            width: 350px; background: white;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.4); border-radius: 8px;
+            transition: left 0.5s ease; z-index: 1000;
+            display: flex; flex-direction: column;
+        }
+        #sidebar.visible { left: 10px; }
+        #sidebar-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #sidebar-header h3 { margin: 0; font-size: 1.1em; }
+        #sidebar-content { padding: 0 20px 20px; overflow-y: auto; }
+        #sidebar p { margin: 8px 0; line-height: 1.6; }
+        #sidebar p strong { color: #555; }
+        .close-btn { font-size: 28px; font-weight: bold; cursor: pointer; color: #aaa; }
+        .close-btn:hover { color: #333; }
+
+        /* Indikator Loading */
+        #loader {
+            position: absolute; top: 50%; left: 50%;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            z-index: 2000; /* Paling atas */
+            transform: translate(-50%, -50%);
+        }
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="header">
+    Dashboard Peta Bencana - BPBD Kab. Jember
+</div>
+<div id="loader"></div> <div id="map"></div>
+<div id="sidebar">
+    <div id="sidebar-header">
+        <h3 id="sidebar-title">Detail Laporan</h3>
+        <span class="close-btn" onclick="closeSidebar()">&times;</span>
+    </div>
+    <div id="sidebar-content"></div>
+</div>
+
+<script>
+    const DATA_URL = 'https://script.google.com/macros/s/AKfycby1d20U2KKj_Vdno5E1pqhQ3P0KqSHF3El1N75qEbWGuupgzQvtTdMVNp6_uIqFpIMU/exec';
+    const mapCenter = [-8.17, 113.70]; // Jember
+    const initialZoom = 12;
+
+    // Menampilkan loader saat memulai
+    const loader = document.getElementById('loader');
+
+    // 1. Mendefinisikan Tampilan Peta (Basemaps) LEBIH BANYAK
+    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    });
+    const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri'
+    });
+    const dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a>'
+    });
+    const terrain = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+    });
+
+    // Inisialisasi Peta
+    const map = L.map('map', { center: mapCenter, zoom: initialZoom, layers: [osm] });
+    const baseMaps = {
+        "Peta Jalan": osm,
+        "Citra Satelit": satellite,
+        "Mode Gelap": dark,
+        "Topografi": terrain
+    };
+    L.control.layers(baseMaps).addTo(map);
+
+    // Definisi ikon marker (tidak berubah)
+    const iconRusakBerat = new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png', iconSize: [25, 41], iconAnchor: [12, 41] });
+    const iconRusakSedang = new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png', iconSize: [25, 41], iconAnchor: [12, 41] });
+    const iconRusakRingan = new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', iconSize: [25, 41], iconAnchor: [12, 41] });
+
+    // Mengambil data dan menambahkan ke Peta
+    fetch(DATA_URL)
+        .then(response => response.json())
+        .then(data => {
+            loader.style.display = 'none'; // Sembunyikan loader jika data berhasil didapat
+            data.forEach(item => {
+                let chosenIcon = iconRusakRingan;
+                if (item.kerusakan === 'Rusak Sedang') chosenIcon = iconRusakSedang;
+                else if (item.kerusakan === 'Rusak Berat') chosenIcon = iconRusakBerat;
+
+                const marker = L.marker([item.lat, item.lng], {icon: chosenIcon}).addTo(map);
+                marker.on('click', () => openSidebarWithData(item));
+            });
+        })
+        .catch(error => {
+            console.error('Gagal mengambil data:', error);
+            loader.style.display = 'none'; // Sembunyikan loader juga jika error
+            alert("Tidak dapat memuat data lokasi.");
+        });
+
+    // Fungsi untuk membuka sidebar (tidak berubah)
+    function openSidebarWithData(data) {
+        const sidebar = document.getElementById('sidebar');
+        const content = document.getElementById('sidebar-content');
+        const sidebarTitle = document.getElementById('sidebar-title');
+        
+        sidebarTitle.innerText = data.nama || 'Detail Laporan';
+        content.innerHTML = `
+            <h4>Detail Lokasi</h4>
+            <p><strong>Jalan/Dusun:</strong><br>${data.dusun || 'Tidak ada data'}</p>
+            <p><strong>Kelurahan/Desa:</strong><br>${data.kelurahan || 'Tidak ada data'}</p>
+            <p><strong>Kecamatan:</strong><br>${data.kecamatan || 'Tidak ada data'}</p>
+            
+            <h4>Detail Bencana & Asesmen</h4>
+            <p><strong>Jenis Bencana:</strong><br>${data.bencana || 'Tidak ada data'}</p>
+            <p><strong>Waktu Asesmen:</strong><br>${data.hari || ''}, ${data.tanggalWaktu || ''}</p>
+            <p><strong>Pengkajian:</strong><br>${data.pengkajian || 'Tidak ada data'}</p>
+            
+            <h4>Detail Kerusakan & Kerugian</h4>
+            <p><strong>Tingkat Kerusakan:</strong><br>${data.kerusakan || 'Tidak ada data'}</p>
+            <p><strong>Bagian Rusak:</strong><br>${data.bagianRusak || 'Tidak ada data'}</p>
+            <p><strong>Taksiran Kerusakan:</strong><br>${data.nilaiKerusakan || 'Tidak ada data'}</p>
+            <p><strong>Taksiran Kerugian:</strong><br>${data.nilaiKerugian || 'Tidak ada data'}</p>
+        `;
+        sidebar.classList.add('visible');
+    }
+
+    // Fungsi untuk menutup sidebar (tidak berubah)
+    function closeSidebar() {
+        document.getElementById('sidebar').classList.remove('visible');
+    }
+</script>
+
+</body>
+</html>
