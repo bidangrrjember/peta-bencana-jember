@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Peta Bencana</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.js" charset="utf-8"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%; width: 100%; margin: 0; padding: 0;
+            font-family: 'Roboto', sans-serif; overflow: hidden;
+            background-color: #f0f2f5;
+        }
+        #header {
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 50px; background-color: #ffffff;
+            z-index: 1001; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex; align-items: center; padding: 0 20px;
+            font-size: 1.1em; font-weight: 500; color: #1f1f1f;
+        }
+        #header img { height: 30px; margin-right: 15px; }
+        #map { position: absolute; top: 50px; left: 0; right: 0; bottom: 0; }
+        #sidebar {
+            position: absolute; left: -430px; top: 65px; bottom: 15px;
+            width: 400px; background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2); border-radius: 8px;
+            transition: left 0.5s ease; z-index: 2000;
+            display: flex; flex-direction: column;
+        }
+        #sidebar.visible { left: 15px; }
+        #sidebar-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        #sidebar-header h3 { margin: 0; font-size: 1.1em; }
+        #sidebar-content {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+            scrollbar-width: none;
+        }
+        #sidebar-content::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+        #sidebar-footer {
+            padding: 15px;
+            text-align: center;
+            border-top: 1px solid #e0e0e0;
+        }
+        .close-btn { font-size: 28px; font-weight: bold; cursor: pointer; color: #aaa; }
+        #summary-box {
+            position: absolute; top: 65px; right: 15px;
+            width: 220px; background: white;
+            padding: 15px; border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 999;
+        }
+        .stat-item { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em; }
+        #loader { position: absolute; top: 50%; left: 50%; border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; z-index: 2000; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .sidebar-gallery { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
+        .photo-link { display: inline-block; padding: 8px 12px; background-color: #e9ecef; border-radius: 5px; text-decoration: none; color: #333; font-size: 0.9em; }
+        .route-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #1a73e8; color: white; border: none;
+            border-radius: 5px; font-size: 0.9em; font-weight: 500;
+            cursor: pointer; text-decoration: none;
+        }
+        .route-button:hover { background-color: #1765cc; }
+
+        /* --- KODE BARU UNTUK TAMPILAN HP (RESPONSIVE) --- */
+        @media (max-width: 768px) {
+            /* Sembunyikan kotak statistik di layar kecil */
+            #summary-box {
+                display: none;
+            }
+            /* Buat sidebar memenuhi layar */
+            #sidebar {
+                width: 100%; /* Lebar penuh */
+                top: 50px;   /* Mulai dari bawah header */
+                left: -100%; /* Sembunyi ke kiri sejauh lebar layar */
+                bottom: 0;
+                border-radius: 0;
+                box-shadow: none;
+            }
+            #sidebar.visible {
+                left: 0; /* Muncul dari kiri */
+            }
+            /* Kecilkan font header */
+            #header {
+                font-size: 1em;
+                padding: 0 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="header"><img src="https://bidangrrjember.github.io/peta-bencana-jember/logo-bpbd.png" alt="Logo"><span>Dashboard Pemetaan Bencana - BPBD Kabupaten Jember</span></div>
+    <div id="loader"></div><div id="map"></div>
+    <div id="sidebar">
+        <div id="sidebar-header"><h3 id="sidebar-title">Detail Laporan</h3><span class="close-btn" onclick="closeSidebar()">×</span></div>
+        <div id="sidebar-content"></div>
+        <div id="sidebar-footer"><a href="#" id="route-button-link" target="_blank" class="route-button">Buka Rute di Google Maps</a></div>
+    </div>
+    <div id="summary-box"><h4>Ringkasan Bencana</h4><div id="summary-content"></div><hr><div class="stat-item"><span>TOTAL BENCANA:</span> <span id="stat-total">0</span></div></div>
+
+<script>
+    // Seluruh kode JavaScript TIDAK ADA PERUBAHAN
+    // ... (salin semua kode <script> Anda dari versi sebelumnya ke sini)
+</script>
+
+<script>
+    const DATA_URL = 'https://script.google.com/macros/s/AKfycbyFqtDkTB-31AvQRwmFlo_kSC-P5Os8D0fktjtN35Fszp9aP6jHdz-Jrn7hQRabOgCS/exec';
+    const mapCenter = [-8.17, 113.70]; const initialZoom = 12; const loader = document.getElementById('loader');
+    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' });
+    const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: '© Esri' });
+    const dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '© CARTO' });
+    const terrain = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { attribution: '© OpenTopoMap' });
+    const map = L.map('map', { center: mapCenter, zoom: initialZoom, layers: [osm] }); const baseMaps = { "Peta Jalan": osm, "Citra Satelit": satellite, "Mode Gelap": dark, "Topografi": terrain };
+    L.control.locate({ position: 'topleft', flyTo: true, strings: { title: "Tampilkan lokasi saya dan kompas" }, locateOptions: { enableHighAccuracy: true }, compass: true, showCompass: true }).addTo(map);
+    const BencanaIcon = L.Icon.extend({
+        options: {
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+            iconSize:     [25, 41], iconAnchor:   [12, 41], popupAnchor:  [1, -34], shadowSize:   [41, 41]
+        }
+    });
+    const iconRusakBerat = new BencanaIcon({iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png'});
+    const iconRusakSedang = new BencanaIcon({iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png'});
+    const iconRusakRingan = new BencanaIcon({iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png'});
+    
+    fetch(DATA_URL).then(r => r.json()).then(data => {
+        loader.style.display = 'none'; const bencanaCounts = {}; const overlayMaps = {}; const layerGroups = {};
+        data.forEach(item => { const bencana = item.bencana || "Tidak Terkategori"; if (!layerGroups[bencana]) { layerGroups[bencana] = L.layerGroup().addTo(map); overlayMaps[bencana] = layerGroups[bencana]; } });
+        data.forEach(item => {
+            const bencana = item.bencana || "Tidak Terkategori"; let chosenIcon = iconRusakRingan;
+            if (item.kerusakan === 'Rusak Berat') chosenIcon = iconRusakBerat; else if (item.kerusakan === 'Rusak Sedang') chosenIcon = iconRusakSedang;
+            const marker = L.marker([item.lat, item.lng], {icon: chosenIcon}); marker.on('click', () => openSidebarWithData(item));
+            if (layerGroups[bencana]) { layerGroups[bencana].addLayer(marker); } bencanaCounts[bencana] = (bencanaCounts[bencana] || 0) + 1;
+        });
+        L.control.layers(baseMaps, overlayMaps, { position: 'bottomright' }).addTo(map);
+        const summaryContent = document.getElementById('summary-content'); summaryContent.innerHTML = '';
+        for (const bencana in bencanaCounts) { const count = bencanaCounts[bencana]; const statHTML = `<div class="stat-item"><span>${bencana}:</span> <span>${count}</span></div>`; summaryContent.innerHTML += statHTML; }
+        document.getElementById('stat-total').innerText = data.length;
+    }).catch(error => { console.error('Gagal mengambil data:', error); loader.style.display = 'none'; alert("Tidak dapat memuat data lokasi."); });
+    
+    function openSidebarWithData(data) {
+        const sidebar = document.getElementById('sidebar');
+        const content = document.getElementById('sidebar-content');
+        const sidebarTitle = document.getElementById('sidebar-header').querySelector('h3');
+        const routeButton = document.getElementById('route-button-link');
+
+        let galleryHtml = '';
+        if (data.photos && data.photos.length > 0) {
+            galleryHtml += '<h4>Dokumentasi Foto</h4><div class="sidebar-gallery">';
+            data.photos.forEach((photoUrl, index) => {
+                if(photoUrl){ galleryHtml += `<a href="${photoUrl}" target="_blank" class="photo-link" title="Buka foto di tab baru">📷 Foto ${index + 1}</a>`; }
+            });
+            galleryHtml += '</div>';
+        }
+        
+        const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${data.lat},${data.lng}`;
+
+        sidebarTitle.innerText = data.nama || 'Detail Laporan';
+        content.innerHTML = `<h4>Detail Lokasi</h4><p><strong>Jalan/Dusun:</strong><br>${data.dusun||'Tidak ada data'}</p><p><strong>Kelurahan/Desa:</strong><br>${data.kelurahan||'Tidak ada data'}</p><p><strong>Kecamatan:</strong><br>${data.kecamatan||'Tidak ada data'}</p><h4>Detail Bencana & Asesmen</h4><p><strong>Jenis Bencana:</strong><br>${data.bencana||'Tidak ada data'}</p><p><strong>Waktu Asesmen:</strong><br>${data.hari||''}, ${data.tanggalWaktu||''}</p><p><strong>Pengkajian:</strong><br>${data.pengkajian||'Tidak ada data'}</p><h4>Detail Kerusakan & Kerugian</h4><p><strong>Tingkat Kerusakan:</strong><br>${data.kerusakan||'Tidak ada data'}</p><p><strong>Bagian Rusak:</strong><br>${data.bagianRusak||'Tidak ada data'}</p><p><strong>Taksiran Kerusakan:</strong><br>${data.nilaiKerusakan||'Tidak ada data'}</p><p><strong>Taksiran Kerugian:</strong><br>${data.nilaiKerugian||'Tidak ada data'}</p>${galleryHtml}`;
+        routeButton.href = googleMapsUrl;
+        sidebar.classList.add('visible');
+    }
+    function closeSidebar() { document.getElementById('sidebar').classList.remove('visible'); }
+</script>
+
+</body>
+</html>
