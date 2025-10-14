@@ -57,7 +57,7 @@
         .mobile-menu-item button { width: 100%; padding: 12px; font-size: 1em; background-color: #007bff; color: white; border: none; border-radius: 5px; }
         #notification { position: absolute; top: 65px; left: 50%; transform: translateX(-50%); background-color: #28a745; color: white; padding: 10px 20px; border-radius: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.25); z-index: 2001; cursor: default; display: none; transition: top 0.5s ease; }
 
-        /* --- PERUBAHAN STYLE UNTUK HOVER DAN TOMBOL --- */
+        
         .close-btn, .modal-close-btn {
             padding: 2px 10px; background-color: #adb5bd; color: white; border: none;
             border-radius: 5px; font-size: 1.5em; line-height: 1.2; cursor: pointer;
@@ -109,7 +109,7 @@
         #fullscreen-btn:hover { opacity: 1; }
         #fullscreen-btn svg { width: 24px; height: 24px; fill: #6c757d; }
 
-        /* --- PENAMBAHAN: Animasi untuk Marker Baru --- */
+
         @keyframes pulse-glow {
             0% {
                 box-shadow: 0 0 0 0 rgba(23, 162, 184, 0.7);
@@ -236,7 +236,7 @@
         const bencanaCounts = {};
         data.forEach(item => { const bencana = item.bencana || "Tidak Terkategori"; if (!layerGroups[bencana]) { layerGroups[bencana] = L.layerGroup().addTo(map); overlayMaps[bencana] = layerGroups[bencana]; } });
         
-        // --- MODIFIKASI UTAMA: Event Listener Hover & Pembeda Data Baru ---
+
         data.forEach(item => {
             const bencana = item.bencana || "Tidak Terkategori";
             let chosenIcon = iconRusakRingan;
@@ -249,20 +249,20 @@
                 chosenLargeIcon = iconRusakSedangLarge;
             }
 
-            // --- PENAMBAHAN: Logika untuk membedakan data baru ---
+
             const now = new Date();
             const itemDate = new Date(item.tanggalWaktu);
-            // Hitung selisih waktu dalam jam
+
             const diffHours = (now - itemDate) / (1000 * 60 * 60);
-            // Cek apakah data masuk dalam 24 jam terakhir & tanggalnya valid
+
             const isNew = diffHours <= 24 && !isNaN(diffHours);
 
             let finalIcon = chosenIcon;
             let finalLargeIcon = chosenLargeIcon;
             
-            // Jika data baru, buat instance ikon baru dengan class 'marker-new'
+
             if (isNew) {
-                // Gunakan L.Icon dan L.Icon.extend untuk membuat instance baru
+
                 finalIcon = new L.Icon({ ...chosenIcon.options, className: 'marker-new' });
                 finalLargeIcon = new (L.Icon.extend({ options: chosenLargeIcon.options }))({className: 'marker-new' });
             }
@@ -272,7 +272,7 @@
             marker.on('mouseover', function() { this.setIcon(finalLargeIcon); });
             marker.on('mouseout', function() { this.setIcon(finalIcon); });
             marker.on('click', () => {
-                // Saat diklik, kembalikan ke ikon normal (tanpa hover)
+
                 marker.setIcon(finalIcon); 
                 openSidebarWithData(item);
             });
@@ -324,4 +324,5 @@
 </script>
 
 </body>
+
 </html>
