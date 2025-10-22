@@ -22,7 +22,7 @@
               "display": ["Inter", "sans-serif"]
             },
             borderRadius: {
-              "DEFAULT": "0.75rem", // Disesuaikan sedikit
+              "DEFAULT": "0.75rem",
               "lg": "1rem",
               "xl": "1.5rem"
             },
@@ -35,7 +35,7 @@
       /* */
       body {
         font-family: 'Inter', sans-serif;
-        overflow-y: hidden; /* Mencegah double scrollbar */
+        overflow-y: hidden; 
 
       }
       /* */
@@ -44,13 +44,12 @@
       }
 
       .dot {
-        width: 12px; /* Ukuran titik */
+        width: 12px; 
         height: 12px;
-        background-color: #007BFF; /* Warna titik (primary color) */
+        background-color: #007BFF;
         border-radius: 50%;
       }
-
-      /* Animasi */
+      
       @keyframes loader-dot-pulse {
         0%, 80%, 100% {
           transform: scale(0);
@@ -66,82 +65,66 @@
         animation: loader-dot-pulse 1.4s infinite ease-in-out both;
       }
 
-      /* Delay untuk titik kedua dan ketiga */
       .animation-delay-200 {
         animation-delay: 0.16s;
       }
       .animation-delay-400 {
         animation-delay: 0.32s;
       }
-      /* */
       @keyframes pulse-glow {
         0% { 
           filter: drop-shadow(0 0 2px rgba(23, 162, 184, 0.7)); 
-          /* opacity: 0.7; (Opsional: buat ikon sedikit transparan di awal) */
         } 
         70% { 
-          filter: drop-shadow(0 0 10px rgba(23, 162, 184, 0)); /* Glow menyebar */
-          /* opacity: 1; (Opsional: kembali normal) */
+          filter: drop-shadow(0 0 10px rgba(23, 162, 184, 0));
         }
         100% { 
           filter: drop-shadow(0 0 2px rgba(23, 162, 184, 0)); 
-          /* opacity: 0.7; (Opsional: kembali transparan) */
         }
       }
 
       .marker-new img {
         animation: pulse-glow 2s infinite;
       }
-      /* Perbaikan z-index untuk Leaflet controls agar di atas sidebar detail */
       .leaflet-control-container {
         z-index: 10 !important;
       }
 
-      /* === CSS BARU UNTUK LAYER CONTROL DARK MODE === */
-      /* Style dasar (Light mode - ini mungkin sudah ada/default) */
       .leaflet-control-layers {
-        background-color: white; /* Background putih */
+        background-color: white;
         box-shadow: 0 1px 5px rgba(0,0,0,0.4);
         border-radius: 5px;
       }
       .leaflet-control-layers a {
-         /* Icon default Leaflet menggunakan background-image,
-            jadi kita tidak bisa langsung ganti warna ikonnya
-            dengan 'color'. Tapi kita bisa pastikan teks (jika ada)
-            dan background-nya kontras. */
-         color: #333; /* Warna teks (jika ada) gelap */
+         color: #333;
       }
       .leaflet-control-layers-separator {
-          border-top: 1px solid #ddd; /* Garis pemisah terang */
+          border-top: 1px solid #ddd;
       }
-      .leaflet-control-layers-selector { /* Checkbox/radio */
+      .leaflet-control-layers-selector {
         vertical-align: middle;
       }
       .leaflet-control-layers label {
-        color: #333; /* Warna label terang */
-        display: inline-block; /* Agar padding bekerja */
+        color: #333;
+        display: inline-block;
         padding: 4px 6px;
       }
 
-      /* Style Dark Mode */
       .dark .leaflet-control-layers {
-        background-color: #1E1E1E; /* Background gelap (card-dark) */
-        box-shadow: 0 1px 5px rgba(255, 255, 255, 0.2); /* Shadow lebih terang */
-        border: 1px solid #333333; /* Border gelap (border-dark) */
+        background-color: #1E1E1E;
+        box-shadow: 0 1px 5px rgba(255, 255, 255, 0.2);
+        border: 1px solid #333333;
       }
       .dark .leaflet-control-layers a {
-        /* Ikon Leaflet default mungkin tetap gelap, kontrasnya mungkin kurang ideal */
-         color: #EAEAEA; /* Warna teks (jika ada) terang */
+         color: #EAEAEA;
       }
        .dark .leaflet-control-layers-separator {
-          border-top: 1px solid #333333; /* Garis pemisah gelap */
+          border-top: 1px solid #333333;
       }
        .dark .leaflet-control-layers label {
-        color: #EAEAEA; /* Warna label gelap */
+        color: #EAEAEA;
       }
-      /* === AKHIR CSS LAYER CONTROL === */
 
-      /* Scrollbar kustom untuk sidebar */
       .custom-scrollbar::-webkit-scrollbar { width: 4px; }
       .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #c4c4c4; border-radius: 4px; }
       .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
@@ -149,9 +132,7 @@
       
 
       #loader {
-        /* Style loader Anda yg lama (position, z-index, dll.)
-           ATAU style loader titik (position, display: flex, background, z-index) */
-        opacity: 1; /* Awalnya terlihat */
+        opacity: 1;
         transition: opacity 0.5s ease-out; /* Efek fade 0.5 detik */
       }
     </style>
@@ -425,12 +406,7 @@
 
 
     <script>
-        // =============================================
-        // SKRIP DARI KODE UTAMA (Fungsionalitas Inti)
-        //
-        // =============================================
 
-        // --- Variabel Global ---
         const DATA_URL = 'https://script.google.com/macros/s/AKfycbws1Ec9QPxiKP6xVLJILV8Ac6SJt0rdcXUuMezRAfvLHZQMeYolh-6ZP41S7R4UTaDy/exec'; //
         let allData = []; //
         let layerGroups = {}; //
@@ -1351,9 +1327,6 @@ async function fetchWeather() {
         closeFilterBtn.addEventListener('click', closeFilterSidebar);
         filterOverlay.addEventListener('click', closeFilterSidebar);
 
-        // =============================================
-        // SKRIP UNTUK FITUR BARU (Filter)
-        // =============================================
 
         const timeFilterButtons = document.querySelectorAll('#time-filter-buttons .filter-btn');
         timeFilterButtons.forEach(button => {
@@ -1372,4 +1345,5 @@ async function fetchWeather() {
     </script>
 
 </body>
+
 </html>
