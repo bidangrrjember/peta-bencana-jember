@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="id" class="light">
+<head>
+    <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Dashboard Peta Bencana</title> <link rel="icon" href="https://bidangrrjember.github.io/peta-bencana-jember/logo-bpbd.png" type="image/png"> <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/> <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.css" /> <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.js" charset="utf-8"></script> <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script> <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" /> <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/> <script>
+      //
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#007BFF",
+              "background-light": "#F6F7F9",
+              "background-dark": "#121212",
+              "card-light": "#FFFFFF",
+              "card-dark": "#1E1E1E",
+              "text-light": "#333333",
+              "text-dark": "#EAEAEA",
+              "border-light": "#E0E0E0",
+              "border-dark": "#333333"
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"]
+            },
+            borderRadius: {
+              "DEFAULT": "0.75rem", // Disesuaikan sedikit
+              "lg": "1rem",
+              "xl": "1.5rem"
+            },
+          },
+        },
+      }
+    </script>
+
+    <style>
+      /* */
+      body {
+        font-family: 'Inter', sans-serif;
+        overflow-y: hidden; /* Mencegah double scrollbar */
+
+      }
+      /* */
+      .leaflet-pane[style*="z-index: 650"] {
+        pointer-events: none;
+      }
+
+      .dot {
+        width: 12px; /* Ukuran titik */
+        height: 12px;
+        background-color: #007BFF; /* Warna titik (primary color) */
+        border-radius: 50%;
+      }
+
+      /* Animasi */
+      @keyframes loader-dot-pulse {
+        0%, 80%, 100% {
+          transform: scale(0);
+          opacity: 0.5;
+        }
+        40% {
+          transform: scale(1.0);
+          opacity: 1;
+        }
+      }
+
+      .animate-loader-dot {
+        animation: loader-dot-pulse 1.4s infinite ease-in-out both;
+      }
+
+      /* Delay untuk titik kedua dan ketiga */
+      .animation-delay-200 {
+        animation-delay: 0.16s;
+      }
+      .animation-delay-400 {
+        animation-delay: 0.32s;
+      }
+      /* */
+      @keyframes pulse-glow {
+        0% { 
+          filter: drop-shadow(0 0 2px rgba(23, 162, 184, 0.7)); 
+          /* opacity: 0.7; (Opsional: buat ikon sedikit transparan di awal) */
+        } 
+        70% { 
+          filter: drop-shadow(0 0 10px rgba(23, 162, 184, 0)); /* Glow menyebar */
+          /* opacity: 1; (Opsional: kembali normal) */
+        }
+        100% { 
+          filter: drop-shadow(0 0 2px rgba(23, 162, 184, 0)); 
+          /* opacity: 0.7; (Opsional: kembali transparan) */
+        }
+      }
+
+      .marker-new img {
+        animation: pulse-glow 2s infinite;
+      }
+      /* Perbaikan z-index untuk Leaflet controls agar di atas sidebar detail */
+      .leaflet-control-container {
+        z-index: 10 !important;
+      }
+
+      /* === CSS BARU UNTUK LAYER CONTROL DARK MODE === */
+      /* Style dasar (Light mode - ini mungkin sudah ada/default) */
+      .leaflet-control-layers {
+        background-color: white; /* Background putih */
+        box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+        border-radius: 5px;
+      }
+      .leaflet-control-layers a {
+         /* Icon default Leaflet menggunakan background-image,
+            jadi kita tidak bisa langsung ganti warna ikonnya
+            dengan 'color'. Tapi kita bisa pastikan teks (jika ada)
+            dan background-nya kontras. */
+         color: #333; /* Warna teks (jika ada) gelap */
+      }
+      .leaflet-control-layers-separator {
+          border-top: 1px solid #ddd; /* Garis pemisah terang */
+      }
+      .leaflet-control-layers-selector { /* Checkbox/radio */
+        vertical-align: middle;
+      }
+      .leaflet-control-layers label {
+        color: #333; /* Warna label terang */
+        display: inline-block; /* Agar padding bekerja */
+        padding: 4px 6px;
+      }
+
+      /* Style Dark Mode */
+      .dark .leaflet-control-layers {
+        background-color: #1E1E1E; /* Background gelap (card-dark) */
+        box-shadow: 0 1px 5px rgba(255, 255, 255, 0.2); /* Shadow lebih terang */
+        border: 1px solid #333333; /* Border gelap (border-dark) */
+      }
+      .dark .leaflet-control-layers a {
+        /* Ikon Leaflet default mungkin tetap gelap, kontrasnya mungkin kurang ideal */
+         color: #EAEAEA; /* Warna teks (jika ada) terang */
+      }
+       .dark .leaflet-control-layers-separator {
+          border-top: 1px solid #333333; /* Garis pemisah gelap */
+      }
+       .dark .leaflet-control-layers label {
+        color: #EAEAEA; /* Warna label gelap */
+      }
+      /* === AKHIR CSS LAYER CONTROL === */
+
+      /* Scrollbar kustom untuk sidebar */
+      .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #c4c4c4; border-radius: 4px; }
+      .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+
+      
+
+      #loader {
+        /* Style loader Anda yg lama (position, z-index, dll.)
+           ATAU style loader titik (position, display: flex, background, z-index) */
+        opacity: 1; /* Awalnya terlihat */
+        transition: opacity 0.5s ease-out; /* Efek fade 0.5 detik */
+      }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark font-display">
+    
+<div id="loader" class="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-background-light dark:bg-background-dark z-[9999]">
+    <div class="flex space-x-2">
+        <div class="dot animate-loader-dot"></div>
+        <div class="dot animate-loader-dot animation-delay-200"></div>
+        <div class="dot animate-loader-dot animation-delay-400"></div>
+    </div>
+</div>
+
+    <div id="notification" class="hidden fixed top-24 left-1/2 -translate-x-1/2 bg-green-500 text-white py-3 px-6 rounded-lg shadow-lg z-[9998] transition-all duration-500 ease-in-out"></div>
+
+<audio id="notification-sound" preload="auto">
+        <source src="https://bidangrrjember.github.io/peta-bencana-jember/notification-sound.mp3" type="audio/mpeg">
+        Browser Anda tidak mendukung elemen audio.
+    </audio>
+    
+    <div class="flex h-screen">
+        <aside id="filter-sidebar" class="fixed lg:static w-64 bg-card-light dark:bg-card-dark flex flex-col p-6 border-r border-border-light dark:border-border-dark h-full z-30
+                                        transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+            
+            <div class="flex items-center justify-between gap-3 mb-8">
+                <div class="flex items-center gap-3">
+                    <img src="https://bidangrrjember.github.io/peta-bencana-jember/logo-bpbd.png" alt="Logo" class="h-8 w-8"> <h1 class="text-xl font-bold text-text-light dark:text-text-dark">BPBD Jember</h1>
+                </div>
+                <button id="close-filter-btn" class="lg:hidden text-gray-500 dark:text-gray-400">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="flex-grow overflow-y-auto custom-scrollbar">
+                <h2 class="text-sm font-semibold uppercase text-gray-500 dark:text-gray-400 mb-4">Filter Data</h2>
+                <div class="space-y-6">
+
+                    <div>
+                        <h3 class="text-sm font-medium mb-3">Filter Waktu</h3>
+                        <div class="flex flex-col space-y-2" id="time-filter-buttons">
+                            <button data-filter="7days" class="filter-btn w-full text-sm text-left px-4 py-2 rounded border border-border-light dark:border-border-dark hover:bg-primary/10 transition-colors">7 Hari Terakhir</button>
+                            <button data-filter="1month" class="filter-btn w-full text-sm text-left px-4 py-2 rounded border border-border-light dark:border-border-dark hover:bg-primary/10 transition-colors">1 Bulan Terakhir</button>
+                            <button data-filter="1year" class="filter-btn w-full text-sm text-left px-4 py-2 rounded border border-border-light dark:border-border-dark hover:bg-primary/10 transition-colors">1 Tahun Terakhir</button>
+                            <button data-filter="all" class="filter-btn w-full text-sm text-left px-4 py-2 rounded border border-border-light dark:border-border-dark hover:bg-primary/10 transition-colors bg-primary/10 text-primary font-medium">Semua Waktu</button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm font-medium" for="kecamatan-filter">Kecamatan</label>
+                        <select class="mt-1 block w-full rounded border-border-light dark:border-border-dark bg-background-light dark:bg-card-dark focus:ring-primary focus:border-primary text-sm" id="kecamatan-filter">
+                            <option>Semua Kecamatan</option>
+                            </select>
+                    </div>
+                                </div>
+            </div>
+
+	<div id="weather-forecast-container" 
+     class="p-6 border-t border-border-light dark:border-border-dark">
+  <h3 class="text-sm font-semibold uppercase text-gray-500 dark:text-gray-400 mb-4">
+    Prakiraan Cuaca
+  </h3>
+  <div class="flex items-center gap-4 mb-3">
+    <span id="weather-icon" class="material-symbols-outlined text-5xl text-primary">
+      hourglass_empty
+    </span>
+    <div>
+      <p id="weather-temp" class="text-3xl font-bold">--°C</p>
+      <p id="weather-desc" class="text-sm text-gray-500 dark:text-gray-400">
+        Memuat...
+      </p>
+    </div>
+  </div>
+  <p id="weather-range" class="text-xs text-gray-500 dark:text-gray-400 mb-3">
+    Tertinggi: --° / Terendah: --°
+  </p>
+  <p class="text-[10px] text-gray-400 dark:text-gray-500">
+    Didukung oleh 
+    <a href="https://open-meteo.com/" target="_blank" class="underline hover:text-primary">
+      Open-Meteo.com
+    </a>
+  </p>
+</div>
+
+
+        </aside>
+
+        <div id="filter-overlay" class="fixed inset-0 bg-black/30 z-20 lg:hidden hidden"></div>
+
+
+        <main class="flex-1 flex flex-col overflow-hidden h-screen">
+            
+            <header class="flex items-center justify-between p-4 lg:p-6 border-b border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark">
+                <div class="flex items-center gap-4">
+                    <button id="hamburger-btn" class="lg:hidden text-text-light dark:text-text-dark flex size-10 shrink-0 items-center justify-center">
+                        <span class="material-symbols-outlined text-2xl">menu</span>
+                    </button>
+                    <h1 class="text-xl lg:text-2xl font-bold text-text-light dark:text-text-dark hidden sm:block">
+                        Peta Monitoring Pengkajian Kebutuhan Pasca Bencana
+                    </h1>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <button id="dashboard-btn" class="flex items-center justify-center gap-2 w-10 md:w-auto cursor-pointer rounded h-10 md:px-4 bg-primary text-white text-sm font-bold transition-transform hover:scale-105">
+                        <span class="material-symbols-outlined text-lg">bar_chart</span>
+                        <span class="hidden md:inline">Tampilkan Analisis</span>
+                    </button>
+
+                    <a href="https://bidangrrjember.github.io/geocode/" target="_blank" title="Isi Laporan Jitupasna" 
+                       class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-text-light dark:text-text-dark">
+                        <span class="material-symbols-outlined">edit_location_alt</span>
+                    </a>
+
+                    <button id="fullscreen-btn" title="Mode Layar Penuh" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-text-light dark:text-text-dark">
+                        <span class="material-symbols-outlined">fullscreen</span>
+                    </button>
+                    
+                    <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-text-light dark:text-text-dark">
+                        <span class="material-symbols-outlined dark:hidden">dark_mode</span>
+                        <span class="material-symbols-outlined hidden dark:inline">light_mode</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="flex-1 p-4 lg:p-6 overflow-y-auto custom-scrollbar bg-background-light dark:bg-background-dark">
+                
+                <div id="summary-box" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="flex flex-col gap-2 rounded-lg p-6 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-sm">
+                        <p class="text-base font-medium text-gray-500 dark:text-gray-400">Total Bencana</p>
+                        <p id="stat-total" class="text-3xl font-bold">0</p>
+                    </div>
+                    <div id="summary-content-wrapper" class="md:col-span-2 flex flex-col gap-2 rounded-lg p-6 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-sm">
+                        <p class="text-base font-medium text-gray-500 dark:text-gray-400 mb-2">Ringkasan Bencana</p>
+                        <div id="summary-content" class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                            <div class="stat-item flex justify-between font-medium"><span class="text-gray-600 dark:text-gray-300">Memuat...</span> <span>-</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+                    <div class="xl:col-span-2">
+                        <div id="map-card" class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm border border-border-light dark:border-border-dark p-2 mb-6 h-96 xl:h-auto">
+                            <div class="relative w-full h-full">
+                                <div id="map" class="w-full h-full rounded-lg z-10"></div>
+                                <label class="absolute top-4 left-4 right-4 z-20 flex flex-col h-12">
+                                    <div class="flex w-full flex-1 items-stretch rounded-lg h-full shadow-md">
+                                        <div class="text-gray-500 flex border-none bg-card-light dark:bg-card-dark items-center justify-center pl-4 rounded-l-lg border-r-0">
+                                            <span class="material-symbols-outlined">search</span>
+                                        </div>
+                                        <input id="search-input" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-0 border-none bg-card-light dark:bg-card-dark h-full placeholder:text-gray-500 dark:placeholder:text-gray-400 pl-2 text-base font-normal" placeholder="Cari nama, dusun, atau kecamatan..."/>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="xl:col-span-1">
+                        <div id="table-card" class="overflow-hidden rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark shadow-sm">
+                            <h3 id="table-header" class="p-4 text-lg font-bold text-[#0c141d] dark:text-white border-b border-border-light dark:border-border-dark">Laporan Terbaru</h3>
+                            
+                            <div id="table-scroll-container" class="overflow-x-auto overflow-y-auto custom-scrollbar">
+                                <table class="w-full text-sm text-left">
+                                    <thead class="bg-background-light dark:bg-background-dark sticky top-0">
+                                        <tr>
+                                            <th class="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">Lokasi (Korban)</th>
+                                            <th class="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">Kerusakan</th>
+                                            <th class="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">Tanggal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="data-table-body" class="divide-y divide-border-light dark:divide-border-dark">
+                                        <tr><td colspan="3" class="px-6 py-4 text-center text-gray-500">Memuat data...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <div id="sidebar" class="fixed top-0 right-0 w-full max-w-md h-full bg-card-light dark:bg-card-dark shadow-2xl z-40
+                                flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out">
+            <div id="sidebar-header" class="p-5 flex justify-between items-center border-b border-border-light dark:border-border-dark flex-shrink-0">
+                <h3 id="sidebar-title" class="text-lg font-bold">Detail Laporan</h3>
+                <button class="close-btn text-3xl font-light text-gray-500 hover:text-red-500" onclick="closeSidebar()">×</button>
+            </div>
+            <div id="sidebar-content" class="p-5 overflow-y-auto flex-1 custom-scrollbar space-y-4">
+                </div>
+            <div id="sidebar-footer" class="p-4 text-center border-t border-border-light dark:border-border-dark flex-shrink-0 flex justify-center gap-4">
+                <a href="#" id="download-laporan-btn" target="_blank" class="download-button inline-block px-6 py-3 bg-green-600 text-white rounded-lg font-medium text-sm transition-colors hover:bg-green-700">
+                    Laporan JITUPASNA
+                </a>
+                <a href="#" id="route-button-link" target="_blank" class="route-button inline-block px-6 py-3 bg-blue-600 text-white rounded-lg font-medium text-sm transition-colors hover:bg-blue-700">
+                    Buka Rute
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div id="dashboard-modal" class="hidden fixed z-50 inset-0 bg-black/60 overflow-auto flex items-start justify-center p-4 sm:p-8">
+        <div class="modal-content bg-card-light dark:bg-card-dark w-full mx-auto my-8 p-6 rounded-lg shadow-xl relative">
+            <div class="modal-header flex justify-between items-center border-b border-border-light dark:border-border-dark pb-3 mb-5">
+                <h2 class="text-2xl font-bold">Analisis Data Bencana</h2>
+                <button class="modal-close-btn text-3xl font-light text-gray-500 hover:text-red-500">×</button>
+            </div>
+            
+            <div class="chart-grid grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="chart-container p-4 rounded-lg border border-border-light dark:border-border-dark shadow-sm">
+                    <h5 class="text-center font-semibold mb-3">Total Bencana per Kecamatan</h5>
+                    <canvas id="chartKecamatan"></canvas>
+                </div>
+                <div class="chart-container p-4 rounded-lg border border-border-light dark:border-border-dark shadow-sm">
+                    <h5 class="text-center font-semibold mb-3">Total Bencana per Tingkat Kerusakan</h5>
+                    <canvas id="chartKerusakan"></canvas>
+                </div>
+                <div class="chart-container p-4 rounded-lg border border-border-light dark:border-border-dark shadow-sm">
+                    <h5 class="text-center font-semibold mb-3">Kerusakan per Jenis Konstruksi</h5>
+                    <canvas id="chartKonstruksi"></canvas>
+                </div>
+                <div class="chart-container p-4 rounded-lg border border-border-light dark:border-border-dark shadow-sm lg:col-span-3 force-bantuan-layout" id="bantuan-table-container">
+    <h5 class="text-center font-semibold mb-3">Total Bantuan Stimulan Diberikan</h5>
+    <style>
+        /* Target khusus untuk layout bantuan */
+        .force-bantuan-layout .bantuan-table-wrapper {
+            overflow-x: auto !important; /* Paksa scroll horizontal */
+            width: 100% !important;
+            -webkit-overflow-scrolling: touch;
+        }
+        .force-bantuan-layout .bantuan-table {
+            width: 100% !important; /* Paksa tabel mengisi wrapper */
+            border-collapse: collapse !important;
+            margin-top: 10px !important;
+            table-layout: auto !important; /* Biarkan browser atur kolom */
+        }
+        .force-bantuan-layout .bantuan-table th,
+        .force-bantuan-layout .bantuan-table td {
+            border: 1px solid #E0E0E0 !important;
+            padding: 6px 8px !important;
+            text-align: center !important;
+            font-size: 0.9em !important;
+            white-space: nowrap !important; /* Paling penting: jangan potong teks */
+        }
+        .force-bantuan-layout .bantuan-table th {
+            background-color: #F6F7F9 !important;
+            font-weight: 500 !important;
+            position: sticky !important; /* Header tetap di atas */
+            top: 0;
+            z-index: 1;
+        }
+        /* Style Dark Mode (juga dipaksa) */
+        .dark .force-bantuan-layout .bantuan-table th,
+        .dark .force-bantuan-layout .bantuan-table td {
+            border-color: #333333 !important;
+        }
+        .dark .force-bantuan-layout .bantuan-table th {
+            background-color: #1E1E1E !important;
+        }
+    </style>
+    <div class="bantuan-table-wrapper">
+        <table class="bantuan-table">
+            </table>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // =============================================
+        // SKRIP DARI KODE UTAMA (Fungsionalitas Inti)
+        //
+        // =============================================
+
+        // --- Variabel Global ---
+        const DATA_URL = 'https://script.google.com/macros/s/AKfycbws1Ec9QPxiKP6xVLJILV8Ac6SJt0rdcXUuMezRAfvLHZQMeYolh-6ZP41S7R4UTaDy/exec'; //
+        let allData = []; //
+        let layerGroups = {}; //
+        let mainLayerControl; //
+        let chartKecamatanInstance, chartKerusakanInstance, chartKonstruksiInstance; //
+        let heatLayer; //
+        let currentTimeFilter = 'all'; // Variabel baru untuk filter waktu
+        let allKecamatan = new Set(); // Variabel baru untuk filter kecamatan
+	let isAudioUnlocked = false;
+	let fetchInterval; 
+
+        // --- Inisialisasi Peta ---
+        const map = L.map('map', { center: [-8.17, 113.70], zoom: 12, attributionControl: false, zoomControl: false }); //
+        const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map); //
+        const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: '© Esri' }); //
+        const dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '© CARTO' }); //
+        const terrain = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { attribution: '© OpenTopoMap' }); //
+        const labels = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', { attribution: '© CARTO', pane: 'labels' }); //
+        const hybrid = L.layerGroup([satellite, labels]); //
+        const baseMaps = { "Peta Jalan": osm, "Satelit Hybrid": hybrid, "Mode Gelap": dark, "Topografi": terrain }; //
+        map.createPane('labels'); map.getPane('labels').style.zIndex = 650; //
+        
+        // --- Kontrol Tombol Jitupasna ---
+        //
+
+        // --- Definisi Ikon Marker ---
+        //
+        const BencanaIcon = L.Icon.extend({ options: { shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] } });
+        const BencanaIconLarge = L.Icon.extend({ options: { shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png', iconSize: [38, 62], iconAnchor: [19, 62], popupAnchor: [1, -54], shadowSize: [62, 62] } });
+        const iconRusakBerat = new BencanaIcon({iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png'});
+        const iconRusakSedang = new BencanaIcon({iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png'});
+        const iconRusakRingan = new BencanaIcon({iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png'});
+        const iconRusakBeratLarge = new BencanaIconLarge({iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png'});
+        const iconRusakSedangLarge = new BencanaIconLarge({iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png'});
+        const iconRusakRinganLarge = new BencanaIconLarge({iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png'});
+
+        // --- DOM Elements ---
+        const dashboardModal = document.getElementById('dashboard-modal');
+        const loader = document.getElementById('loader');
+        const notification = document.getElementById('notification');
+        const summaryContentEl = document.getElementById('summary-content');
+        const statTotalEl = document.getElementById('stat-total');
+        const dataTableBody = document.getElementById('data-table-body');
+        const sidebar = document.getElementById('sidebar');
+
+        // --- Event Listener: Modal Analisis ---
+        //... (di sekitar baris 401)
+document.getElementById('dashboard-btn').onclick = () => {
+    clearInterval(fetchInterval); // Hentikan timer (ini sudah benar)
+    dashboardModal.style.display = 'flex'; // Tampilkan modal
+    applyFiltersAndProcess(); // Panggil fungsi proses UTAMA
+};
+        // Logika tombol close
+        document.querySelector('.modal-close-btn').onclick = () => { 
+    dashboardModal.style.display = 'none'; 
+    fetchInterval = setInterval(fetchData, 5000); // <-- JALANKAN LAGI
+};
+        // Logika klik di luar modal untuk menutup
+        dashboardModal.onclick = (event) => {
+    if (event.target == dashboardModal) {
+        dashboardModal.style.display = 'none';
+        fetchInterval = setInterval(fetchData, 5000); // <-- JALANKAN LAGI
+    }
+};
+
+        // --- Event Listener: Search ---
+        //
+        document.getElementById('search-input').addEventListener('keyup', function(event) { 
+            if (event.key === 'Enter') { 
+                const query = event.target.value.toLowerCase(); 
+                if (!query) return; 
+                const currentFilteredData = getFilteredData();
+                const result = currentFilteredData.find(item => (item.nama && item.nama.toLowerCase().includes(query)) || (item.dusun && item.dusun.toLowerCase().includes(query)) || (item.kecamatan && item.kecamatan.toLowerCase().includes(query))); 
+                if (result) { 
+                    map.flyTo([result.lat, result.lng], 16); 
+                    openSidebarWithData(result); 
+                } else { 
+                    showNotification('Data tidak ditemukan untuk filter saat ini.'); 
+                } 
+            } 
+        });
+
+        // --- Event Listener: Fullscreen ---
+        //
+        document.getElementById('fullscreen-btn').addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        });
+
+        // --- Fungsi Pemrosesan Data ---
+
+        function applyFiltersAndProcess() {
+            const filteredData = getFilteredData();
+            processMapData(filteredData);
+           if (dashboardModal.style.display === 'flex') {
+                updateDashboardCharts(filteredData);
+            }
+            updateDataTable(filteredData);
+            if (allKecamatan.size === 0) {
+                allData.forEach(item => {
+                    if (item.kecamatan) allKecamatan.add(item.kecamatan);
+                });
+                updateKecamatanFilter();
+            }
+        }
+	
+	function unlockAudio() {
+            if (!isAudioUnlocked) { // Hanya jalankan sekali
+                const audio = document.getElementById('notification-sound');
+                if (audio) {
+                    // Coba putar suara tapi dibisukan
+                    audio.muted = true;
+                    audio.play().then(() => {
+                        // Jika berhasil (meskipun dibisukan), set status jadi unlocked
+                        isAudioUnlocked = true;
+                        console.log("Audio context unlocked."); // Pesan di console (opsional)
+                        // Hentikan suara yang dibisukan tadi (opsional, tapi lebih baik)
+                        audio.pause();
+                        audio.currentTime = 0;
+                        audio.muted = false; // Kembalikan agar bisa bersuara nanti
+                        // Hapus listener ini agar tidak berjalan lagi
+                        document.removeEventListener('click', unlockAudio);
+                        document.removeEventListener('touchstart', unlockAudio); // Juga untuk mobile
+                    }).catch(error => {
+                        // Jika gagal bahkan saat dibisukan, mungkin ada masalah lain
+                        console.error("Gagal membuka kunci audio:", error);
+                    });
+                }
+            }
+        }
+
+        // Tambahkan listener ke dokumen untuk klik atau sentuhan pertama
+        document.addEventListener('click', unlockAudio);
+        document.addEventListener('touchstart', unlockAudio);
+
+/**
+         * FUNGSI KRUSIAL 3: FILTER (getFilteredData)
+         * Tugas: Membaca 'item.dateObj' untuk memfilter waktu
+         */
+        function getFilteredData() {
+            // 1. Tentukan 'hari ini' jam 00:00:00
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); 
+
+            let timeFilteredData = allData.filter(item => {
+                // Selalu loloskan filter 'Semua Waktu'
+                if (currentTimeFilter === 'all') {
+                    return true;
+                }
+
+                // 2. Dapatkan tanggal item (yang sudah dibuat oleh fetchData)
+                const itemDate = item.dateObj; 
+                
+                // Jika tanggal tidak valid (gagal parsing), jangan tampilkan
+                if (!itemDate) { 
+                    return false; 
+                }
+
+                // 3. Dapatkan tanggal item jam 00:00:00
+                const itemDateOnly = new Date(itemDate.getTime());
+                itemDateOnly.setHours(0, 0, 0, 0);
+                
+                // 4. Hitung selisih milidetik
+                const diffMs = today.getTime() - itemDateOnly.getTime();
+                
+                // 5. Cek data dari masa depan (selisih negatif)
+                if (diffMs < 0) {
+                    return false;
+                }
+                
+                // 6. Konversi selisih ke hari (dibulatkan)
+                const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24)); 
+                
+                // 7. Terapkan filter
+                switch(currentTimeFilter) {
+                    case '7days':
+                        return diffDays < 7;
+                    case '1month':
+                        return diffDays < 30;
+                    case '1year':
+                        return diffDays < 365;
+                    default:
+                        return true; // Failsafe
+                }
+            });
+
+            // Filter Kecamatan
+            const selectedKecamatan = document.getElementById('kecamatan-filter').value;
+            let kecFilteredData = timeFilteredData;
+            if (selectedKecamatan !== 'Semua Kecamatan') {
+                kecFilteredData = timeFilteredData.filter(item => item.kecamatan === selectedKecamatan);
+            }
+
+            
+            return kecFilteredData;
+        }
+
+        function processMapData(data) {
+        // Hapus layer control lama jika ada
+        if (mainLayerControl) mainLayerControl.remove();
+
+        // Kosongkan layer group (sesuaikan: layerGroups atau allMarkersLayer)
+        Object.values(layerGroups).forEach(lg => lg.clearLayers());
+        // atau: allMarkersLayer.clearLayers();
+
+        let overlayMaps = {};
+        const bencanaCounts = {};
+
+        // Loop data
+        data.forEach(item => {
+            const bencana = item.bencana || "Tidak Terkategori";
+            let chosenIcon = iconRusakRingan; // Ikon normal default
+
+            // Tentukan ikon normal berdasarkan kerusakan
+            if (item.kerusakan === 'Rusak Berat') {
+                chosenIcon = iconRusakBerat;
+            } else if (item.kerusakan === 'Rusak Sedang') {
+                chosenIcon = iconRusakSedang;
+            }
+
+            // Cek data baru menggunakan item.dateObj
+            const now = new Date();
+            const itemDate = item.dateObj;
+            let isNew = false;
+            if (itemDate) {
+                const diffHours = (now - itemDate) / (1000 * 60 * 60);
+                isNew = diffHours <= 24;
+            }
+
+            // --- PERBAIKAN IKON MINIMALIS ---
+            // 1. Buat SEMUA marker dengan ikon standar (chosenIcon)
+            const marker = L.marker([item.lat, item.lng], { icon: chosenIcon });
+
+            // 2. Jika marker baru, tambahkan kelas 'marker-new' ke elemen gambar SETELAH dibuat
+            if (isNew) {
+                // Tambahkan event 'add' untuk memastikan elemen marker sudah ada di DOM
+                marker.on('add', function() {
+                    // Dapatkan elemen HTML marker
+                    const markerElement = this.getElement();
+                    if (markerElement) {
+                        // Tambahkan kelas 'marker-new' ke elemen utama marker
+                        // CSS kita (.marker-new img) akan menargetkan gambar di dalamnya
+                        markerElement.classList.add('marker-new');
+                    }
+                });
+            }
+            // --- AKHIR PERBAIKAN IKON MINIMALIS ---
+
+
+            // --- PASTIKAN HOVER LISTENER DIHAPUS ---
+            // marker.on('mouseover', function() { /* HAPUS */ });
+            // marker.on('mouseout', function() { /* HAPUS */ });
+            // --- AKHIR HAPUS HOVER ---
+
+
+            // Listener klik tetap ada
+            marker.on('click', () => {
+                openSidebarWithData(item);
+            });
+
+            // Tambahkan ke layer group (sesuaikan)
+            if (!layerGroups[bencana]) layerGroups[bencana] = L.layerGroup().addTo(map);
+            if (layerGroups[bencana]) layerGroups[bencana].addLayer(marker);
+            // atau: allMarkersLayer.addLayer(marker);
+
+            bencanaCounts[bencana] = (bencanaCounts[bencana] || 0) + 1;
+        }); // Akhir data.forEach
+
+        // Buat kontrol HANYA untuk baseMaps
+       /* mainLayerControl = L.control.layers(baseMaps, {}, { position: 'bottomright' }).addTo(map); */
+            summaryContentEl.innerHTML = ''; 
+            if (Object.keys(bencanaCounts).length > 0) {
+                for (const bencana in bencanaCounts) { 
+                    const count = bencanaCounts[bencana]; 
+                    const statHTML = `<div class="stat-item flex justify-between text-sm"><span class="text-gray-600 dark:text-gray-300">${bencana}:</span> <span class="font-medium">${count}</span></div>`; 
+                    summaryContentEl.innerHTML += statHTML;
+                }
+            } else {
+                summaryContentEl.innerHTML = `<div class="stat-item flex justify-between text-sm text-gray-500"><span>Tidak ada data bencana</span> <span>-</span></div>`;
+            }
+            statTotalEl.innerText = data.length; 
+        }
+
+        function updateDataTable(data) {
+            dataTableBody.innerHTML = '';
+            if (data.length === 0) {
+                dataTableBody.innerHTML = `<tr><td colspan="3" class="px-6 py-4 text-center text-gray-500">Tidak ada data untuk filter ini.</td></tr>`;
+                return;
+            }
+            const sortedData = [...data].sort((a, b) => {
+                if (a.dateObj && b.dateObj) {
+                    return b.dateObj - a.dateObj; 
+                } else if (a.dateObj) {
+                    return -1; 
+                } else if (b.dateObj) {
+                    return 1; 
+                }
+                return 0; 
+            });
+            sortedData.slice(0, 50).forEach(item => { 
+                let kerusakanClass = "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"; 
+                if (item.kerusakan === "Rusak Sedang") {
+                    kerusakanClass = "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"; 
+                } else if (item.kerusakan === "Rusak Berat") {
+                    kerusakanClass = "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"; 
+                }
+                
+                // Format tanggal di tabel (sudah benar, DD/MM/YYYY)
+                const tanggal = item.dateObj ? item.dateObj.toLocaleDateString('id-ID') : (item.tanggalWaktu || 'N/A');
+                
+                const row = `<tr class="hover:bg-background-light dark:hover:bg-background-dark transition-colors cursor-pointer" onclick='openMarkerByIdx("${item.idx}")'>
+<td class="px-4 py-4 whitespace-nowrap font-medium">${item.nama || 'N/A'} <br> <span class="text-xs text-gray-500">${item.dusun || ''}</span></td>
+<td class="px-4 py-4 whitespace-nowrap"><span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${kerusakanClass}">${item.kerusakan || 'N/A'}</span></td>
+<td class="px-4 py-4 whitespace-nowrap text-gray-500 dark:text-gray-400">${tanggal}</td>
+</tr>`;
+dataTableBody.innerHTML += row;
+            });
+        }
+        
+        function openMarkerByIdx(idx) {
+// Cari data berdasarkan index uniknya
+	const item = allData.find(d => d.idx == idx);
+	    if (item) {
+	    // 1. Pindahkan peta ke lokasi marker (Zoom)
+	    map.flyTo([item.lat, item.lng], 16);
+	    // 2. Buka sidebar dengan data item tersebut
+	    openSidebarWithData(item);
+	    } else {
+	    console.warn("Item dengan idx tidak ditemukan:", idx); // Pesan jika data tidak ketemu
+	    }
+	}
+
+        function updateKecamatanFilter() {
+            const select = document.getElementById('kecamatan-filter');
+            const sortedKecamatan = Array.from(allKecamatan).sort();
+            sortedKecamatan.forEach(kec => {
+                select.innerHTML += `<option value="${kec}">${kec}</option>`;
+            });
+        }
+
+        // =================================================================
+// GANTI FUNGSI LAMA ANDA DENGAN YANG INI SECARA KESELURUHAN
+// =================================================================
+function updateDashboardCharts(data) {
+    
+    // --- 1. Persiapan Data Kecamatan ---
+    const kecamatanCounts = data.reduce((acc, item) => { const kecamatan = item.kecamatan || "N/A"; acc[kecamatan] = (acc[kecamatan] || 0) + 1; return acc; }, {});
+    const kecLabels = Object.keys(kecamatanCounts);
+    const kecData = Object.values(kecamatanCounts);
+
+    // --- 2. Persiapan Data Kerusakan ---
+    const kerusakanCounts = data.reduce((acc, item) => { const kerusakan = item.kerusakan || "N/A"; acc[kerusakan] = (acc[kerusakan] || 0) + 1; return acc; }, {});
+    const colorMap = {
+        'Rusak Ringan': 'rgba(75, 192, 192, 0.6)', // Greenish
+        'Rusak Sedang': 'rgba(255, 206, 86, 0.6)', // Yellowish
+        'Rusak Berat': 'rgba(255, 99, 132, 0.6)', // Reddish
+        'N/A': 'rgba(201, 203, 207, 0.6)' // Abu-abu
+    };
+    const desiredOrder = ['Rusak Ringan', 'Rusak Sedang', 'Rusak Berat', 'N/A'];
+    const sortedLabels = [];
+    const sortedData = [];
+    const sortedColors = [];
+    desiredOrder.forEach(label => {
+        if (kerusakanCounts.hasOwnProperty(label)) {
+            sortedLabels.push(label);
+            sortedData.push(kerusakanCounts[label]);
+            sortedColors.push(colorMap[label] || colorMap['N/A']);
+        }
+    });
+
+    // --- 3. Persiapan Data Konstruksi ---
+    const konstruksiData = { 'Permanen': {}, 'Semi Permanen': {}, 'Non Permanen': {} };
+    const kerusakanTypes = ['Rusak Ringan', 'Rusak Sedang', 'Rusak Berat'];
+    for(const k in konstruksiData) { kerusakanTypes.forEach(t => konstruksiData[k][t] = 0); }
+    data.forEach(item => { if (konstruksiData[item.konstruksi] && item.kerusakan) { konstruksiData[item.konstruksi][item.kerusakan]++; } });
+    const konsLabels = ['Permanen', 'Semi Permanen', 'Non Permanen'];
+    const konsDataRingan = [konstruksiData['Permanen']['Rusak Ringan'], konstruksiData['Semi Permanen']['Rusak Ringan'], konstruksiData['Non Permanen']['Rusak Ringan']];
+    const konsDataSedang = [konstruksiData['Permanen']['Rusak Sedang'], konstruksiData['Semi Permanen']['Rusak Sedang'], konstruksiData['Non Permanen']['Rusak Sedang']];
+    const konsDataBerat = [konstruksiData['Permanen']['Rusak Berat'], konstruksiData['Semi Permanen']['Rusak Berat'], konstruksiData['Non Permanen']['Rusak Berat']];
+
+
+    // --- LOGIKA UTAMA: BUAT-ATAU-UPDATE ---
+
+    // --- Chart 1: Kecamatan ---
+    if (chartKecamatanInstance) {
+        // Chart SUDAH ADA, update datanya
+        chartKecamatanInstance.data.labels = kecLabels;
+        chartKecamatanInstance.data.datasets[0].data = kecData;
+        chartKecamatanInstance.update();
+    } else {
+        // Chart BELUM ADA, buat baru
+        chartKecamatanInstance = new Chart(document.getElementById('chartKecamatan'), {
+            type: 'bar',
+            data: { labels: kecLabels, datasets: [{ label: 'Jumlah Kejadian', data: kecData, backgroundColor: 'rgba(54, 162, 235, 0.6)' }] },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+    }
+
+    // --- Chart 2: Kerusakan ---
+    if (chartKerusakanInstance) {
+        // Chart SUDAH ADA, update datanya
+        chartKerusakanInstance.data.labels = sortedLabels;
+        chartKerusakanInstance.data.datasets[0].data = sortedData;
+        chartKerusakanInstance.data.datasets[0].backgroundColor = sortedColors;
+        chartKerusakanInstance.update();
+    } else {
+        // Chart BELUM ADA, buat baru
+        chartKerusakanInstance = new Chart(document.getElementById('chartKerusakan'), {
+            type: 'doughnut',
+            data: { labels: sortedLabels, datasets: [{ data: sortedData, backgroundColor: sortedColors }] },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+    }
+
+    // --- Chart 3: Konstruksi ---
+    if (chartKonstruksiInstance) {
+        // Chart SUDAH ADA, update datanya
+        chartKonstruksiInstance.data.labels = konsLabels;
+        chartKonstruksiInstance.data.datasets[0].data = konsDataRingan;
+        chartKonstruksiInstance.data.datasets[1].data = konsDataSedang;
+        chartKonstruksiInstance.data.datasets[2].data = konsDataBerat;
+        chartKonstruksiInstance.update();
+    } else {
+        // Chart BELUM ADA, buat baru
+        chartKonstruksiInstance = new Chart(document.getElementById('chartKonstruksi'), {
+            type: 'bar',
+            data: {
+                labels: konsLabels,
+                datasets: [
+                    { label: 'Rusak Ringan', data: konsDataRingan, backgroundColor: 'rgba(75, 192, 192, 0.6)' },
+                    { label: 'Rusak Sedang', data: konsDataSedang, backgroundColor: 'rgba(255, 206, 86, 0.6)' },
+                    { label: 'Rusak Berat', data: konsDataBerat, backgroundColor: 'rgba(255, 99, 132, 0.6)' }
+                ]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { x: { stacked: true }, y: { stacked: true } } }
+        });
+    }
+
+    // --- 4. Update Tabel Bantuan (Ini sudah benar dari kode Anda) ---
+    const bantuanLabels = [ "Semen", "Batu Bata", "Genteng", "Kalsiboard", "Kayu Balok", "Kayu Usuk", "Kayu Reng", "Besi ø 6 mm", "Besi ø 10 mm", "Terpal 3x4m", "Terpal 5x6m" ];
+    const totalBantuan = {};
+    bantuanLabels.forEach(label => totalBantuan[label] = 0);
+    data.forEach(item => { if (item.bantuan && typeof item.bantuan === 'object') { for (const material in item.bantuan) { if(totalBantuan.hasOwnProperty(material)) { totalBantuan[material] += parseFloat(item.bantuan[material]) || 0; } } } });
+    
+    const tableContainer = document.getElementById('bantuan-table-container');
+    const tableWrapper = tableContainer.querySelector('.bantuan-table-wrapper');
+    const tableElement = tableWrapper ? tableWrapper.querySelector('.bantuan-table') : null;
+    if (tableElement) {
+        let tableContentHTML = '<thead><tr>';
+        for (const material in totalBantuan) { tableContentHTML += `<th>${material}</th>`; }
+        tableContentHTML += `</tr></thead><tbody><tr>`;
+        for (const material in totalBantuan) { tableContentHTML += `<td>${totalBantuan[material]}</td>`; }
+        tableContentHTML += `</tr></tbody>`;
+        tableElement.innerHTML = tableContentHTML;
+    } else {
+        console.error("Elemen tabel '.bantuan-table' di dalam '.bantuan-table-wrapper' tidak ditemukan!");
+    }
+}
+// =================================================================
+// AKHIR DARI FUNGSI BARU
+// =================================================================
+
+/**
+         * FUNGSI KRUSIAL 1: PARSER TANGGAL (Perbaikan v5 - Membaca Nama Bulan)
+         * Tugas: Mengubah string 'DD NamaBulan YYYY ...' menjadi Objek Date
+         */
+        function parseIndonesianDate(dateString) {
+            if (!dateString || typeof dateString !== 'string') {
+                console.warn('Data tanggal kosong atau bukan string:', dateString);
+                return null;
+            }
+
+            // --- PERBAIKAN: Buat mapping nama bulan ke angka (0-indexed) ---
+            const bulanMap = {
+                "januari": 0, "februari": 1, "maret": 2, "april": 3, "mei": 4, "juni": 5,
+                "juli": 6, "agustus": 7, "september": 8, "oktober": 9, "november": 10, "desember": 11
+            };
+            // --- AKHIR PERBAIKAN ---
+
+            // Bersihkan spasi berlebih di awal/akhir
+            const trimmedDateString = dateString.trim();
+
+            // Pisahkan berdasarkan spasi: ["09", "Oktober", "2025", "18:27"]
+            const parts = trimmedDateString.split(' '); 
+            
+            if (parts.length < 3) {
+                console.warn('Format tanggal salah (bukan "DD NamaBulan YYYY"):', trimmedDateString);
+                return null; 
+            }
+
+            // 1. Parse Tanggal
+            const day = parseInt(parts[0], 10);
+            const monthName = parts[1].toLowerCase(); // "oktober"
+            const year = parseInt(parts[2], 10);
+            
+            // Dapatkan angka bulan (0-11) dari mapping
+            const month = bulanMap[monthName];
+
+            if (month === undefined) {
+                console.warn('Nama bulan tidak dikenali:', parts[1]);
+                return null;
+            }
+
+            // 2. Parse Waktu (HH:mm:ss) - jika ada
+            const timeString = parts[3] || '00:00:00'; // "18:27"
+            const timeParts = timeString.split(':'); 
+            
+            const hour = parseInt(timeParts[0] || 0, 10);
+            const minute = parseInt(timeParts[1] || 0, 10);
+            const second = parseInt(timeParts[2] || 0, 10);
+
+            // Cek jika angkanya tidak valid (NaN)
+            if (isNaN(day) || isNaN(year) || isNaN(hour) || isNaN(minute) || isNaN(second)) {
+                 console.warn('Gagal parse angka tanggal:', trimmedDateString);
+                 return null;
+            }
+
+            // 3. Buat Objek Date
+            // new Date(TAHUN, BULAN (0-11), HARI, JAM, MENIT, DETIK)
+            const newDate = new Date(year, month, day, hour, minute, second);
+
+            // 4. Validasi
+            if (isNaN(newDate.getTime()) || newDate.getFullYear() !== year || newDate.getMonth() !== month || newDate.getDate() !== day) {
+                 console.warn('Gagal parse tanggal (angka tidak valid):', trimmedDateString);
+                 return null;
+            }
+            
+            // console.log('BERHASIL Parse:', trimmedDateString, '->', newDate);
+            return newDate;
+        }
+
+	function getWeatherInfo(code) {
+  const weatherMap = {
+    0: ["clear_day", "Cerah"],
+    1: ["partly_cloudy_day", "Cerah Berawan"],
+    2: ["cloud", "Berawan"],
+    3: ["cloudy", "Mendung"],
+    45: ["foggy", "Kabut"],
+    48: ["foggy", "Kabut"],
+    51: ["rainy_light", "Gerimis Ringan"],
+    53: ["rainy", "Gerimis"],
+    55: ["rainy", "Gerimis Lebat"],
+    61: ["rainy_light", "Hujan Ringan"],
+    63: ["rainy", "Hujan Sedang"],
+    65: ["rainy_heavy", "Hujan Lebat"],
+    80: ["rainy_light", "Hujan Ringan"],
+    81: ["rainy", "Hujan Sedang"],
+    82: ["rainy_heavy", "Hujan Lebat"],
+    95: ["thunderstorm", "Badai Petir"],
+    96: ["thunderstorm", "Badai Petir"],
+    99: ["thunderstorm", "Badai Petir"],
+  };
+  return weatherMap[code] || ["thermostat", "N/A"];
+}
+
+/**
+ * Memperbarui UI cuaca di sidebar
+ * @param {object} data - Data JSON dari Open-Meteo
+ */
+function updateWeatherUI(data) {
+  try {
+    const current = data.current_weather;
+    const daily = data.daily;
+    
+    // Mendapatkan ikon dan deskripsi
+    const [iconName, description] = getWeatherInfo(current.weathercode);
+
+    // Update Elemen DOM
+    document.getElementById('weather-icon').innerText = iconName;
+    document.getElementById('weather-temp').innerText = `${Math.round(current.temperature)}°C`;
+    document.getElementById('weather-desc').innerText = description;
+    
+    // Update Min/Max (mengambil hari pertama dari data harian)
+    document.getElementById('weather-range').innerText = 
+      `Tertinggi: ${Math.round(daily.temperature_2m_max[0])}° / Terendah: ${Math.round(daily.temperature_2m_min[0])}°`;
+
+  } catch (e) {
+    console.error("Gagal memperbarui UI cuaca:", e);
+    document.getElementById('weather-desc').innerText = "Gagal memuat";
+  }
+}
+
+/**
+ * Mengambil data cuaca dari Open-Meteo
+ */
+async function fetchWeather() {
+  // Menggunakan Lat/Lng dari config peta Anda [cite: 371]
+  const lat = -8.17;
+  const lon = 113.70;
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Asia/Jakarta`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    updateWeatherUI(data);
+  } catch (error) {
+    console.error("Gagal mengambil data cuaca:", error);
+    document.getElementById('weather-desc').innerText = "Gagal mengambil data";
+    document.getElementById('weather-icon').innerText = "error";
+  }
+}
+
+/**
+         * FUNGSI KRUSIAL 2: EKSEKUTOR (fetchData)
+         * Tugas: Mengambil data DAN memanggil parser untuk setiap baris data
+         */
+        function fetchData() {
+            fetch(DATA_URL)
+                .then(r => r.json())
+                .then(rawData => {
+                    /* loader.style.display = 'none'; */
+		    
+		    loader.style.opacity = '0';
+                    // 2. Setelah animasi selesai (500ms), sembunyikan total
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                    }, 500); // Samakan dengan durasi transisi CSS
+                    // --- AKHIR KODE PENGGANTI ---
+
+                    // --- INI BAGIAN PENTING UNTUK MENCIPTAKAN .dateObj ---
+                    const processedData = rawData.map((item, index) => {
+                        item.dateObj = parseIndonesianDate(item.tanggalWaktu);
+			item.idx = index;
+                        return item;
+                    });
+                    // --- AKHIR BAGIAN PENTING ---
+
+                    if (allData.length > 0 && processedData.length > allData.length) {
+                        const newData = processedData[processedData.length - 1];
+			map.flyTo([newData.lat, newData.lng], 15);
+                        showNotification(`Laporan baru masuk: ${newData.nama}`);
+			const audio = document.getElementById('notification-sound');
+                        if (audio) { // Pastikan elemen audio ada
+                            audio.play().catch(error => {
+                                // Browser modern kadang memblokir auto-play
+                                // Beri tahu user jika suara gagal diputar
+                                console.warn("Suara notifikasi gagal diputar:", error);
+                                // Anda bisa tambahkan notifikasi visual tambahan di sini jika perlu
+                            });
+                        }
+                    }
+                    
+                    allData = processedData; 
+                    applyFiltersAndProcess();
+		    adjustTableHeight();
+		    map.invalidateSize(); 
+                })
+                .catch(error => {
+                    console.error('Gagal mengambil data:', error);
+                    loader.style.display = 'none';
+                    showNotification('Gagal memuat data. Cek konsol.');
+                });
+        }
+
+        function showNotification(message) {
+            notification.innerText = message;
+            notification.style.display = 'block';
+            notification.style.opacity = '1';
+            notification.style.top = '6rem'; 
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.top = '4rem';
+                setTimeout(() => { notification.style.display = 'none'; }, 500);
+            }, 5000);
+        }
+
+        /**
+         * Membuka Sidebar Detail
+         * */
+        function openSidebarWithData(data) {
+            const content = document.getElementById('sidebar-content');
+            const sidebarTitle = document.getElementById('sidebar-title');
+            const routeButton = document.getElementById('route-button-link');
+            const downloadButton = document.getElementById('download-laporan-btn');
+
+            let galleryHtml = '', bantuanHtml = '';
+
+            if (data.bantuan && typeof data.bantuan === 'object') {
+                let adaBantuan = false;
+                let bantuanContent = '<div class="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">';
+                for (const item in data.bantuan) {
+                    const jumlah = parseFloat(data.bantuan[item]) || 0;
+                    if (jumlah > 0) {
+                        adaBantuan = true;
+                        bantuanContent += `<div class="flex justify-between"><strong>${item}:</strong> <span>${jumlah}</span></div>`;
+                    }
+                }
+                bantuanContent += '</div>';
+                if (adaBantuan) {
+                    bantuanHtml = `<h4 class="text-base font-semibold border-b pb-1 mb-2">Detail Bantuan Stimulan</h4>${bantuanContent}`;
+                }
+            }
+
+            if (data.photos && data.photos.length > 0) {
+                galleryHtml += '<h4 class="text-base font-semibold border-b pb-1 mb-2">Dokumentasi Foto</h4><div class="sidebar-gallery flex flex-wrap gap-2">';
+                data.photos.forEach((photoUrl, index) => {
+                    if(photoUrl){ 
+                        galleryHtml += `<a href="${photoUrl}" target="_blank" class="photo-link inline-block px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-md text-sm transition-colors hover:bg-gray-200 dark:hover:bg-gray-600" title="Buka foto di tab baru">📷 Foto ${index + 1}</a>`; 
+                    }
+                });
+                galleryHtml += '</div>';
+            }
+
+            const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${data.lat},${data.lng}`; 
+            sidebarTitle.innerText = data.nama || 'Detail Laporan';
+            
+            // --- PERBAIKAN FORMAT TANGGAL (DD/MM/YYYY) ---
+            // Menggunakan 'id-ID' untuk format DD/MM/YYYY
+            const tanggalAsesmen = data.dateObj 
+                ? data.dateObj.toLocaleDateString('id-ID') 
+                : (data.tanggalWaktu || 'Tidak ada data'); // Fallback jika parsing gagal
+            // --- AKHIR PERBAIKAN ---
+
+            content.innerHTML = `
+                <div class="space-y-3">
+                    <div>
+                        <h4 class="text-base font-semibold border-b pb-1 mb-2">Detail Lokasi</h4>
+                        <p class="text-sm"><strong>Jalan/Dusun:</strong><br>${data.dusun||'Tidak ada data'}</p>
+                        <p class="text-sm"><strong>Kelurahan/Desa:</strong><br>${data.kelurahan||'Tidak ada data'}</p>
+                        <p class="text-sm"><strong>Kecamatan:</strong><br>${data.kecamatan||'Tidak ada data'}</p>
+                    </div>
+                    <div>
+                        <h4 class="text-base font-semibold border-b pb-1 mb-2">Detail Bencana & Asesmen</h4>
+                        <p class="text-sm"><strong>Jenis Bencana:</strong><br>${data.bencana||'Tidak ada data'}</p>
+                        
+                        <p class="text-sm"><strong>Tanggal Asesmen:</strong><br>${tanggalAsesmen}</p>
+                        
+                        <p class="text-sm"><strong>Pengkajian:</strong><br>${data.pengkajian||'Tidak ada data'}</p>
+                    </div>
+                    <div>
+                        <h4 class="text-base font-semibold border-b pb-1 mb-2">Detail Kerusakan & Kerugian</h4>
+                        <p class="text-sm"><strong>Tingkat Kerusakan:</strong><br>${data.kerusakan||'Tidak ada data'}</p>
+                        <p class="text-sm"><strong>Bagian Rusak:</strong><br>${data.bagianRusak||'Tidak ada data'}</p>
+                        <p class="text-sm"><strong>Taksiran Kerusakan:</strong><br>${data.nilaiKerusakan||'Tidak ada data'}</p>
+                        <p class="text-sm"><strong>Taksiran Kerugian:</strong><br>${
+                            (data.nilaiKerugian && data.nilaiKerugian !== 'Rp0' && data.nilaiKerugian !== 0)
+                            ? data.nilaiKerugian
+                            : (data.nilaiKerusakan || 'Tidak ada data')
+                        }</p>
+                    </div>
+                    ${bantuanHtml}
+                    ${galleryHtml}
+                </div>
+            `;
+
+            routeButton.href = googleMapsUrl; 
+            if (data.linkDokumen) { 
+                downloadButton.href = data.linkDokumen; 
+                downloadButton.style.display = 'inline-block'; 
+            } else { 
+                downloadButton.style.display = 'none'; 
+            }
+            
+            sidebar.classList.remove('translate-x-full'); 
+            sidebar.classList.add('translate-x-0');
+        }
+
+        function closeSidebar() {
+            sidebar.classList.add('translate-x-full');
+            sidebar.classList.remove('translate-x-0');
+        }
+
+	/**
+         * FUNGSI: Menyesuaikan tinggi tabel (Versi Debug)
+         */
+        /**
+         * FUNGSI: Menyesuaikan tinggi PETA dan TABEL agar pas di layar (Revisi)
+         */
+        function adjustTableHeight() {
+            // Dapatkan elemen-elemen penting
+            const mainArea = document.querySelector('main'); // Container <main>
+            const header = mainArea ? mainArea.querySelector('header') : null; // Header di dalam main
+            const contentScroller = mainArea ? mainArea.querySelector('div.overflow-y-auto') : null; // Area konten yg scroll
+            const summaryBox = document.getElementById('summary-box'); // Kotak summary
+            const mapCard = document.getElementById('map-card');
+            const tableCard = document.getElementById('table-card');
+            const tableHeader = document.getElementById('table-header');
+            const tableScroller = document.getElementById('table-scroll-container');
+
+            // Hanya jalankan di layar besar (xl) dan jika semua elemen ada
+            if (window.innerWidth >= 1280 && mainArea && header && contentScroller && summaryBox && mapCard && tableCard && tableHeader && tableScroller) {
+                try {
+                    // Tinggi total area main (harus = tinggi layar)
+                    const mainHeight = mainArea.offsetHeight;
+                    // Tinggi header
+                    const headerHeight = header.offsetHeight;
+                    // Padding vertikal area konten (p-6 = 1.5rem * 16px/rem * 2 = 48px)
+                    const contentPaddingY = 48;
+                    // Tinggi summary box
+                    const summaryHeight = summaryBox.offsetHeight;
+                    // Gap antar grid (gap-6 = 1.5rem * 16px/rem = 24px)
+                    const gridGap = 24;
+
+                    // Hitung tinggi MAKSIMAL yang tersisa untuk baris grid (peta & tabel)
+                    const availableHeight = mainHeight - headerHeight - contentPaddingY - summaryHeight - gridGap;
+
+                    // Batasi tinggi minimal (misal 300px) agar tidak terlalu pendek
+                    const targetGridRowHeight = Math.max(availableHeight, 300);
+
+                    // Set tinggi kartu peta dan tabel
+                    mapCard.style.height = targetGridRowHeight + 'px';
+                    tableCard.style.height = targetGridRowHeight + 'px';
+
+                    // Hitung tinggi untuk scroller tabel
+                    const tableHeaderHeight = tableHeader.offsetHeight;
+                    const scrollerMaxHeight = targetGridRowHeight - tableHeaderHeight - 1; // Kurangi border
+
+                    tableScroller.style.maxHeight = scrollerMaxHeight + 'px';
+                    tableScroller.style.height = scrollerMaxHeight + 'px'; // Set height juga
+
+                    // Pastikan area konten utama TIDAK bisa scroll
+                    contentScroller.style.overflowY = 'hidden';
+
+                } catch (e) {
+                     console.error("Error calculating heights:", e);
+                     // Jika error, fallback ke scroll default
+                     if(contentScroller) contentScroller.style.overflowY = 'auto';
+                     if(mapCard) mapCard.style.height = '';
+                     if(tableCard) tableCard.style.height = '';
+                     if(tableScroller) {
+                         tableScroller.style.maxHeight = '';
+                         tableScroller.style.height = '';
+                     }
+                }
+
+            } else if (contentScroller && mapCard && tableCard && tableScroller) {
+                 // Di layar kecil, biarkan area konten utama yg scroll
+                 contentScroller.style.overflowY = 'auto';
+                 // Reset tinggi peta & tabel agar otomatis
+                 mapCard.style.height = '';
+                 tableCard.style.height = '';
+                 tableScroller.style.maxHeight = ''; // Mungkin perlu atur max-h default lagi di CSS jika mau
+                 tableScroller.style.height = '';
+            }
+        }
+
+        fetchData(); 
+        fetchInterval = setInterval(fetchData, 5000);
+	fetchWeather();
+	setInterval(fetchWeather, 600000);
+	window.addEventListener('resize', adjustTableHeight); 
+
+
+        // =============================================
+        // SKRIP DARI KODE REFERENSI (Dark Mode & UI)
+        // =============================================
+
+        // --- Dark Mode Toggle (dengan Ganti Layer Peta) ---
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+
+        themeToggle.addEventListener('click', () => {
+            // Toggle class 'dark' di <html>
+            html.classList.toggle('dark');
+
+            // Cek apakah sekarang dalam mode gelap
+            if (html.classList.contains('dark')) {
+                // Mode Gelap: Hapus OSM, Tambahkan Dark
+                if (map.hasLayer(osm)) {
+                    map.removeLayer(osm);
+                }
+                if (!map.hasLayer(dark)) { // Hanya tambahkan jika belum ada
+                    dark.addTo(map);
+                }
+            } else {
+                // Mode Terang: Hapus Dark, Tambahkan OSM
+                if (map.hasLayer(dark)) {
+                    map.removeLayer(dark);
+                }
+                if (!map.hasLayer(osm)) { // Hanya tambahkan jika belum ada
+                    osm.addTo(map);
+                }
+            }
+        });
+
+        // --- Atur Layer Peta Awal (Opsional tapi bagus) ---
+        // Panggil ini sekali setelah peta diinisialisasi, sebelum fetchData
+        function setInitialMapLayer() {
+             if (html.classList.contains('dark')) {
+                 if (map.hasLayer(osm)) map.removeLayer(osm); // Hapus default OSM jika mulai dark
+                 dark.addTo(map);
+             } else {
+                 // osm sudah ditambahkan saat inisialisasi, jadi tidak perlu `osm.addTo(map);` lagi
+             }
+        }
+        // Panggil fungsi ini SETELAH inisialisasi peta dan SEBELUM fetchData() pertama kali
+        // Contoh:
+        // ... (kode inisialisasi map, baseMaps, dll.) ...
+        setInitialMapLayer(); // <-- PANGGIL DI SINI
+        fetchData();
+        // ...
+
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const filterSidebar = document.getElementById('filter-sidebar');
+        const filterOverlay = document.getElementById('filter-overlay');
+        const closeFilterBtn = document.getElementById('close-filter-btn');
+
+        hamburgerBtn.addEventListener('click', () => {
+            filterSidebar.classList.remove('-translate-x-full');
+            filterSidebar.classList.add('translate-x-0');
+            filterOverlay.classList.remove('hidden');
+        });
+
+        function closeFilterSidebar() {
+            filterSidebar.classList.add('-translate-x-full');
+            filterSidebar.classList.remove('translate-x-0');
+            filterOverlay.classList.add('hidden');
+        }
+
+        closeFilterBtn.addEventListener('click', closeFilterSidebar);
+        filterOverlay.addEventListener('click', closeFilterSidebar);
+
+        // =============================================
+        // SKRIP UNTUK FITUR BARU (Filter)
+        // =============================================
+
+        const timeFilterButtons = document.querySelectorAll('#time-filter-buttons .filter-btn');
+        timeFilterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                timeFilterButtons.forEach(btn => {
+                    btn.classList.remove('bg-primary/10', 'text-primary', 'font-medium');
+                });
+                button.classList.add('bg-primary/10', 'text-primary', 'font-medium');
+                currentTimeFilter = button.getAttribute('data-filter');
+                applyFiltersAndProcess();
+            });
+        });
+
+        document.getElementById('kecamatan-filter').addEventListener('change', applyFiltersAndProcess);
+        
+    </script>
+
+</body>
+</html>
