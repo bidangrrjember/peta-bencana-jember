@@ -698,7 +698,7 @@ document.getElementById('dashboard-btn').onclick = () => {
         function updateDataTable(data) {
             dataTableBody.innerHTML = '';
             if (data.length === 0) {
-                dataTableBody.innerHTML = `<tr><td colspan="3" class="px-6 py-4 text-center text-gray-500">Tidak ada data untuk filter ini.</td></tr>`;
+                dataTableBody.innerHTML = `<tr><td colspan="3" class="px-6 py-4 text-center text-gray-500">Tidak ada data.</td></tr>`;
                 return;
             }
             const sortedData = [...data].sort((a, b) => {
@@ -1347,5 +1347,6 @@ async function fetchWeather() {
 </body>
 
 </html>
+
 
 
