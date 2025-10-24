@@ -1150,10 +1150,10 @@ async function fetchWeather() {
                         <p class="text-sm"><strong>Bagian Rusak:</strong><br>${data.bagianRusak||'Tidak ada data'}</p>
                         <p class="text-sm"><strong>Taksiran Kerusakan:</strong><br>${data.nilaiKerusakan||'Tidak ada data'}</p>
                         <p class="text-sm"><strong>Taksiran Kerugian:</strong><br>${
-                            (data.nilaiKerugian && data.nilaiKerugian !== 'Rp0' && data.nilaiKerugian !== 0)
-                            ? data.nilaiKerugian
-                            : (data.nilaiKerusakan || 'Tidak ada data')
-                        }</p>
+						(data.nilaiKerugian && data.nilaiKerugian !== 'Rp0' && data.nilaiKerugian !== 0)
+						? data.nilaiKerugian
+						: 'Rp0'
+						}</p>
                     </div>
                     ${bantuanHtml}
                     ${galleryHtml}
@@ -1347,6 +1347,7 @@ async function fetchWeather() {
 </body>
 
 </html>
+
 
 
 
