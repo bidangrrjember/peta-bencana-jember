@@ -339,7 +339,7 @@
                                     <thead class="bg-background-light dark:bg-background-dark sticky top-0">
                                         <tr>
                                             <th class="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">Lokasi (Korban)</th>
-                                            <th class="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">Kerusakan</th>
+                                            <th class="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">Status</th>
                                             <th class="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">Tanggal</th>
                                         </tr>
                                     </thead>
@@ -792,19 +792,33 @@
                 return 0; 
             });
             sortedData.slice(0, 50).forEach(item => { 
-                let kerusakanClass = "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"; 
-                if (item.kerusakan === "Rusak Sedang") {
-                    kerusakanClass = "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"; 
-                } else if (item.kerusakan === "Rusak Berat") {
-                    kerusakanClass = "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"; 
-                }
                 
+                // --- LOGIKA BARU UNTUK STATUS PIPELINE ---
+                let statusText = '';
+                let statusClass = '';
+
+                if (item.linkMonitoring) {
+                    // 3. Penanganan Tuntas (Green)
+                    statusText = 'Tuntas';
+                    statusClass = 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+                } else if (item.linkSerahTerima) {
+                    // 2. Menunggu Monitoring (Yellow)
+                    statusText = 'Tersalurkan';
+                    statusClass = 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+                } else {
+                    // 1. Menunggu Penyaluran (Red)
+                    statusText = 'Terasesmen';
+                    statusClass = 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+                }
+                // --- AKHIR LOGIKA BARU ---
+
                 // Format tanggal di tabel (sudah benar, DD/MM/YYYY)
                 const tanggal = item.dateObj ? item.dateObj.toLocaleDateString('id-ID') : (item.tanggalWaktu || 'N/A');
                 
+                // --- PERBARUI HTML ROW ---
                 const row = `<tr class="hover:bg-background-light dark:hover:bg-background-dark transition-colors cursor-pointer" onclick='openMarkerByIdx("${item.idx}")'>
-<td class="px-4 py-4 whitespace-nowrap font-medium">${item.nama || 'N/A'} <br> <span class="text-xs text-gray-500">${item.dusun || ''}</span></td>
-<td class="px-4 py-4 whitespace-nowrap"><span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${kerusakanClass}">${item.kerusakan || 'N/A'}</span></td>
+<td class="px-4 py-4 whitespace-nowrap font-medium">${item.nama || 'N/A'} <br> <span class="text-xs text-gray-500">${item.jalandusun || ''}</span></td>
+<td class="px-4 py-4 whitespace-nowrap"><span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">${statusText}</span></td>
 <td class="px-4 py-4 whitespace-nowrap text-gray-500 dark:text-gray-400">${tanggal}</td>
 </tr>`;
 dataTableBody.innerHTML += row;
