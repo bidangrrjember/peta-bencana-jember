@@ -200,12 +200,7 @@
                         </div>
                     </div>
                     
-                    <div>
-                        <label class="text-sm font-medium" for="kecamatan-filter">Kecamatan</label>
-                        <select class="mt-1 block w-full rounded border-border-light dark:border-border-dark bg-background-light dark:bg-card-dark focus:ring-primary focus:border-primary text-sm" id="kecamatan-filter">
-                            <option>Semua Kecamatan</option>
-                            </select>
-                    </div>
+                    
                                 </div>
             </div>
 
@@ -470,7 +465,6 @@
         let chartKecamatanInstance, chartKerusakanInstance, chartKonstruksiInstance; //
         let heatLayer; //
         let currentTimeFilter = 'all'; // Variabel baru untuk filter waktu
-        let allKecamatan = new Set(); // Variabel baru untuk filter kecamatan
 	let isAudioUnlocked = false;
 	let fetchInterval; 
 
@@ -572,12 +566,7 @@
                 updateDashboardCharts(filteredData);
             }
             updateDataTable(filteredData);
-            if (allKecamatan.size === 0) {
-                allData.forEach(item => {
-                    if (item.kecamatan) allKecamatan.add(item.kecamatan);
-                });
-                updateKecamatanFilter();
-            }
+            
         }
 	
 	function unlockAudio() {
@@ -660,15 +649,8 @@
                 }
             });
 
-            // Filter Kecamatan
-            const selectedKecamatan = document.getElementById('kecamatan-filter').value;
-            let kecFilteredData = timeFilteredData;
-            if (selectedKecamatan !== 'Semua Kecamatan') {
-                kecFilteredData = timeFilteredData.filter(item => item.kecamatan === selectedKecamatan);
-            }
-
-            
-            return kecFilteredData;
+                       
+            return timeFilteredData;
         }
 
         function processMapData(data) {
@@ -1662,7 +1644,6 @@ async function fetchWeather() {
             });
         });
 
-        document.getElementById('kecamatan-filter').addEventListener('change', applyFiltersAndProcess);
         
     </script>
 
