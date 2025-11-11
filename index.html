@@ -458,7 +458,7 @@
         // =============================================
 
         // --- Variabel Global ---
-        const DATA_URL = 'https://script.google.com/macros/s/AKfycbxKZjhH42iUAPGC_qDXJX1tw-OKOvqwf6na8VQZUN-9NyRTpLgjDPb1r0sZFx_46ZDV/exec'; //
+        const DATA_URL = 'https://script.google.com/macros/s/AKfycbxXlTqsZ1nK1V6QTnKGmcUzY6AILKurE9XukfxdgeIw8ndGdrear75vpgcKgDrV7q4M/exec'; //
         let allData = []; //
         let layerGroups = {}; //
         let mainLayerControl; //
@@ -1235,7 +1235,8 @@ async function fetchWeather() {
                     folderData: {
                         jenisBencana: reportData.bencana,
                         alamatDesa: reportData.desakelurahan,
-                        alamatKecamatan: reportData.kec
+                        alamatKecamatan: reportData.kec,
+						namaKK: reportData.nama
                     },
                     tanggalLaporan: reportData.tanggalWaktu ? reportData.tanggalWaktu.split(' ').slice(0, 3).join(' ') : ""
                 };
@@ -1649,5 +1650,6 @@ async function fetchWeather() {
 
 </body>
 </html>
+
 
 
