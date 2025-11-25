@@ -152,6 +152,8 @@
         /* Style loader Anda yg lama (position, z-index, dll.)
            ATAU style loader titik (position, display: flex, background, z-index) */
         opacity: 1; /* Awalnya terlihat */
+ 	transition: opacity 0.5s ease-out;
+  	z-index: 2147483647;
         transition: opacity 0.5s ease-out; /* Efek fade 0.5 detik */
       }
     </style>
@@ -313,14 +315,25 @@
                         <div id="map-card" class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm border border-border-light dark:border-border-dark p-2 h-96 xl:h-auto">
                             <div class="relative w-full h-full">
                                 <div id="map" class="w-full h-full rounded-lg z-10"></div>
-                                <label class="absolute top-4 left-4 right-4 z-20 flex flex-col h-12">
-                                    <div class="flex w-full flex-1 items-stretch rounded-lg h-full shadow-md">
-                                        <div class="text-gray-500 flex border-none bg-card-light dark:bg-card-dark items-center justify-center pl-4 rounded-l-lg border-r-0">
-                                            <span class="material-symbols-outlined">search</span>
-                                        </div>
-                                        <input id="search-input" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-0 border-none bg-card-light dark:bg-card-dark h-full placeholder:text-gray-500 dark:placeholder:text-gray-400 pl-2 text-base font-normal" placeholder="Cari nama, dusun, atau kecamatan..."/>
-                                    </div>
-                                </label>
+                                <div class="absolute top-4 left-4 right-4 z-[9999] flex flex-col">
+    <label class="relative flex w-full items-stretch rounded-lg shadow-md bg-card-light dark:bg-card-dark transition-all duration-300">
+        <div class="text-gray-500 dark:text-gray-400 flex border-none items-center justify-center pl-4 rounded-l-lg">
+            <span class="material-symbols-outlined">search</span>
+        </div>
+        
+        <input id="search-input" autocomplete="off" 
+               class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-0 border-none bg-transparent h-12 placeholder:text-gray-500 dark:placeholder:text-gray-400 pl-2 text-base font-normal" 
+               placeholder="Cari nama korban, desa, atau kecamatan..."/>
+
+        <button id="clear-search-btn" class="hidden text-gray-400 hover:text-red-500 pr-4 items-center justify-center">
+            <span class="material-symbols-outlined text-xl">close</span>
+        </button>
+    </label>
+
+    <div id="search-results" 
+         class="hidden mt-2 w-full bg-white dark:bg-[#1E1E1E] rounded-lg shadow-xl border border-gray-100 dark:border-gray-700 max-h-80 overflow-y-auto custom-scrollbar">
+         </div>
+</div>
                             </div>
                         </div>
                     </div>
@@ -530,19 +543,124 @@
 
         // --- Event Listener: Search ---
         //
-        document.getElementById('search-input').addEventListener('keyup', function(event) { 
-            if (event.key === 'Enter') { 
-                const query = event.target.value.toLowerCase(); 
-                if (!query) return; 
-                const currentFilteredData = getFilteredData();
-                const result = currentFilteredData.find(item => (item.nama && item.nama.toLowerCase().includes(query)) || (item.dusun && item.dusun.toLowerCase().includes(query)) || (item.kecamatan && item.kecamatan.toLowerCase().includes(query))); 
-                if (result) { 
-                    map.flyTo([result.lat, result.lng], 16); 
-                    openSidebarWithData(result); 
-                } else { 
-                    showNotification('Data tidak ditemukan untuk filter saat ini.'); 
-                } 
-            } 
+        // ==========================================
+        // SKRIP SEARCH BAR LIVE SUGGESTION (BARU)
+        // ==========================================
+        
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('search-results');
+        const clearSearchBtn = document.getElementById('clear-search-btn');
+
+        // 1. Event Listener saat mengetik
+        searchInput.addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+
+            // Tampilkan/Sembunyikan tombol X
+            if(query.length > 0) {
+                clearSearchBtn.classList.remove('hidden');
+                clearSearchBtn.classList.add('flex');
+            } else {
+                clearSearchBtn.classList.add('hidden');
+                clearSearchBtn.classList.remove('flex');
+                searchResults.classList.add('hidden'); // Sembunyikan dropdown jika kosong
+                return;
+            }
+
+            // Filter Data (Cari di Nama, Desa, Kecamatan, Dusun)
+            const matches = allData.filter(item => {
+                const nama = (item.nama || '').toLowerCase();
+                const desa = (item.desakelurahan || '').toLowerCase();
+                const kec = (item.kec || '').toLowerCase();
+                const dusun = (item.jalandusun || '').toLowerCase();
+                
+                return nama.includes(query) || desa.includes(query) || kec.includes(query) || dusun.includes(query);
+            });
+
+            displayMatches(matches, query);
+        });
+
+        // 2. Fungsi Menampilkan Dropdown
+        function displayMatches(matches, query) {
+            if (matches.length === 0) {
+                searchResults.innerHTML = `
+                    <div class="p-4 text-sm text-gray-500 dark:text-gray-400 text-center">
+                        Tidak ditemukan data untuk "${query}"
+                    </div>`;
+                searchResults.classList.remove('hidden');
+                return;
+            }
+
+            // Batasi hasil maksimal 50 agar tidak berat
+            const limitedMatches = matches.slice(0, 50);
+
+            const html = limitedMatches.map(item => {
+                // Tentukan lokasi (Desa/Kelurahan otomatis dari data)
+                // Kita gunakan logika sederhana atau ambil raw data
+                const lokasi = `${item.desakelurahan}, Kec. ${item.kec}`;
+                
+                // Tentukan warna ikon berdasarkan status
+                let statusColor = "text-red-500"; 
+                if(item.linkMonitoring) statusColor = "text-green-500";
+                else if(item.linkSerahTerima) statusColor = "text-yellow-500";
+
+                return `
+                <div onclick="selectSearchResult(${item.idx})" 
+                     class="flex items-center gap-3 p-3 border-b border-gray-100 dark:border-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer transition-colors last:border-none">
+                    
+                    <div class="flex-shrink-0">
+                        <span class="material-symbols-outlined ${statusColor}">location_on</span>
+                    </div>
+                    
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">
+                            ${item.nama}
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                            ${item.jalandusun ? item.jalandusun + ', ' : ''} ${lokasi}
+                        </p>
+                    </div>
+
+                    <div class="text-xs text-gray-400">
+                        <span class="material-symbols-outlined text-lg">chevron_right</span>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            searchResults.innerHTML = html;
+            searchResults.classList.remove('hidden');
+        }
+
+        // 3. Fungsi Saat Hasil Diklik
+        function selectSearchResult(idx) {
+            const item = allData.find(d => d.idx == idx);
+            if (item) {
+                // Zoom ke lokasi
+                map.flyTo([item.lat, item.lng], 18);
+                
+                // Buka Sidebar
+                openSidebarWithData(item);
+                
+                // Reset Pencarian
+                // searchInput.value = item.nama; // Opsional: isi input dengan nama
+                searchResults.classList.add('hidden'); // Tutup dropdown
+            }
+        }
+
+        // 4. Tombol Clear (X)
+        clearSearchBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            searchResults.classList.add('hidden');
+            clearSearchBtn.classList.add('hidden');
+            clearSearchBtn.classList.remove('flex');
+            searchInput.focus();
+        });
+
+        // 5. Tutup dropdown jika klik di luar
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.classList.add('hidden');
+            }
         });
 
         // --- Event Listener: Fullscreen ---
@@ -1721,4 +1839,5 @@ function getDriveImgUrl(url) {
 
 </body>
 </html>
+
 
