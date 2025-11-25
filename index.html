@@ -1367,8 +1367,8 @@ function getDriveImgUrl(url) {
     return url;
 }
 
-        /**
-         * Membuka Sidebar Detail (Versi Baru)
+/**
+         * Membuka Sidebar Detail (Update: Otomatis Desa/Kelurahan)
          */
         function openSidebarWithData(data) {
             const content = document.getElementById('sidebar-content');
@@ -1376,7 +1376,18 @@ function getDriveImgUrl(url) {
             const routeButton = document.getElementById('route-button-link');
             const downloadButton = document.getElementById('download-laporan-btn');
 
-            // --- Bagian Bantuan ---
+            // --- LOGIKA PENENTUAN DESA / KELURAHAN ---
+            // Data berdasarkan Permendagri: Hanya 3 Kecamatan ini yang berstatus Kelurahan di Jember
+            const kecamatanKota = ['kaliwates', 'patrang', 'sumbersari'];
+            
+            // Bersihkan nama kecamatan dari spasi berlebih dan ubah ke huruf kecil untuk pengecekan
+            const kecRaw = (data.kec || '').toLowerCase().trim();
+            
+            // Tentukan status
+            const jenisWilayah = kecamatanKota.includes(kecRaw) ? 'Kelurahan' : 'Desa';
+            // ------------------------------------------
+
+            // --- Bagian Bantuan (Tetap) ---
             let bantuanHtml = '';
             if (data.bantuan && typeof data.bantuan === 'object') {
                 let adaBantuan = false;
@@ -1394,7 +1405,7 @@ function getDriveImgUrl(url) {
                 }
             }
 
-// --- Bagian Galeri Foto (FIX IMAGE LOADING) ---
+            // --- Bagian Galeri Foto (Versi Fix Image) ---
             let galleryHtml = '';
             if (data.photos && data.photos.length > 0) {
                 galleryHtml += `
@@ -1407,28 +1418,13 @@ function getDriveImgUrl(url) {
                 
                 data.photos.forEach((photoUrl, index) => {
                     if(photoUrl && photoUrl.trim() !== ""){ 
-                        // KONVERSI LINK DI SINI
-                        const displaySrc = getDriveImgUrl(photoUrl);
-
+                        const displaySrc = getDriveImgUrl(photoUrl); // Pastikan fungsi getDriveImgUrl sudah ada
                         galleryHtml += `
                         <a href="${photoUrl}" target="_blank" class="group relative aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 block shadow-sm">
-                            
-                            <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-300 dark:text-gray-600 z-0">
-                                <span class="material-symbols-outlined text-3xl">image</span>
-                            </div>
-
-                            <img src="${displaySrc}" 
-                                 class="relative z-10 w-full h-full object-cover transition-all duration-500 ease-in-out group-hover:scale-110 opacity-0"
-                                 alt="Foto ${index + 1}"
-                                 loading="lazy"
-                                 onload="this.classList.remove('opacity-0')" 
-                                 onerror="this.style.display='none'" 
-                            >
-                            
+                            <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-300 dark:text-gray-600 z-0"><span class="material-symbols-outlined text-3xl">image</span></div>
+                            <img src="${displaySrc}" class="relative z-10 w-full h-full object-cover transition-all duration-500 ease-in-out group-hover:scale-110 opacity-0" alt="Foto ${index + 1}" loading="lazy" onload="this.classList.remove('opacity-0')" onerror="this.style.display='none'">
                             <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors z-20 pointer-events-none"></div>
-                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-30 pointer-events-none">
-                                <span class="material-symbols-outlined text-white drop-shadow-md text-2xl">zoom_in</span>
-                            </div>
+                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-30 pointer-events-none"><span class="material-symbols-outlined text-white drop-shadow-md text-2xl">zoom_in</span></div>
                         </a>`; 
                     }
                 });
@@ -1452,7 +1448,10 @@ function getDriveImgUrl(url) {
                             </div>
                             <div>
                                 <h4 class="text-base font-bold">${data.jalandusun || 'Dusun Tidak Diketahui'}</h4>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Desa ${data.desakelurahan}, Kec. ${data.kec}</p>
+                                
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    ${jenisWilayah} ${data.desakelurahan}, Kec. ${data.kec}
+                                </p>
                             </div>
                         </div>
                         
@@ -1489,7 +1488,7 @@ function getDriveImgUrl(url) {
                     
                     <div>
                         <h4 class="text-base font-bold border-b border-gray-200 dark:border-gray-700 pb-2 mb-4 flex items-center gap-2">
-                            <span class="material-symbols-outlined">folder_open</span> Dokumen Pendukung
+                            <span class="material-symbols-outlined">folder_open</span> Dokumen Administrasi
                         </h4>
                         <div class="space-y-3">
                             ${renderDokumenSection('Surat Disposisi', data.linkDisposisi, 'disposisi', data.idx)}
