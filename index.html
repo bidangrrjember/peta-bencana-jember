@@ -1186,26 +1186,25 @@ async function fetchWeather() {
             if (fileType === 'disposisi') {
                 fileInput = document.getElementById('file-disposisi-input');
                 uploadButton = document.getElementById('upload-disposisi-btn');
-                columnName = 'Link Disposisi'; // Harus sama dengan header di Sheet
+                columnName = 'Link Disposisi'; 
             
             } else if (fileType === 'serahTerima') {
-                fileInput = document.getElementById('file-serah-terima-input');
-                uploadButton = document.getElementById('upload-serah-terima-btn');
-                columnName = 'Link Serah Terima'; // Harus sama dengan header di Sheet
+                // PERBAIKAN DISINI: Sebelumnya 'file-serah-terima-input' (salah), harusnya 'file-serahTerima-input'
+                fileInput = document.getElementById('file-serahTerima-input'); 
+                uploadButton = document.getElementById('upload-serahTerima-btn');
+                columnName = 'Link Serah Terima'; 
             
-	    } else if (fileType === 'monitoring') {
+            } else if (fileType === 'monitoring') {
                 fileInput = document.getElementById('file-monitoring-input');
-                uploadButton = document.getElementById('upload-monitoring-btn'); // Button ini null untuk dokumentasi, tidak masalah
+                uploadButton = document.getElementById('upload-monitoring-btn');
                 columnName = 'Link Monitoring'; 
             
-            // --- TAMBAHAN BARU UNTUK DOKUMENTASI ---
             } else if (fileType === 'dokumentasi') {
                 fileInput = document.getElementById('file-dokumentasi-input');
-                // Dokumentasi tidak punya tombol loading khusus (karena model card), 
-                // jadi kita bisa abaikan uploadButton atau buat notifikasi loading global.
+                // Dokumentasi tidak punya tombol loading text khusus, jadi button bisa null
+                uploadButton = null; 
                 columnName = 'Link Dokumentasi'; 
-            // ----------------------------------------
-
+            
             } else {
                 showNotification('Tipe file upload tidak dikenal.');
                 return;
@@ -1722,4 +1721,3 @@ function getDriveImgUrl(url) {
 
 </body>
 </html>
-
