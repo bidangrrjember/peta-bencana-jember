@@ -1474,23 +1474,33 @@ async function fetchWeather() {
  * Fungsi Mengubah Link Drive "View" menjadi Link "Thumbnail/Gambar"
  */
 function getDriveImgUrl(url) {
-    if (!url) return "";
-    // Regex untuk mengambil ID File dari URL Google Drive
-    // Cocok dengan pola: /d/FILE_ID/
-    const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-    
-    if (match && match[1]) {
-        const fileId = match[1];
-        // Menggunakan endpoint thumbnail Google Drive (lebih cepat & stabil untuk galeri)
-        // sz=s400 artinya ukuran gambar 400px (cukup untuk thumbnail)
-        return `https://drive.google.com/thumbnail?id=${fileId}&sz=s400`;
-    }
-    
-    // Jika bukan link drive, kembalikan URL aslinya
-    return url;
-}
+            if (!url) return "";
 
-/**
+            let fileId = "";
+
+            // 1. Cek Pola "/d/ID" (Contoh: drive.google.com/file/d/123.../view)
+            const matchSlash = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+            if (matchSlash && matchSlash[1]) {
+                fileId = matchSlash[1];
+            } 
+            // 2. Cek Pola "id=ID" (Contoh: drive.google.com/open?id=123...)
+            else {
+                const matchParam = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                if (matchParam && matchParam[1]) {
+                    fileId = matchParam[1];
+                }
+            }
+
+            // Jika ID ditemukan, gunakan endpoint thumbnail
+            if (fileId) {
+                // sz=s1000 artinya: Minta gambar ukuran 1000px (Cukup tajam & Anti-Blokir)
+                return `https://drive.google.com/thumbnail?id=${fileId}&sz=s1000`;
+            }
+
+            // Jika bukan link drive, kembalikan URL asli (mungkin link direct)
+            return url;
+        }
+
 
 /**
          * ==================================================================
@@ -1503,22 +1513,30 @@ function getDriveImgUrl(url) {
             
             if (!originalUrl) return;
 
-            // Konversi link drive "view" menjadi link gambar resolusi tinggi (sz=s2000)
-            let highResUrl = originalUrl;
-            const match = originalUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
-            if (match && match[1]) {
-                highResUrl = `https://drive.google.com/thumbnail?id=${match[1]}&sz=s2000`; 
+            // Ambil URL gambar dari fungsi helper di atas
+            let displaySrc = getDriveImgUrl(originalUrl);
+            
+            // Trik: Ubah ukuran jadi s3000 (sangat besar) khusus untuk preview layar penuh
+            if (displaySrc.includes("google.com/thumbnail")) {
+                displaySrc = displaySrc.replace("sz=s1000", "sz=s3000");
             }
 
-            // Set sumber gambar & tampilkan modal
-            img.src = highResUrl;
+            // Reset kondisi awal
+            img.src = ""; 
+            img.classList.remove('scale-100');
+            img.classList.add('scale-95');
+
+            // Tampilkan Modal
             modal.classList.remove('hidden');
             
-            // Efek zoom in halus
-            setTimeout(() => {
+            // Set Source Gambar
+            img.src = displaySrc;
+            
+            // Animasi zoom saat gambar selesai dimuat
+            img.onload = () => {
                 img.classList.remove('scale-95');
                 img.classList.add('scale-100');
-            }, 10);
+            };
         }
 
         function closeImagePreview() {
@@ -1911,6 +1929,7 @@ function getDriveImgUrl(url) {
 
 </body>
 </html>
+
 
 
 
