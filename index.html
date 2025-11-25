@@ -1491,7 +1491,62 @@ function getDriveImgUrl(url) {
 }
 
 /**
-         * Membuka Sidebar Detail (Update: Otomatis Desa/Kelurahan)
+
+/**
+         * ==================================================================
+         * 1. FUNGSI PEMBANTU LIGHTBOX (PREVIEW GAMBAR)
+         * ==================================================================
+         */
+        function openImagePreview(originalUrl) {
+            const modal = document.getElementById('image-preview-modal');
+            const img = document.getElementById('preview-image-element');
+            
+            if (!originalUrl) return;
+
+            // Konversi link drive "view" menjadi link gambar resolusi tinggi (sz=s2000)
+            let highResUrl = originalUrl;
+            const match = originalUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) {
+                highResUrl = `https://drive.google.com/thumbnail?id=${match[1]}&sz=s2000`; 
+            }
+
+            // Set sumber gambar & tampilkan modal
+            img.src = highResUrl;
+            modal.classList.remove('hidden');
+            
+            // Efek zoom in halus
+            setTimeout(() => {
+                img.classList.remove('scale-95');
+                img.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeImagePreview() {
+            const modal = document.getElementById('image-preview-modal');
+            const img = document.getElementById('preview-image-element');
+            
+            // Efek zoom out
+            img.classList.remove('scale-100');
+            img.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                img.src = ''; // Bersihkan memori
+            }, 200);
+        }
+
+        // Tutup dengan tombol ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                closeImagePreview();
+            }
+        });
+
+
+        /**
+         * ==================================================================
+         * 2. FUNGSI UTAMA: OPEN SIDEBAR (FULL CODE)
+         * ==================================================================
          */
         function openSidebarWithData(data) {
             const content = document.getElementById('sidebar-content');
@@ -1500,17 +1555,12 @@ function getDriveImgUrl(url) {
             const downloadButton = document.getElementById('download-laporan-btn');
 
             // --- LOGIKA PENENTUAN DESA / KELURAHAN ---
-            // Data berdasarkan Permendagri: Hanya 3 Kecamatan ini yang berstatus Kelurahan di Jember
             const kecamatanKota = ['kaliwates', 'patrang', 'sumbersari'];
-            
-            // Bersihkan nama kecamatan dari spasi berlebih dan ubah ke huruf kecil untuk pengecekan
             const kecRaw = (data.kec || '').toLowerCase().trim();
-            
-            // Tentukan status
             const jenisWilayah = kecamatanKota.includes(kecRaw) ? 'Kelurahan' : 'Desa';
             // ------------------------------------------
 
-            // --- Bagian Bantuan (Tetap) ---
+            // --- BAGIAN BANTUAN ---
             let bantuanHtml = '';
             if (data.bantuan && typeof data.bantuan === 'object') {
                 let adaBantuan = false;
@@ -1528,14 +1578,14 @@ function getDriveImgUrl(url) {
                 }
             }
 
-// --- Bagian Galeri Foto (DENGAN TOMBOL TAMBAH FOTO) ---
+            // --- BAGIAN GALERI FOTO (DENGAN PREVIEW & TOMBOL TAMBAH) ---
             let galleryHtml = '';
+            
             // Ambil array foto yang valid
             const photoList = (data.photos || []).filter(url => url && url.trim() !== "");
             const photoCount = photoList.length;
-            const MAX_PHOTOS = 8; // Batas maksimal
+            const MAX_PHOTOS = 8; 
 
-            // Render container selalu (agar tombol tambah tetap muncul meski belum ada foto)
             galleryHtml += `
             <div class="mt-6">
                 <div class="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-2 mb-4">
@@ -1550,19 +1600,30 @@ function getDriveImgUrl(url) {
                 
                 <div class="sidebar-gallery grid grid-cols-3 gap-2">`;
             
-            // 1. Loop Foto yang Sudah Ada
+            // Loop Foto: Gunakan DIV dan ONCLICK untuk Preview
             photoList.forEach((photoUrl, index) => {
-                const displaySrc = getDriveImgUrl(photoUrl); 
+                const displaySrc = getDriveImgUrl(photoUrl); // Thumbnail kecil untuk grid
+                
                 galleryHtml += `
-                <a href="${photoUrl}" target="_blank" class="group relative aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 block shadow-sm">
-                    <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-300 dark:text-gray-600 z-0"><span class="material-symbols-outlined text-3xl">image</span></div>
-                    <img src="${displaySrc}" class="relative z-10 w-full h-full object-cover transition-all duration-500 ease-in-out group-hover:scale-110 opacity-0" alt="Foto ${index + 1}" loading="lazy" onload="this.classList.remove('opacity-0')" onerror="this.style.display='none'">
-                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors z-20 pointer-events-none"></div>
-                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-30 pointer-events-none"><span class="material-symbols-outlined text-white drop-shadow-md text-2xl">zoom_in</span></div>
-                </a>`; 
+                <div onclick="openImagePreview('${photoUrl}')" class="group relative aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 block shadow-sm cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all">
+                    <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-300 dark:text-gray-600 z-0">
+                        <span class="material-symbols-outlined text-3xl">image</span>
+                    </div>
+                    
+                    <img src="${displaySrc}" class="relative z-10 w-full h-full object-cover transition-all duration-500 ease-in-out group-hover:scale-110 opacity-0" 
+                         alt="Foto ${index + 1}" loading="lazy" 
+                         onload="this.classList.remove('opacity-0')" 
+                         onerror="this.style.display='none'">
+                    
+                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors z-20 pointer-events-none"></div>
+                    
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-30 pointer-events-none">
+                        <span class="material-symbols-outlined text-white drop-shadow-md text-3xl">visibility</span>
+                    </div>
+                </div>`; 
             });
 
-            // 2. Tombol "Tambah Foto" (Hanya muncul jika kurang dari 8)
+            // Tombol "Tambah Foto" (Hanya jika < 8)
             if (photoCount < MAX_PHOTOS) {
                 galleryHtml += `
                 <div onclick="document.getElementById('file-dokumentasi-input').click()" 
@@ -1572,7 +1633,7 @@ function getDriveImgUrl(url) {
                 </div>`;
             }
 
-            // 3. Input File Tersembunyi
+            // Input Hidden
             galleryHtml += `
                 </div>
                 <input type="file" id="file-dokumentasi-input" accept="image/*" multiple 
@@ -1580,6 +1641,8 @@ function getDriveImgUrl(url) {
                        onchange="handleSidebarUpload('dokumentasi', '${data.idx}')">
             </div>`;
 
+
+            // --- SETUP TOMBOL & HEADER ---
             const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${data.lat},${data.lng}`; 
             sidebarTitle.innerText = data.nama || 'Detail Laporan';
             
@@ -1587,7 +1650,7 @@ function getDriveImgUrl(url) {
                 ? data.dateObj.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) 
                 : (data.tanggalWaktu || 'Tidak ada data');
 
-            // --- RENDER KONTEN UTAMA ---
+            // --- RENDER KONTEN UTAMA (HTML) ---
             content.innerHTML = `
                 <div class="space-y-6">
                     <div class="bg-white dark:bg-card-dark rounded-lg">
@@ -1597,7 +1660,6 @@ function getDriveImgUrl(url) {
                             </div>
                             <div>
                                 <h4 class="text-base font-bold">${data.jalandusun || 'Dusun Tidak Diketahui'}</h4>
-                                
                                 <p class="text-sm text-gray-500 dark:text-gray-400">
                                     ${jenisWilayah} ${data.desakelurahan}, Kec. ${data.kec}
                                 </p>
@@ -1610,7 +1672,7 @@ function getDriveImgUrl(url) {
                                 <p class="font-medium">${data.bencana||'-'}</p>
                             </div>
                             <div>
-                                <p class="text-xs text-gray-400">Tanggal Asesmen</p>
+                                <p class="text-xs text-gray-400">Tanggal Kejadian</p>
                                 <p class="font-medium">${tanggalAsesmen}</p>
                             </div>
                             <div class="col-span-2">
@@ -1835,6 +1897,17 @@ function getDriveImgUrl(url) {
 
         
     </script>
+
+<div id="image-preview-modal" onclick="closeImagePreview()" 
+         class="hidden fixed inset-0 z-[10000] bg-black/90 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300">
+        
+        <button class="absolute top-6 right-6 text-white/70 hover:text-white transition-colors">
+            <span class="material-symbols-outlined text-4xl">close</span>
+        </button>
+
+        <img id="preview-image-element" src="" 
+             class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl scale-95 transition-transform duration-300"
+             onclick="event.stopPropagation()"> </div>
 
 </body>
 </html>
