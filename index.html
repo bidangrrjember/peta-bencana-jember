@@ -1409,16 +1409,15 @@ function getDriveImgUrl(url) {
             let galleryHtml = '';
             if (data.photos && data.photos.length > 0) {
                 galleryHtml += `
-                <div class="mt-4">
-                    <h4 class="text-sm font-bold border-b border-gray-200 dark:border-gray-700 pb-2 mb-3 flex items-center gap-2">
-                        <span class="material-symbols-outlined text-base">photo_library</span> 
+                <div class="mt-6"> <h4 class="text-base font-bold border-b border-gray-200 dark:border-gray-700 pb-2 mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined">photo_library</span> 
                         Dokumentasi Lapangan
                     </h4>
                     <div class="sidebar-gallery grid grid-cols-3 gap-2">`;
                 
                 data.photos.forEach((photoUrl, index) => {
                     if(photoUrl && photoUrl.trim() !== ""){ 
-                        const displaySrc = getDriveImgUrl(photoUrl); // Pastikan fungsi getDriveImgUrl sudah ada
+                        const displaySrc = getDriveImgUrl(photoUrl); 
                         galleryHtml += `
                         <a href="${photoUrl}" target="_blank" class="group relative aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 block shadow-sm">
                             <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-300 dark:text-gray-600 z-0"><span class="material-symbols-outlined text-3xl">image</span></div>
@@ -1689,3 +1688,4 @@ function getDriveImgUrl(url) {
 
 </body>
 </html>
+
