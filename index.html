@@ -458,7 +458,7 @@
         // =============================================
 
         // --- Variabel Global ---
-        const DATA_URL = 'https://script.google.com/macros/s/AKfycbzR6YJmrpmuHpqrydEi24tDxEgaULZb2P41Ris1mfU6ggBPrXxCJ5BD0kg8kokodK6i/exec'; //
+        const DATA_URL = 'https://script.google.com/macros/s/AKfycbx56T7QBh4OcZTDV0XWDFiQ9DgHpQ745tpx68nhjpsuDEet79wjZTD3JGTOv_ZvY2ki/exec'; //
         let allData = []; //
         let layerGroups = {}; //
         let mainLayerControl; //
@@ -1193,16 +1193,23 @@ async function fetchWeather() {
                 uploadButton = document.getElementById('upload-serah-terima-btn');
                 columnName = 'Link Serah Terima'; // Harus sama dengan header di Sheet
             
-            } else if (fileType === 'monitoring') {
+	    } else if (fileType === 'monitoring') {
                 fileInput = document.getElementById('file-monitoring-input');
-                uploadButton = document.getElementById('upload-monitoring-btn');
-                columnName = 'Link Monitoring'; // Harus sama dengan header di Sheet
+                uploadButton = document.getElementById('upload-monitoring-btn'); // Button ini null untuk dokumentasi, tidak masalah
+                columnName = 'Link Monitoring'; 
             
+            // --- TAMBAHAN BARU UNTUK DOKUMENTASI ---
+            } else if (fileType === 'dokumentasi') {
+                fileInput = document.getElementById('file-dokumentasi-input');
+                // Dokumentasi tidak punya tombol loading khusus (karena model card), 
+                // jadi kita bisa abaikan uploadButton atau buat notifikasi loading global.
+                columnName = 'Link Dokumentasi'; 
+            // ----------------------------------------
+
             } else {
                 showNotification('Tipe file upload tidak dikenal.');
                 return;
             }
-            // --- AKHIR LOGIKA DIPERLUAS ---
 
 
             if (!fileInput || fileInput.files.length === 0) {
@@ -1405,30 +1412,57 @@ function getDriveImgUrl(url) {
                 }
             }
 
-            // --- Bagian Galeri Foto (Versi Fix Image) ---
+// --- Bagian Galeri Foto (DENGAN TOMBOL TAMBAH FOTO) ---
             let galleryHtml = '';
-            if (data.photos && data.photos.length > 0) {
-                galleryHtml += `
-                <div class="mt-6"> <h4 class="text-base font-bold border-b border-gray-200 dark:border-gray-700 pb-2 mb-4 flex items-center gap-2">
+            // Ambil array foto yang valid
+            const photoList = (data.photos || []).filter(url => url && url.trim() !== "");
+            const photoCount = photoList.length;
+            const MAX_PHOTOS = 8; // Batas maksimal
+
+            // Render container selalu (agar tombol tambah tetap muncul meski belum ada foto)
+            galleryHtml += `
+            <div class="mt-6">
+                <div class="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-2 mb-4">
+                    <h4 class="text-base font-bold flex items-center gap-2">
                         <span class="material-symbols-outlined">photo_library</span> 
                         Dokumentasi Lapangan
                     </h4>
-                    <div class="sidebar-gallery grid grid-cols-3 gap-2">`;
+                    <span class="text-xs font-medium px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
+                        ${photoCount} / ${MAX_PHOTOS}
+                    </span>
+                </div>
                 
-                data.photos.forEach((photoUrl, index) => {
-                    if(photoUrl && photoUrl.trim() !== ""){ 
-                        const displaySrc = getDriveImgUrl(photoUrl); 
-                        galleryHtml += `
-                        <a href="${photoUrl}" target="_blank" class="group relative aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 block shadow-sm">
-                            <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-300 dark:text-gray-600 z-0"><span class="material-symbols-outlined text-3xl">image</span></div>
-                            <img src="${displaySrc}" class="relative z-10 w-full h-full object-cover transition-all duration-500 ease-in-out group-hover:scale-110 opacity-0" alt="Foto ${index + 1}" loading="lazy" onload="this.classList.remove('opacity-0')" onerror="this.style.display='none'">
-                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors z-20 pointer-events-none"></div>
-                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-30 pointer-events-none"><span class="material-symbols-outlined text-white drop-shadow-md text-2xl">zoom_in</span></div>
-                        </a>`; 
-                    }
-                });
-                galleryHtml += '</div></div>';
+                <div class="sidebar-gallery grid grid-cols-3 gap-2">`;
+            
+            // 1. Loop Foto yang Sudah Ada
+            photoList.forEach((photoUrl, index) => {
+                const displaySrc = getDriveImgUrl(photoUrl); 
+                galleryHtml += `
+                <a href="${photoUrl}" target="_blank" class="group relative aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 block shadow-sm">
+                    <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-300 dark:text-gray-600 z-0"><span class="material-symbols-outlined text-3xl">image</span></div>
+                    <img src="${displaySrc}" class="relative z-10 w-full h-full object-cover transition-all duration-500 ease-in-out group-hover:scale-110 opacity-0" alt="Foto ${index + 1}" loading="lazy" onload="this.classList.remove('opacity-0')" onerror="this.style.display='none'">
+                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors z-20 pointer-events-none"></div>
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-30 pointer-events-none"><span class="material-symbols-outlined text-white drop-shadow-md text-2xl">zoom_in</span></div>
+                </a>`; 
+            });
+
+            // 2. Tombol "Tambah Foto" (Hanya muncul jika kurang dari 8)
+            if (photoCount < MAX_PHOTOS) {
+                galleryHtml += `
+                <div onclick="document.getElementById('file-dokumentasi-input').click()" 
+                     class="aspect-square bg-gray-50 dark:bg-gray-800/50 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group">
+                    <span class="material-symbols-outlined text-gray-400 group-hover:text-primary transition-colors text-3xl">add_a_photo</span>
+                    <span class="text-[10px] text-gray-500 group-hover:text-primary font-medium mt-1">Tambah</span>
+                </div>`;
             }
+
+            // 3. Input File Tersembunyi
+            galleryHtml += `
+                </div>
+                <input type="file" id="file-dokumentasi-input" accept="image/*" multiple 
+                       class="hidden" 
+                       onchange="handleSidebarUpload('dokumentasi', '${data.idx}')">
+            </div>`;
 
             const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${data.lat},${data.lng}`; 
             sidebarTitle.innerText = data.nama || 'Detail Laporan';
@@ -1688,4 +1722,3 @@ function getDriveImgUrl(url) {
 
 </body>
 </html>
-
