@@ -458,7 +458,7 @@
         // =============================================
 
         // --- Variabel Global ---
-        const DATA_URL = 'https://script.google.com/macros/s/AKfycbyFSg1Ua65dmoDfd7L-yFI4deL3rPr1PGZvRZ6i8e63UiiwVAIQyPJBbldO2dqyqUV8/exec'; //
+        const DATA_URL = 'https://script.google.com/macros/s/AKfycbzR6YJmrpmuHpqrydEi24tDxEgaULZb2P41Ris1mfU6ggBPrXxCJ5BD0kg8kokodK6i/exec'; //
         let allData = []; //
         let layerGroups = {}; //
         let mainLayerControl; //
@@ -1182,7 +1182,7 @@ async function fetchWeather() {
             let uploadButton;
             let columnName;
             
-            // --- LOGIKA DIPERLUAS ---
+// --- LOGIKA DIPERLUAS ---
             if (fileType === 'disposisi') {
                 fileInput = document.getElementById('file-disposisi-input');
                 uploadButton = document.getElementById('upload-disposisi-btn');
@@ -1205,12 +1205,12 @@ async function fetchWeather() {
             // --- AKHIR LOGIKA DIPERLUAS ---
 
 
-            if (!fileInput || !fileInput.files[0]) {
-                showNotification('Gagal: Silakan pilih file terlebih dahulu.');
+            if (!fileInput || fileInput.files.length === 0) {
+                showNotification('Gagal: Silakan pilih setidaknya satu file terlebih dahulu.');
                 return;
             }
 
-            const file = fileInput.files[0];
+            const filesToUpload = fileInput.files;
             const reportData = allData.find(item => item.idx == reportIndex);
 
             if (!reportData) {
@@ -1220,35 +1220,50 @@ async function fetchWeather() {
 
             if (uploadButton) {
                 uploadButton.disabled = true;
-                uploadButton.innerHTML = '<span class="material-symbols-outlined animate-spin">progress_activity</span> Mengupload...';
+                uploadButton.innerHTML = '<span class="material-symbols-outlined animate-spin">progress_activity</span> Mengupload (0%)...';
             }
+            
+            let filesUploaded = 0;
 
             try {
-                const fileBase64 = await readFileAsBase64(file);
-                
-                const payload = {
-                    mode: 'update', // Memberi tahu doPost untuk update [cite: 7]
-                    file: fileBase64,
-                    laporanId: reportData.timestamp, // Menggunakan timestamp unik dari data [cite: 63]
-                    columnName: columnName, // Nama kolom yang akan diupdate [cite: 64]
+                // --- LOOP BARU UNTUK MULTI-FILE ---
+                for (const file of filesToUpload) {
+                    const fileBase64 = await readFileAsBase64(file);
                     
-                    folderData: {
-                        jenisBencana: reportData.bencana,
-                        alamatDesa: reportData.desakelurahan,
-                        alamatKecamatan: reportData.kec,
-						namaKK: reportData.nama
-                    },
-                    tanggalLaporan: reportData.tanggalWaktu ? reportData.tanggalWaktu.split(' ').slice(0, 3).join(' ') : ""
-                };
+                    // Update progress button
+                    filesUploaded++;
+                    if (uploadButton) {
+                         uploadButton.innerHTML = `<span class="material-symbols-outlined animate-spin">progress_activity</span> Mengupload (${filesUploaded}/${filesToUpload.length})...`;
+                    }
+                    
+                    const payload = {
+                        mode: 'update', // Memberi tahu doPost untuk update
+                        file: fileBase64,
+                        laporanId: reportData.timestamp, // Menggunakan timestamp unik dari data
+                        columnName: columnName, // Nama kolom yang akan diupdate
+                        
+                        folderData: {
+                            jenisBencana: reportData.bencana,
+                            alamatDesa: reportData.desakelurahan,
+                            alamatKecamatan: reportData.kec,
+                            namaKK: reportData.nama
+                        },
+                        // **PENTING:** Tambahkan file index ke kolom GAS agar URL-nya tidak menimpa, 
+                        // karena GAS Anda saat ini menyimpan URL file per baris.
+                        fileIndex: filesUploaded, 
+                        tanggalLaporan: reportData.tanggalWaktu ? reportData.tanggalWaktu.split(' ').slice(0, 3).join(' ') : ""
+                    };
 
-                await fetch(UPLOAD_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify(payload),
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                });
+                    await fetch(UPLOAD_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: JSON.stringify(payload),
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    });
+                }
+                // --- AKHIR LOOP BARU ---
 
-                showNotification('Sukses! File berhasil diupload.');
+                showNotification(`Sukses! ${filesToUpload.length} file berhasil diupload.`);
                 
                 closeSidebar();
                 if(fetchInterval) clearInterval(fetchInterval);
@@ -1276,188 +1291,213 @@ async function fetchWeather() {
     }).format(number);
 }
 
+
+/**
+         * Fungsi Pembantu untuk Merender Bagian Dokumen (Support Multi-File)
+         */
+        function renderDokumenSection(judul, linkString, tipeInput, idx) {
+            // 1. Cek dan Pecah Link berdasarkan koma
+            let linksHtml = '';
+            if (linkString && linkString !== '-' && linkString.trim() !== '') {
+                const urls = linkString.split(',').map(u => u.trim()).filter(u => u);
+                
+                if (urls.length > 0) {
+                    linksHtml += '<div class="flex flex-wrap gap-2 mb-3">';
+                    urls.forEach((url, i) => {
+                        linksHtml += `
+                            <a href="${url}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-200 border border-blue-200 dark:border-blue-800 rounded-lg text-xs font-semibold hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors" title="Buka File ke-${i+1}">
+                                <span class="material-symbols-outlined text-sm">description</span>
+                                File ${i + 1}
+                            </a>
+                        `;
+                    });
+                    linksHtml += '</div>';
+                }
+            }
+
+            // 2. Tampilkan Form Upload (Selalu tampil agar bisa tambah file kapan saja)
+            // Tombol ini mendukung upload BANYAK file sekaligus (multiple)
+            const uploadHtml = `
+                <div class="flex items-center gap-2">
+                    <input type="file" id="file-${tipeInput}-input" accept=".pdf,.jpg,.jpeg,.png" multiple
+                           class="block w-full flex-1 text-xs text-gray-500 dark:text-gray-400
+                                  file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 
+                                  file:text-xs file:font-medium
+                                  file:bg-gray-100 file:text-gray-700 
+                                  dark:file:bg-gray-700 dark:file:text-gray-300
+                                  hover:file:bg-gray-200 dark:hover:file:bg-gray-600
+                                  cursor-pointer">
+                    <button id="upload-${tipeInput}-btn" 
+                            onclick="handleSidebarUpload('${tipeInput}', '${idx}')"
+                            class="flex-shrink-0 flex items-center justify-center gap-1 bg-primary hover:bg-blue-600 text-white 
+                                   text-xs font-medium py-1.5 px-3 rounded-md transition-colors h-8
+                                   disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span class="material-symbols-outlined text-sm">cloud_upload</span>
+                        Upload
+                    </button>
+                </div>
+            `;
+
+            return `
+                <div class="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                    <p class="text-xs font-bold uppercase text-gray-500 dark:text-gray-400 mb-2 tracking-wide">${judul}</p>
+                    ${linksHtml}
+                    ${uploadHtml}
+                </div>
+            `;
+        }
+
+	/**
+ * Fungsi Mengubah Link Drive "View" menjadi Link "Thumbnail/Gambar"
+ */
+function getDriveImgUrl(url) {
+    if (!url) return "";
+    // Regex untuk mengambil ID File dari URL Google Drive
+    // Cocok dengan pola: /d/FILE_ID/
+    const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    
+    if (match && match[1]) {
+        const fileId = match[1];
+        // Menggunakan endpoint thumbnail Google Drive (lebih cepat & stabil untuk galeri)
+        // sz=s400 artinya ukuran gambar 400px (cukup untuk thumbnail)
+        return `https://drive.google.com/thumbnail?id=${fileId}&sz=s400`;
+    }
+    
+    // Jika bukan link drive, kembalikan URL aslinya
+    return url;
+}
+
         /**
-         * Membuka Sidebar Detail
-         * */
+         * Membuka Sidebar Detail (Versi Baru)
+         */
         function openSidebarWithData(data) {
             const content = document.getElementById('sidebar-content');
             const sidebarTitle = document.getElementById('sidebar-title');
             const routeButton = document.getElementById('route-button-link');
             const downloadButton = document.getElementById('download-laporan-btn');
 
-            let galleryHtml = '', bantuanHtml = '';
-
+            // --- Bagian Bantuan ---
+            let bantuanHtml = '';
             if (data.bantuan && typeof data.bantuan === 'object') {
                 let adaBantuan = false;
-                let bantuanContent = '<div class="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">';
+                let bantuanContent = '<div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">';
                 for (const item in data.bantuan) {
                     const jumlah = parseFloat(data.bantuan[item]) || 0;
                     if (jumlah > 0) {
                         adaBantuan = true;
-                        bantuanContent += `<div class="flex justify-between"><strong>${item}:</strong> <span>${jumlah}</span></div>`;
+                        bantuanContent += `<div class="flex justify-between border-b border-dashed border-gray-200 dark:border-gray-700 pb-1"><span>${item}</span> <span class="font-semibold">${jumlah}</span></div>`;
                     }
                 }
                 bantuanContent += '</div>';
                 if (adaBantuan) {
-                    bantuanHtml = `<h4 class="text-base font-semibold border-b pb-1 mb-2">Detail Bantuan Stimulan</h4>${bantuanContent}`;
+                    bantuanHtml = `<div class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-100 dark:border-yellow-800/30 mb-4"><h4 class="text-sm font-bold text-yellow-800 dark:text-yellow-500 mb-3 flex items-center gap-2"><span class="material-symbols-outlined text-base">inventory_2</span> Bantuan Stimulan</h4>${bantuanContent}</div>`;
                 }
             }
 
+// --- Bagian Galeri Foto (FIX IMAGE LOADING) ---
+            let galleryHtml = '';
             if (data.photos && data.photos.length > 0) {
-                galleryHtml += '<h4 class="text-base font-semibold border-b pb-1 mb-2">Dokumentasi Foto</h4><div class="sidebar-gallery flex flex-wrap gap-2">';
+                galleryHtml += `
+                <div class="mt-4">
+                    <h4 class="text-sm font-bold border-b border-gray-200 dark:border-gray-700 pb-2 mb-3 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-base">photo_library</span> 
+                        Dokumentasi Lapangan
+                    </h4>
+                    <div class="sidebar-gallery grid grid-cols-3 gap-2">`;
+                
                 data.photos.forEach((photoUrl, index) => {
-                    if(photoUrl){ 
-                        galleryHtml += `<a href="${photoUrl}" target="_blank" class="photo-link inline-block px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-md text-sm transition-colors hover:bg-gray-200 dark:hover:bg-gray-600" title="Buka foto di tab baru">📷 Foto ${index + 1}</a>`; 
+                    if(photoUrl && photoUrl.trim() !== ""){ 
+                        // KONVERSI LINK DI SINI
+                        const displaySrc = getDriveImgUrl(photoUrl);
+
+                        galleryHtml += `
+                        <a href="${photoUrl}" target="_blank" class="group relative aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 block shadow-sm">
+                            
+                            <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-300 dark:text-gray-600 z-0">
+                                <span class="material-symbols-outlined text-3xl">image</span>
+                            </div>
+
+                            <img src="${displaySrc}" 
+                                 class="relative z-10 w-full h-full object-cover transition-all duration-500 ease-in-out group-hover:scale-110 opacity-0"
+                                 alt="Foto ${index + 1}"
+                                 loading="lazy"
+                                 onload="this.classList.remove('opacity-0')" 
+                                 onerror="this.style.display='none'" 
+                            >
+                            
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors z-20 pointer-events-none"></div>
+                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-30 pointer-events-none">
+                                <span class="material-symbols-outlined text-white drop-shadow-md text-2xl">zoom_in</span>
+                            </div>
+                        </a>`; 
                     }
                 });
-                galleryHtml += '</div>';
+                galleryHtml += '</div></div>';
             }
-
-	    // --- BARU: Logika untuk 3 file pendukung ---
-            let disposisiHtml = `
-                <div>
-                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300">File Disposisi</p>
-                    ${data.linkDisposisi ? `
-                        <a href="${data.linkDisposisi}" target="_blank" class="mt-1 inline-flex items-center gap-2 px-3 py-2 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-md text-sm font-medium hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors">
-                            <span class="material-symbols-outlined text-base" style="font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;">open_in_new</span>
-                            Lihat File
-                        </a>
-                    ` : `
-                        <div class="mt-2 flex items-center gap-2">
-                            <input type="file" id="file-disposisi-input" accept=".pdf,.jpg,.jpeg,.png" 
-                                   class="block w-full flex-1 text-sm text-text-light dark:text-text-dark 
-                                          border border-border-light dark:border-border-dark 
-                                          rounded-lg cursor-pointer bg-card-light dark:bg-card-dark 
-                                          focus:outline-none
-                                          file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 
-                                          file:text-sm file:font-medium
-                                          file:bg-primary/10 file:text-primary 
-                                          dark:file:bg-primary/20 dark:file:text-primary
-                                          hover:file:bg-primary/20 dark:hover:file:bg-primary/30">
-                            <button id="upload-disposisi-btn" 
-                                    onclick="handleSidebarUpload('disposisi', '${data.idx}')"
-                                    class="flex-shrink-0 flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white 
-                                           font-medium py-2 px-4 rounded-lg transition-colors h-10
-                                           disabled:opacity-50 disabled:cursor-not-allowed">
-                                <span class="material-symbols-outlined text-base">upload_file</span>
-                                Upload
-                            </button>
-                        </div>
-                    `}
-                </div>
-            `;
-
-            let serahTerimaHtml = `
-                <div>
-                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300">File Serah Terima</p>
-                    ${data.linkSerahTerima ? `
-                        <a href="${data.linkSerahTerima}" target="_blank" class="mt-1 inline-flex items-center gap-2 px-3 py-2 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-md text-sm font-medium hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors">
-                            <span class="material-symbols-outlined text-base" style="font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;">open_in_new</span>
-                            Lihat File
-                        </a>
-                    ` : `
-                        <div class="mt-2 flex items-center gap-2">
-                            <input type="file" id="file-serah-terima-input" accept=".pdf,.jpg,.jpeg,.png" 
-                                   class="block w-full flex-1 text-sm text-text-light dark:text-text-dark 
-                                          border border-border-light dark:border-border-dark 
-                                          rounded-lg cursor-pointer bg-card-light dark:bg-card-dark 
-                                          focus:outline-none
-                                          file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 
-                                          file:text-sm file:font-medium
-                                          file:bg-primary/10 file:text-primary 
-                                          dark:file:bg-primary/20 dark:file:text-primary
-                                          hover:file:bg-primary/20 dark:hover:file:bg-primary/30">
-                            <button id="upload-serah-terima-btn" 
-                                    onclick="handleSidebarUpload('serahTerima', '${data.idx}')"
-                                    class="flex-shrink-0 flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white 
-                                           font-medium py-2 px-4 rounded-lg transition-colors h-10
-                                           disabled:opacity-50 disabled:cursor-not-allowed">
-                                <span class="material-symbols-outlined text-base">upload_file</span>
-                                Upload
-                            </button>
-                        </div>
-                    `}
-                </div>
-            `;
-
-            let monitoringHtml = `
-                <div>
-                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300">File Monitoring</p>
-                    ${data.linkMonitoring ? `
-                        <a href="${data.linkMonitoring}" target="_blank" class="mt-1 inline-flex items-center gap-2 px-3 py-2 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-md text-sm font-medium hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors">
-                            <span class="material-symbols-outlined text-base" style="font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;">open_in_new</span>
-                            Lihat File
-                        </a>
-                    ` : `
-                        <div class="mt-2 flex items-center gap-2">
-                            <input type="file" id="file-monitoring-input" accept=".pdf,.jpg,.jpeg,.png" 
-                                   class="block w-full flex-1 text-sm text-text-light dark:text-text-dark 
-                                          border border-border-light dark:border-border-dark 
-                                          rounded-lg cursor-pointer bg-card-light dark:bg-card-dark 
-                                          focus:outline-none
-                                          file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 
-                                          file:text-sm file:font-medium
-                                          file:bg-primary/10 file:text-primary 
-                                          dark:file:bg-primary/20 dark:file:text-primary
-                                          hover:file:bg-primary/20 dark:hover:file:bg-primary/30">
-                            <button id="upload-monitoring-btn" 
-                                    onclick="handleSidebarUpload('monitoring', '${data.idx}')"
-                                    class="flex-shrink-0 flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white 
-                                           font-medium py-2 px-4 rounded-lg transition-colors h-10
-                                           disabled:opacity-50 disabled:cursor-not-allowed">
-                                <span class="material-symbols-outlined text-base">upload_file</span>
-                                Upload
-                            </button>
-                        </div>
-                    `}
-                </div>
-            `;
-            // --- AKHIR BLOK BARU ---
 
             const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${data.lat},${data.lng}`; 
             sidebarTitle.innerText = data.nama || 'Detail Laporan';
             
-            // --- PERBAIKAN FORMAT TANGGAL (DD/MM/YYYY) ---
-            // Menggunakan 'id-ID' untuk format DD/MM/YYYY
             const tanggalAsesmen = data.dateObj 
-                ? data.dateObj.toLocaleDateString('id-ID') 
-                : (data.tanggalWaktu || 'Tidak ada data'); // Fallback jika parsing gagal
-            // --- AKHIR PERBAIKAN ---
+                ? data.dateObj.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) 
+                : (data.tanggalWaktu || 'Tidak ada data');
 
+            // --- RENDER KONTEN UTAMA ---
             content.innerHTML = `
-                <div class="space-y-3">
-                    <div>
-                        <h4 class="text-base font-semibold border-b pb-1 mb-2">Detail Lokasi</h4>
-                        <p class="text-sm"><strong>Jalan/Dusun:</strong><br>${data.jalandusun||'Tidak ada data'}</p>
-                        <p class="text-sm"><strong>Kelurahan/Desa:</strong><br>${data.desakelurahan||'Tidak ada data'}</p>
-                        <p class="text-sm"><strong>Kecamatan:</strong><br>${data.kec||'Tidak ada data'}</p>
-                    </div>
-                    <div>
-                        <h4 class="text-base font-semibold border-b pb-1 mb-2">Detail Bencana & Asesmen</h4>
-                        <p class="text-sm"><strong>Jenis Bencana:</strong><br>${data.bencana||'Tidak ada data'}</p>
+                <div class="space-y-6">
+                    <div class="bg-white dark:bg-card-dark rounded-lg">
+                        <div class="flex items-start gap-3 mb-4">
+                            <div class="bg-primary/10 text-primary p-2 rounded-full">
+                                <span class="material-symbols-outlined text-xl">location_on</span>
+                            </div>
+                            <div>
+                                <h4 class="text-base font-bold">${data.jalandusun || 'Dusun Tidak Diketahui'}</h4>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Desa ${data.desakelurahan}, Kec. ${data.kec}</p>
+                            </div>
+                        </div>
                         
-                        <p class="text-sm"><strong>Tanggal Asesmen:</strong><br>${tanggalAsesmen}</p>
-                        
-                        <p class="text-sm"><strong>Pengkajian:</strong><br>${data.pengkajian||'Tidak ada data'}</p>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <p class="text-xs text-gray-400">Jenis Bencana</p>
+                                <p class="font-medium">${data.bencana||'-'}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400">Tanggal Kejadian</p>
+                                <p class="font-medium">${tanggalAsesmen}</p>
+                            </div>
+                            <div class="col-span-2">
+                                <p class="text-xs text-gray-400">Hasil Pengkajian</p>
+                                <p class="font-medium leading-relaxed">${data.pengkajian||'-'}</p>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <h4 class="text-base font-semibold border-b pb-1 mb-2">Detail Kerusakan & Kerugian</h4>
-                        <p class="text-sm"><strong>Tingkat Kerusakan:</strong><br>${data.kerusakan || 'Tidak ada data'}</p>
-			<p class="text-sm"><strong>Bagian Rusak:</strong><br>${data.bagianRusak || 'Tidak ada data'}</p>
-                        <p class="text-sm"><strong>Taksiran Kerusakan:</strong><br>${formatRupiah(data.nilaiKerusakan)}</p>
-                        <p class="text-sm"><strong>Taksiran Kerugian:</strong><br>${formatRupiah(data.nilaiKerugian)}</p>
+
+                    <div class="bg-red-50 dark:bg-red-900/10 p-4 rounded-lg border border-red-100 dark:border-red-900/30">
+                         <h4 class="text-sm font-bold text-red-700 dark:text-red-400 mb-3 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-base">house_siding</span> Kerusakan & Kerugian
+                         </h4>
+                         <div class="space-y-2 text-sm">
+                            <div class="flex justify-between"><span>Tingkat Kerusakan:</span> <span class="font-bold px-2 py-0.5 rounded bg-white dark:bg-black/20">${data.kerusakan || '-'}</span></div>
+                            <div class="flex justify-between"><span>Bagian Rusak:</span> <span class="font-medium text-right">${data.bagianRusak || '-'}</span></div>
+                            <div class="border-t border-red-200 dark:border-red-800 my-2 pt-2"></div>
+                            <div class="flex justify-between"><span>Taksiran Kerusakan:</span> <span class="font-bold">${formatRupiah(data.nilaiKerusakan)}</span></div>
+                            <div class="flex justify-between"><span>Taksiran Kerugian:</span> <span class="font-bold">${formatRupiah(data.nilaiKerugian)}</span></div>
+                         </div>
                     </div>
                     
                     ${bantuanHtml}
                     
                     <div>
-                        <h4 class="text-base font-semibold border-b pb-1 mb-2">Dokumen Pendukung</h4>
-                        <div class="space-y-4 mt-2">
-                            ${disposisiHtml}
-                            ${serahTerimaHtml}
-                            ${monitoringHtml}
+                        <h4 class="text-base font-bold border-b border-gray-200 dark:border-gray-700 pb-2 mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined">folder_open</span> Dokumen Pendukung
+                        </h4>
+                        <div class="space-y-3">
+                            ${renderDokumenSection('Surat Disposisi', data.linkDisposisi, 'disposisi', data.idx)}
+                            ${renderDokumenSection('Berita Acara Serah Terima', data.linkSerahTerima, 'serahTerima', data.idx)}
+                            ${renderDokumenSection('Laporan Monitoring', data.linkMonitoring, 'monitoring', data.idx)}
                         </div>
                     </div>
+                    
                     ${galleryHtml}
                 </div>
             `;
@@ -1650,8 +1690,3 @@ async function fetchWeather() {
 
 </body>
 </html>
-
-
-
-
-
