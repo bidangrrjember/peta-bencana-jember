@@ -177,8 +177,7 @@
     </audio>
     
     <div class="flex h-screen">
-        <aside id="filter-sidebar" class="fixed lg:static w-64 bg-card-light dark:bg-card-dark flex flex-col p-6 border-r border-border-light dark:border-border-dark h-full z-30
-                                        transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+        <aside id="filter-sidebar" class="fixed lg:static w-64 bg-card-light dark:bg-card-dark flex flex-col p-6 border-r border-border-light dark:border-border-dark h-full z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
             
             <div class="flex items-center justify-between gap-3 mb-8">
                 <div class="flex items-center gap-3">
@@ -236,7 +235,7 @@
 
         </aside>
 
-        <div id="filter-overlay" class="fixed inset-0 bg-black/30 z-[25] lg:hidden hidden"></div>
+        <div id="filter-overlay" class="fixed inset-0 bg-black/30 z-40 lg:hidden hidden"></div>
 
 
         <main class="flex-1 flex flex-col overflow-hidden h-screen relative">
@@ -315,7 +314,7 @@
                         <div id="map-card" class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm border border-border-light dark:border-border-dark p-2 h-96 xl:h-auto">
                             <div class="relative w-full h-full">
                                 <div id="map" class="w-full h-full rounded-lg z-10"></div>
-                                <div class="absolute top-4 left-4 right-4 z-[9999] flex flex-col">
+                                <div class="absolute top-4 left-4 right-4 z-30 flex flex-col">
     <label class="relative flex w-full items-stretch rounded-lg shadow-md bg-card-light dark:bg-card-dark transition-all duration-300">
         <div class="text-gray-500 dark:text-gray-400 flex border-none items-center justify-center pl-4 rounded-l-lg">
             <span class="material-symbols-outlined">search</span>
