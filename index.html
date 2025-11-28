@@ -322,28 +322,30 @@
 
         <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
             <div class="xl:col-span-2">
-                 <div id="map-card" class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm border border-border-light dark:border-border-dark p-2 h-96 xl:h-auto">
-                    <div class="relative w-full h-full">
-                        <div id="map" class="w-full h-full rounded-lg z-10"></div>
-                        <div class="absolute top-4 left-4 right-4 z-30 flex flex-col">
-                            <label class="relative flex w-full items-stretch rounded-lg shadow-md bg-card-light dark:bg-card-dark transition-all duration-300">
-                                <div class="text-gray-500 dark:text-gray-400 flex border-none items-center justify-center pl-4 rounded-l-lg">
-                                    <span class="material-symbols-outlined">search</span>
-                                </div>
-                                
-                                <input id="search-input" autocomplete="off" 
-                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-0 border-none bg-transparent h-12 placeholder:text-gray-500 dark:placeholder:text-gray-400 pl-2 text-base font-normal" 
-                                    placeholder="Cari nama korban, desa, atau kecamatan..."/>
-
-                                <button id="clear-search-btn" class="hidden text-gray-400 hover:text-red-500 pr-4 items-center justify-center">
-                                    <span class="material-symbols-outlined text-xl">close</span>
-                                </button>
-                            </label>
-
-                            <div id="search-results" class="hidden mt-2 w-full bg-white dark:bg-[#1E1E1E] rounded-lg shadow-xl border border-gray-100 dark:border-gray-700 max-h-80 overflow-y-auto custom-scrollbar"></div>
-                        </div>
-                    </div>
+                 
+<div id="map-card" class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm border border-border-light dark:border-border-dark p-2 h-96 xl:h-auto">
+    <div class="relative w-full h-full">
+        <div id="map" class="w-full h-full rounded-[0.5rem] z-10"></div>
+        
+        <div class="absolute top-4 left-4 right-4 z-30 flex flex-col">
+            <label class="relative flex w-full items-stretch rounded-lg shadow-md bg-card-light dark:bg-card-dark transition-all duration-300">
+                <div class="text-gray-500 dark:text-gray-400 flex border-none items-center justify-center pl-4 rounded-l-lg">
+                    <span class="material-symbols-outlined">search</span>
                 </div>
+                
+                <input id="search-input" autocomplete="off" 
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-0 border-none bg-transparent h-12 placeholder:text-gray-500 dark:placeholder:text-gray-400 pl-2 text-base font-normal" 
+                    placeholder="Cari nama korban, desa, atau kecamatan..."/>
+
+                <button id="clear-search-btn" class="hidden text-gray-400 hover:text-red-500 pr-4 items-center justify-center">
+                    <span class="material-symbols-outlined text-xl">close</span>
+                </button>
+            </label>
+
+            <div id="search-results" class="hidden mt-2 w-full bg-white dark:bg-[#1E1E1E] rounded-lg shadow-xl border border-gray-100 dark:border-gray-700 max-h-80 overflow-y-auto custom-scrollbar"></div>
+        </div>
+    </div>
+</div>
             </div>
 
             <div class="xl:col-span-1">
