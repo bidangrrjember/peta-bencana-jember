@@ -73,6 +73,15 @@
       .animation-delay-400 {
         animation-delay: 0.32s;
       }
+
+      .no-scrollbar::-webkit-scrollbar {
+    	display: none;
+      }
+      .no-scrollbar {
+    	-ms-overflow-style: none;  /* IE dan Edge */
+        scrollbar-width: none;  /* Firefox */
+      }
+     
       /* */
       @keyframes pulse-glow {
         0% { 
@@ -251,22 +260,23 @@
         </h1>
     </div>
 
-    <div class="flex items-center justify-end gap-4">
+<div class="flex items-center justify-end gap-4">
         
-       <div class="flex items-center p-1 bg-background-light dark:bg-background-dark rounded-lg border border-border-light dark:border-border-dark hidden">
+        <div class="hidden lg:flex items-center p-1 bg-background-light dark:bg-background-dark rounded-lg border border-border-light dark:border-border-dark">
             
-            <a href="#" class="flex items-center gap-2 px-4 py-2 rounded bg-card-light dark:bg-card-dark text-primary shadow-sm font-medium">
+            <a href="#" id="nav-dashboard" onclick="switchView('dashboard'); return false;" 
+               class="flex items-center gap-2 px-4 py-2 rounded bg-card-light dark:bg-card-dark text-primary shadow-sm font-medium transition-all">
                 <span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">dashboard</span>
                 <span class="text-sm">Dashboard</span>
             </a>
             
-            <a href="#" class="flex items-center gap-2 px-4 py-2 rounded text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700">
+            <a href="#" id="nav-reports" onclick="switchView('reports'); return false;" 
+               class="flex items-center gap-2 px-4 py-2 rounded text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">
                 <span class="material-symbols-outlined text-xl">bar_chart</span>
                 <span class="text-sm">Reports</span>
             </a>
 
         </div>
-
         <button id="fullscreen-btn" title="Mode Layar Penuh" class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 text-text-light dark:text-text-dark">
             <span class="material-symbols-outlined">fullscreen</span>
         </button>
@@ -279,124 +289,160 @@
 </header>
 
             <div class="flex-1 p-4 lg:p-6 overflow-y-auto custom-scrollbar bg-background-light dark:bg-background-dark">
-                
-                <div id="summary-box" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
     
-    <div class="flex flex-col gap-2 rounded-lg p-6 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-sm">
-        <div class="flex items-center gap-2">
-            <div class="w-3 h-3 rounded-full bg-red-500"></div>
-            <p class="text-base font-medium text-gray-500 dark:text-gray-400">Menunggu Penyaluran</p>
-        </div>
-        <p id="stat-terkaji" class="text-3xl font-bold">0</p>
-    </div>
-
-    <div class="flex flex-col gap-2 rounded-lg p-6 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-sm">
-        <div class="flex items-center gap-2">
-            <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
-            <p class="text-base font-medium text-gray-500 dark:text-gray-400">Menunggu Monitoring</p>
-        </div>
-        <p id="stat-bantuan" class="text-3xl font-bold">0</p>
-    </div>
-
-    <div class="flex flex-col gap-2 rounded-lg p-6 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-sm">
-        <div class="flex items-center gap-2">
-            <div class="w-3 h-3 rounded-full bg-green-500"></div>
-            <p class="text-base font-medium text-gray-500 dark:text-gray-400">Penanganan Tuntas</p>
-        </div>
-        <p id="stat-monitoring" class="text-3xl font-bold">0</p>
-    </div>
-
-</div>
-
-                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-
-                    <div class="xl:col-span-2">
-                        <div id="map-card" class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm border border-border-light dark:border-border-dark p-2 h-96 xl:h-auto">
-                            <div class="relative w-full h-full">
-                                <div id="map" class="w-full h-full rounded-lg z-10"></div>
-                                <div class="absolute top-4 left-4 right-4 z-30 flex flex-col">
-    <label class="relative flex w-full items-stretch rounded-lg shadow-md bg-card-light dark:bg-card-dark transition-all duration-300">
-        <div class="text-gray-500 dark:text-gray-400 flex border-none items-center justify-center pl-4 rounded-l-lg">
-            <span class="material-symbols-outlined">search</span>
-        </div>
+    <div id="dashboard-view" class="transition-opacity duration-300">
         
-        <input id="search-input" autocomplete="off" 
-               class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-0 border-none bg-transparent h-12 placeholder:text-gray-500 dark:placeholder:text-gray-400 pl-2 text-base font-normal" 
-               placeholder="Cari nama korban, desa, atau kecamatan..."/>
-
-        <button id="clear-search-btn" class="hidden text-gray-400 hover:text-red-500 pr-4 items-center justify-center">
-            <span class="material-symbols-outlined text-xl">close</span>
-        </button>
-    </label>
-
-    <div id="search-results" 
-         class="hidden mt-2 w-full bg-white dark:bg-[#1E1E1E] rounded-lg shadow-xl border border-gray-100 dark:border-gray-700 max-h-80 overflow-y-auto custom-scrollbar">
-         </div>
-</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="xl:col-span-1">
-                        <div id="table-card" class="overflow-hidden rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark shadow-sm">
-                            <div id="table-header" class="flex justify-between items-center p-4 border-b border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark">
-    <h3 class="text-lg font-bold text-[#0c141d] dark:text-white">Laporan Terbaru</h3>
-    
-    <div class="flex items-center gap-2">
-        <button id="prev-page-btn" onclick="changePage(-1)" disabled 
-                class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-primary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
-            <span class="material-symbols-outlined text-sm">chevron_left</span>
-        </button>
+        <div id="summary-box" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+             <div class="flex flex-col gap-2 rounded-lg p-6 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-sm">
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                    <p class="text-base font-medium text-gray-500 dark:text-gray-400">Menunggu Penyaluran</p>
+                </div>
+                <p id="stat-terkaji" class="text-3xl font-bold">0</p>
+            </div>
         
-        <span id="page-indicator" class="text-xs font-semibold text-gray-500 dark:text-gray-400 min-w-[30px] text-center">
-            1
-        </span>
-
-        <button id="next-page-btn" onclick="changePage(1)" disabled
-                class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-primary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
-            <span class="material-symbols-outlined text-sm">chevron_right</span>
-        </button>
-    </div>
-</div>
-                            
-<div id="table-scroll-container" class="overflow-x-auto overflow-y-scroll custom-scrollbar"> 
-    <table class="w-full text-sm text-left table-fixed"> 
-        <thead class="bg-background-light dark:bg-background-dark sticky top-0 z-10">
-            <tr>
-                <th class="w-6/12 px-4 py-3 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">
-                    Lokasi (Korban)
-                </th>
-                
-                <th class="w-3/12 px-4 py-3 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">
-                    Status
-                </th>
-                
-                <th class="w-3/12 px-4 py-3 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">
-                    Tanggal
-                </th>
-            </tr>
-        </thead>
+            <div class="flex flex-col gap-2 rounded-lg p-6 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-sm">
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                    <p class="text-base font-medium text-gray-500 dark:text-gray-400">Menunggu Monitoring</p>
+                </div>
+                <p id="stat-bantuan" class="text-3xl font-bold">0</p>
+            </div>
         
-        <tbody id="data-table-body" class="divide-y divide-border-light dark:divide-border-dark">
-            <tr><td colspan="3" class="px-6 py-4 text-center text-gray-500">Memuat data...</td></tr>
-        </tbody>
-    </table>
-</div>
+            <div class="flex flex-col gap-2 rounded-lg p-6 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-sm">
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    <p class="text-base font-medium text-gray-500 dark:text-gray-400">Penanganan Tuntas</p>
+                </div>
+                <p id="stat-monitoring" class="text-3xl font-bold">0</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <div class="xl:col-span-2">
+                 <div id="map-card" class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm border border-border-light dark:border-border-dark p-2 h-96 xl:h-auto">
+                    <div class="relative w-full h-full">
+                        <div id="map" class="w-full h-full rounded-lg z-10"></div>
+                        <div class="absolute top-4 left-4 right-4 z-30 flex flex-col">
+                            <label class="relative flex w-full items-stretch rounded-lg shadow-md bg-card-light dark:bg-card-dark transition-all duration-300">
+                                <div class="text-gray-500 dark:text-gray-400 flex border-none items-center justify-center pl-4 rounded-l-lg">
+                                    <span class="material-symbols-outlined">search</span>
+                                </div>
+                                
+                                <input id="search-input" autocomplete="off" 
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-0 border-none bg-transparent h-12 placeholder:text-gray-500 dark:placeholder:text-gray-400 pl-2 text-base font-normal" 
+                                    placeholder="Cari nama korban, desa, atau kecamatan..."/>
+
+                                <button id="clear-search-btn" class="hidden text-gray-400 hover:text-red-500 pr-4 items-center justify-center">
+                                    <span class="material-symbols-outlined text-xl">close</span>
+                                </button>
+                            </label>
+
+                            <div id="search-results" class="hidden mt-2 w-full bg-white dark:bg-[#1E1E1E] rounded-lg shadow-xl border border-gray-100 dark:border-gray-700 max-h-80 overflow-y-auto custom-scrollbar"></div>
                         </div>
                     </div>
                 </div>
-
             </div>
-	
-	</div>
 
-            <a href="https://bidangrrjember.github.io/jitupasna/" id="open-form-btn" 
-               class="absolute bottom-6 right-6 lg:bottom-8 lg:right-8 flex items-center justify-center
-                      w-14 h-14 bg-primary text-white rounded-full shadow-lg
-                      transition-transform hover:scale-105 z-20"
-               title="E-Form JITUPASNA">
-                <span class="material-symbols-outlined text-3xl">add</span>
-            </a>	
+            <div class="xl:col-span-1">
+                 <div id="table-card" class="overflow-hidden rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark shadow-sm">
+                    <div id="table-header" class="flex justify-between items-center p-4 border-b border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark">
+                        <h3 class="text-lg font-bold text-[#0c141d] dark:text-white">Laporan Terbaru</h3>
+                        
+                        <div class="flex items-center gap-2">
+                            <button id="prev-page-btn" onclick="changePage(-1)" disabled class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-primary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+                                <span class="material-symbols-outlined text-sm">chevron_left</span>
+                            </button>
+                            <span id="page-indicator" class="text-xs font-semibold text-gray-500 dark:text-gray-400 min-w-[30px] text-center">1</span>
+                            <button id="next-page-btn" onclick="changePage(1)" disabled class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-primary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+                                <span class="material-symbols-outlined text-sm">chevron_right</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="table-scroll-container" class="overflow-x-auto overflow-y-scroll no-scrollbar"> 
+                        <table class="w-full text-sm text-left table-fixed"> 
+                            <thead class="bg-background-light dark:bg-background-dark sticky top-0 z-10">
+                                <tr>
+                                    <th class="w-6/12 px-4 py-3 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">Lokasi (Korban)</th>
+                                    <th class="w-3/12 px-4 py-3 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">Status</th>
+                                    <th class="w-3/12 px-4 py-3 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">Tanggal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="data-table-body" class="divide-y divide-border-light dark:divide-border-dark">
+                                <tr><td colspan="3" class="px-6 py-4 text-center text-gray-500">Memuat data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div> 
+    
+
+<div id="reports-view" class="hidden h-full overflow-y-auto no-scrollbar">
+    
+    <div class="bg-white dark:bg-card-dark p-6 rounded-lg border border-border-light dark:border-border-dark shadow-sm mb-6">
+        <h4 class="font-bold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2 text-base">
+            <span class="material-symbols-outlined text-primary">ssid_chart</span> Tren Kejadian Bencana (Bulanan)
+        </h4>
+        <div class="h-72 w-full">
+            <canvas id="chartTrenBulanan"></canvas>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        
+        <div class="bg-white dark:bg-card-dark p-6 rounded-lg border border-border-light dark:border-border-dark shadow-sm">
+            <h4 class="font-bold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2 text-base">
+                <span class="material-symbols-outlined text-red-500">pie_chart</span> Statistik Tingkat Kerusakan
+            </h4>
+            <div class="h-64 relative flex justify-center">
+                <canvas id="chartTingkatKerusakan"></canvas>
+            </div>
+        </div>
+
+        <div class="lg:col-span-2 bg-white dark:bg-card-dark p-6 rounded-lg border border-border-light dark:border-border-dark shadow-sm">
+            <h4 class="font-bold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2 text-base">
+                <span class="material-symbols-outlined text-orange-500">foundation</span> Kerentanan Bangunan (Konstruksi)
+            </h4>
+            <div class="h-64 w-full">
+                <canvas id="chartKonstruksi"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-card-dark rounded-lg border border-border-light dark:border-border-dark shadow-sm overflow-hidden mb-6">
+        
+        <div class="p-4 border-b border-border-light dark:border-border-dark bg-gray-50/50 dark:bg-gray-800/20 flex justify-between items-center">
+             <h4 class="font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2 text-base">
+                <span class="material-symbols-outlined text-green-600">inventory_2</span> Distribusi Logistik
+             </h4>
+        </div>
+        
+        <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full text-sm text-center border-collapse whitespace-nowrap">
+                <thead id="material-table-head" class="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-bold text-xs uppercase tracking-wider">
+                    </thead>
+                <tbody id="material-table-body" class="bg-white dark:bg-card-dark text-gray-800 dark:text-gray-200">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+</div>
+
+
+<a href="https://bidangrrjember.github.io/jitupasna/" id="open-form-btn" target="_blank"
+   class="fixed bottom-6 right-6 lg:bottom-10 lg:right-10 flex items-center justify-center
+          w-14 h-14 bg-primary text-white rounded-full shadow-2xl shadow-blue-500/50
+          transition-transform hover:scale-110 active:scale-95 z-[30]"
+   title="E-Form JITUPASNA">
+    <span class="material-symbols-outlined text-3xl">add</span>
+</a>	
 
         </main>
 
@@ -1307,6 +1353,7 @@ async function fetchWeather() {
                     }
                     
                     allData = processedData; 
+		    renderReportCharts();
                     applyFiltersAndProcess();
 		    adjustTableHeight();
 		    map.invalidateSize(); 
@@ -1888,33 +1935,59 @@ function getDriveImgUrl(url) {
         // SKRIP DARI KODE REFERENSI (Dark Mode & UI)
         // =============================================
 
-        // --- Dark Mode Toggle (dengan Ganti Layer Peta) ---
-        const themeToggle = document.getElementById('theme-toggle');
-        const html = document.documentElement;
+// --- Dark Mode Toggle (UPDATE BAGIAN INI) ---
+    const themeToggle = document.getElementById('theme-toggle');
+    const html = document.documentElement;
 
-        themeToggle.addEventListener('click', () => {
-            // Toggle class 'dark' di <html>
-            html.classList.toggle('dark');
+    themeToggle.addEventListener('click', () => {
+        // 1. Toggle Class HTML (CSS)
+        html.classList.toggle('dark');
+        const isDark = html.classList.contains('dark');
 
-            // Cek apakah sekarang dalam mode gelap
-            if (html.classList.contains('dark')) {
-                // Mode Gelap: Hapus OSM, Tambahkan Dark
-                if (map.hasLayer(osm)) {
-                    map.removeLayer(osm);
-                }
-                if (!map.hasLayer(dark)) { // Hanya tambahkan jika belum ada
-                    dark.addTo(map);
-                }
-            } else {
-                // Mode Terang: Hapus Dark, Tambahkan OSM
-                if (map.hasLayer(dark)) {
-                    map.removeLayer(dark);
-                }
-                if (!map.hasLayer(osm)) { // Hanya tambahkan jika belum ada
-                    osm.addTo(map);
-                }
+        // 2. Update Layer Peta (Logic Lama)
+        if (isDark) {
+            if (map.hasLayer(osm)) map.removeLayer(osm);
+            if (!map.hasLayer(dark)) dark.addTo(map);
+        } else {
+            if (map.hasLayer(dark)) map.removeLayer(dark);
+            if (!map.hasLayer(osm)) osm.addTo(map);
+        }
+
+        // 3. UPDATE WARNA CHART SECARA INSTAN (LOGIC BARU)
+        // Tentukan warna baru berdasarkan mode
+        const newTextColor = isDark ? '#EAEAEA' : '#333';
+        const newGridColor = isDark ? '#404040' : '#E5E7EB';
+
+        // Ambil semua chart yang sedang aktif dari variabel global
+        Object.values(reportChartInstances).forEach(chart => {
+            
+            // A. Update Warna Legend (Judul Label)
+            if (chart.options.plugins && chart.options.plugins.legend) {
+                chart.options.plugins.legend.labels.color = newTextColor;
             }
+
+            // B. Update Warna Sumbu (X, Y, atau R untuk Polar)
+            if (chart.options.scales) {
+                ['x', 'y', 'r'].forEach(axis => {
+                    if (chart.options.scales[axis]) {
+                        // Ganti warna angka/tulisan
+                        if (chart.options.scales[axis].ticks) {
+                            chart.options.scales[axis].ticks.color = newTextColor;
+                            // Khusus Polar Area: background tick transparan
+                            if(axis === 'r') chart.options.scales[axis].ticks.backdropColor = 'transparent';
+                        }
+                        // Ganti warna garis grid
+                        if (chart.options.scales[axis].grid) {
+                            chart.options.scales[axis].grid.color = newGridColor;
+                        }
+                    }
+                });
+            }
+
+            // C. Render ulang chart SECARA INSTAN (mode: 'none' artinya tanpa animasi)
+            chart.update('none'); 
         });
+    });
 
         // --- Atur Layer Peta Awal (Opsional tapi bagus) ---
         // Panggil ini sekali setelah peta diinisialisasi, sebelum fetchData
@@ -1970,7 +2043,203 @@ function getDriveImgUrl(url) {
             });
         });
 
+	// ==========================================
+    // 1. LOGIKA SWITCH VIEW (DASHBOARD <-> REPORTS)
+    // ==========================================
+function switchView(viewName) {
+        const dashboardView = document.getElementById('dashboard-view');
+        const reportsView = document.getElementById('reports-view');
         
+        const navDashboard = document.getElementById('nav-dashboard');
+        const navReports = document.getElementById('nav-reports');
+        const floatBtn = document.getElementById('open-form-btn'); 
+
+        const activeClasses = ['bg-card-light', 'dark:bg-card-dark', 'text-primary', 'shadow-sm'];
+        const inactiveClasses = ['text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-200', 'dark:hover:bg-gray-700'];
+
+        if (viewName === 'dashboard') {
+            dashboardView.classList.remove('hidden');
+            reportsView.classList.add('hidden');
+            if(floatBtn) floatBtn.classList.remove('hidden');
+
+            navDashboard.classList.add(...activeClasses);
+            navDashboard.classList.remove(...inactiveClasses);
+            navReports.classList.remove(...activeClasses);
+            navReports.classList.add(...inactiveClasses);
+
+            // --- PERBAIKAN DI SINI ---
+            setTimeout(() => {
+                // 1. Atur tinggi wadah peta TERLEBIH DAHULU
+                if (typeof adjustTableHeight === 'function') adjustTableHeight();
+                
+                // 2. BARU suruh Leaflet menyesuaikan diri ke ukuran baru
+                if (map) map.invalidateSize(); 
+            }, 100);
+            // -------------------------
+
+        } else if (viewName === 'reports') {
+            dashboardView.classList.add('hidden');
+            reportsView.classList.remove('hidden');
+            if(floatBtn) floatBtn.classList.add('hidden');
+
+            navDashboard.classList.remove(...activeClasses);
+            navDashboard.classList.add(...inactiveClasses);
+            navReports.classList.add(...activeClasses);
+            navReports.classList.remove(...inactiveClasses);
+            
+            setTimeout(() => {
+                renderReportCharts();
+            }, 100);
+        }
+    }
+
+    // ==========================================
+    // 2. FUNGSI RENDER CHART (ANTI-CRASH)
+    // ==========================================
+    
+// --- VARIABEL GLOBAL CHART ---
+    let reportChartInstances = {};
+
+    function renderReportCharts() {
+        // 1. CEK DATA
+        if (!allData || allData.length === 0) return;
+
+        // --- 2. PERSIAPAN DATA (Sama seperti sebelumnya) ---
+        let materialStats = {};
+        let trendDataMap = {}; 
+        let kerusakanMap = { "Rusak Ringan": 0, "Rusak Sedang": 0, "Rusak Berat": 0 };
+        let konstruksiMap = {}; 
+
+        allData.forEach(d => {
+            // A. Hitung Material
+            if(d.bantuan && typeof d.bantuan === 'object') {
+                for (const [mat, jumlah] of Object.entries(d.bantuan)) {
+                    const val = parseFloat(jumlah);
+                    if(val > 0) materialStats[mat] = (materialStats[mat] || 0) + val;
+                }
+            }
+            // B. Hitung Tren
+            if(d.dateObj && d.dateObj instanceof Date && !isNaN(d.dateObj)) {
+                const sortKey = d.dateObj.toISOString().slice(0, 7);
+                const labelName = d.dateObj.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
+                if(!trendDataMap[sortKey]) trendDataMap[sortKey] = { label: labelName, count: 0 };
+                trendDataMap[sortKey].count++;
+            }
+            // C. Hitung Kerusakan & Konstruksi
+            let level = d.kerusakan || "Tanpa Kategori";
+            if (level.toLowerCase().includes("ringan")) level = "Rusak Ringan";
+            else if (level.toLowerCase().includes("sedang")) level = "Rusak Sedang";
+            else if (level.toLowerCase().includes("berat")) level = "Rusak Berat";
+            kerusakanMap[level] = (kerusakanMap[level] || 0) + 1;
+
+            let kons = d.konstruksi || "Lainnya";
+            if (!konstruksiMap[kons]) konstruksiMap[kons] = { "Rusak Ringan": 0, "Rusak Sedang": 0, "Rusak Berat": 0, "Lainnya": 0 };
+            if (["Rusak Ringan", "Rusak Sedang", "Rusak Berat"].includes(level)) konstruksiMap[kons][level]++;
+            else konstruksiMap[kons]["Lainnya"]++;
+        });
+
+        // --- 3. RENDER TABEL MATERIAL (Sama seperti sebelumnya) ---
+        const thead = document.getElementById('material-table-head');
+        const tbody = document.getElementById('material-table-body');
+        
+        if(thead && tbody) {
+            // Cek apakah tabel perlu di-render ulang sepenuhnya (untuk performa)
+            // Kita render ulang tabel hanya untuk memastikan urutan data benar
+            thead.innerHTML = '';
+            tbody.innerHTML = '';
+
+            const sortedMat = Object.entries(materialStats).sort((a,b) => b[1] - a[1]);
+
+            if (sortedMat.length === 0) {
+                tbody.innerHTML = '<tr><td class="p-4 text-center text-gray-400 italic" colspan="100%">Belum ada data logistik keluar.</td></tr>';
+            } else {
+                let headerHTML = "<tr>";
+                let bodyHTML = "<tr>";
+
+                sortedMat.forEach(([item, count]) => {
+                    headerHTML += `<th class="px-6 py-4 border-r border-gray-100 dark:border-gray-700 last:border-none min-w-[120px]">${item}</th>`;
+                    bodyHTML += `<td class="px-6 py-4 border-r border-gray-100 dark:border-gray-700 last:border-none"><span class="text-xl font-bold text-primary">${count.toLocaleString('id-ID')}</span></td>`;
+                });
+
+                headerHTML += "</tr>";
+                bodyHTML += "</tr>";
+                thead.innerHTML = headerHTML;
+                tbody.innerHTML = bodyHTML;
+            }
+        }
+
+        // --- 4. FUNGSI HELPER CHART (REVISI ANTI-FLICKER) ---
+        const createChart = (id, type, data, options) => {
+            const canvas = document.getElementById(id);
+            if (!canvas) return; 
+            
+            // CEK: Apakah chart sudah ada?
+            if (reportChartInstances[id]) {
+                // JIKA ADA: Cukup UPDATE datanya saja (Jangan dihancurkan!)
+                reportChartInstances[id].data = data;
+                reportChartInstances[id].options = options;
+                reportChartInstances[id].update('none'); // 'none' = Update instan tanpa animasi ulang
+            } else {
+                // JIKA BELUM: Baru buat chart baru
+                const ctx = canvas.getContext('2d');
+                reportChartInstances[id] = new Chart(ctx, { type, data, options });
+            }
+        };
+
+        const isDark = document.documentElement.classList.contains('dark');
+        const textColor = isDark ? '#EAEAEA' : '#333';
+        const gridColor = isDark ? '#404040' : '#E5E7EB';
+
+        // --- 5. EKSEKUSI CHART ---
+        
+        // A. Chart Tren
+        const sortedKeys = Object.keys(trendDataMap).sort();
+        createChart('chartTrenBulanan', 'line', {
+            labels: sortedKeys.map(k => trendDataMap[k].label),
+            datasets: [{
+                label: 'Jumlah Kejadian',
+                data: sortedKeys.map(k => trendDataMap[k].count),
+                borderColor: '#3B82F6', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 2, tension: 0.4, fill: true
+            }]
+        }, { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor } }, x: { grid: { display: false }, ticks: { color: textColor } } } });
+
+        // B. Chart Kerusakan
+	const rusLabels = ["Rusak Ringan", "Rusak Sedang", "Rusak Berat"];
+        createChart('chartTingkatKerusakan', 'bar', {
+            labels: rusLabels,
+            datasets: [{
+                label: 'Jumlah Lokasi',
+                data: rusLabels.map(l => kerusakanMap[l] || 0),
+                backgroundColor: [
+                    '#4ADE80', // Hijau
+                    '#FACC15', // Kuning
+                    '#EF4444'  // Merah
+                ],
+                borderRadius: 0, // Sudut batang agak tumpul biar modern
+                barPercentage: 0.6 // Lebar batang
+            }]
+        }, { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: { legend: { display: false } }, // Sembunyikan legend karena label sudah ada di bawah
+            scales: {
+                y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor } },
+                x: { grid: { display: false }, ticks: { color: textColor } }
+            }
+        });
+
+        // C. Chart Konstruksi
+        const konsLabels = Object.keys(konstruksiMap);
+        createChart('chartKonstruksi', 'bar', {
+            labels: konsLabels,
+            datasets: [
+                { label: 'Rusak Ringan', data: konsLabels.map(k => konstruksiMap[k]["Rusak Ringan"]), backgroundColor: '#4ADE80' },
+                { label: 'Rusak Sedang', data: konsLabels.map(k => konstruksiMap[k]["Rusak Sedang"]), backgroundColor: '#FACC15' },
+                { label: 'Rusak Berat',  data: konsLabels.map(k => konstruksiMap[k]["Rusak Berat"]),  backgroundColor: '#EF4444' }
+            ]
+        }, { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true, grid: { display: false }, ticks: { color: textColor } }, y: { stacked: true, grid: { color: gridColor }, ticks: { color: textColor }, beginAtZero: true } }, plugins: { legend: { position: 'top', align: 'end', labels: { color: textColor } } } });
+    }
+   
     </script>
 
 <div id="image-preview-modal" onclick="closeImagePreview()" 
