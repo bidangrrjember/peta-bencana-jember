@@ -290,7 +290,7 @@
 
             <div class="flex-1 p-4 lg:p-6 overflow-y-auto custom-scrollbar bg-background-light dark:bg-background-dark">
     
-    <div id="dashboard-view" class="transition-opacity duration-300">
+    <div id="dashboard-view" class="transition-all duration-300 ease-in-out opacity-100 scale-100 origin-top">
         
         <div id="summary-box" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
              <div class="flex flex-col gap-2 rounded-lg p-6 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-sm">
@@ -381,7 +381,7 @@
     </div> 
     
 
-<div id="reports-view" class="hidden h-full overflow-y-auto no-scrollbar">
+<div id="reports-view" class="hidden transition-all duration-300 ease-in-out opacity-0 scale-95 h-full overflow-y-auto no-scrollbar origin-top">
     
     <div class="bg-white dark:bg-card-dark p-6 rounded-lg border border-border-light dark:border-border-dark shadow-sm mb-6">
         <h4 class="font-bold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2 text-base">
@@ -413,7 +413,7 @@
         </div>
     </div>
 
-    <div class="bg-white dark:bg-card-dark rounded-lg border border-border-light dark:border-border-dark shadow-sm overflow-hidden mb-6">
+    <div class="bg-white dark:bg-card-dark rounded-lg border border-border-light dark:border-border-dark shadow-sm overflow-hidden">
         
         <div class="p-4 border-b border-border-light dark:border-border-dark bg-gray-50/50 dark:bg-gray-800/20 flex justify-between items-center">
              <h4 class="font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2 text-base">
@@ -439,7 +439,9 @@
 <a href="https://bidangrrjember.github.io/jitupasna/" id="open-form-btn" target="_blank"
    class="fixed bottom-6 right-6 lg:bottom-10 lg:right-10 flex items-center justify-center
           w-14 h-14 bg-primary text-white rounded-full shadow-2xl shadow-blue-500/50
-          transition-transform hover:scale-110 active:scale-95 z-[30]"
+          transition-all duration-300 ease-in-out z-[30]
+          hover:scale-110 active:scale-95 
+          opacity-100 scale-100"
    title="E-Form JITUPASNA">
     <span class="material-symbols-outlined text-3xl">add</span>
 </a>	
@@ -2046,7 +2048,7 @@ function getDriveImgUrl(url) {
 	// ==========================================
     // 1. LOGIKA SWITCH VIEW (DASHBOARD <-> REPORTS)
     // ==========================================
-function switchView(viewName) {
+	function switchView(viewName) {
         const dashboardView = document.getElementById('dashboard-view');
         const reportsView = document.getElementById('reports-view');
         
@@ -2054,42 +2056,92 @@ function switchView(viewName) {
         const navReports = document.getElementById('nav-reports');
         const floatBtn = document.getElementById('open-form-btn'); 
 
+        // Class Navigasi
         const activeClasses = ['bg-card-light', 'dark:bg-card-dark', 'text-primary', 'shadow-sm'];
         const inactiveClasses = ['text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-200', 'dark:hover:bg-gray-700'];
 
-        if (viewName === 'dashboard') {
-            dashboardView.classList.remove('hidden');
-            reportsView.classList.add('hidden');
-            if(floatBtn) floatBtn.classList.remove('hidden');
+        // Class Animasi View (Zoom halus)
+        const animVisible = ['opacity-100', 'scale-100']; 
+        const animHidden = ['opacity-0', 'scale-95'];
 
+        // Class Animasi Tombol (Pop Up / Pop Down)
+        const btnVisible = ['opacity-100', 'scale-100'];
+        const btnHidden = ['opacity-0', 'scale-0']; // Mengecil sampai hilang
+
+        if (viewName === 'dashboard') {
+            // 1. ANIMASI KELUAR (Reports)
+            reportsView.classList.remove(...animVisible);
+            reportsView.classList.add(...animHidden);
+
+            // Update Navigasi
             navDashboard.classList.add(...activeClasses);
             navDashboard.classList.remove(...inactiveClasses);
             navReports.classList.remove(...activeClasses);
             navReports.classList.add(...inactiveClasses);
 
-            // --- PERBAIKAN DI SINI ---
             setTimeout(() => {
-                // 1. Atur tinggi wadah peta TERLEBIH DAHULU
-                if (typeof adjustTableHeight === 'function') adjustTableHeight();
+                // 2. SWAP TAMPILAN
+                reportsView.classList.add('hidden');
+                dashboardView.classList.remove('hidden');
                 
-                // 2. BARU suruh Leaflet menyesuaikan diri ke ukuran baru
+                // Trik Browser: Force Reflow
+                void dashboardView.offsetWidth; 
+
+                // 3. ANIMASI MASUK (Dashboard)
+                dashboardView.classList.remove(...animHidden);
+                dashboardView.classList.add(...animVisible);
+
+                // --- ANIMASI MASUK TOMBOL (POP UP) ---
+                if(floatBtn) {
+                    floatBtn.classList.remove('hidden'); // Munculkan di DOM dulu
+                    void floatBtn.offsetWidth; // Force Reflow
+                    floatBtn.classList.remove(...btnHidden); // Hapus status hidden
+                    floatBtn.classList.add(...btnVisible);   // Tambah status visible
+                }
+
+                // 4. FIX PETA
+                if (typeof adjustTableHeight === 'function') adjustTableHeight();
                 if (map) map.invalidateSize(); 
-            }, 100);
-            // -------------------------
+
+            }, 300);
 
         } else if (viewName === 'reports') {
-            dashboardView.classList.add('hidden');
-            reportsView.classList.remove('hidden');
-            if(floatBtn) floatBtn.classList.add('hidden');
+            // 1. ANIMASI KELUAR (Dashboard)
+            dashboardView.classList.remove(...animVisible);
+            dashboardView.classList.add(...animHidden);
+            
+            // --- ANIMASI KELUAR TOMBOL (POP DOWN) ---
+            // Langsung dijalankan sekarang biar bareng sama dashboard hilangnya
+            if(floatBtn) {
+                floatBtn.classList.remove(...btnVisible);
+                floatBtn.classList.add(...btnHidden);
+            }
 
+            // Update Navigasi
             navDashboard.classList.remove(...activeClasses);
             navDashboard.classList.add(...inactiveClasses);
             navReports.classList.add(...activeClasses);
             navReports.classList.remove(...inactiveClasses);
             
             setTimeout(() => {
+                // 2. SWAP TAMPILAN
+                dashboardView.classList.add('hidden');
+                reportsView.classList.remove('hidden');
+                
+                // Sembunyikan tombol sepenuhnya dari DOM setelah animasi selesai
+                if(floatBtn) floatBtn.classList.add('hidden');
+
+                // Trik Browser: Force Reflow
+                void reportsView.offsetWidth;
+
+                // 3. ANIMASI MASUK (Reports)
+                reportsView.classList.remove(...animHidden);
+                reportsView.classList.add(...animVisible);
+                
+                // Render Chart
                 renderReportCharts();
-            }, 100);
+
+            }, 300);
         }
     }
 
