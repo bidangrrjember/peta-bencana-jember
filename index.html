@@ -2291,7 +2291,9 @@ function getDriveImgUrl(url) {
         });
 
         // C. Chart Konstruksi
-        const konsLabels = Object.keys(konstruksiMap);
+        const konsLabels = ['Permanen', 'Semi Permanen', 'Non Permanen'].filter(
+             label => Object.keys(konstruksiMap).includes(label)
+        );
         createChart('chartKonstruksi', 'bar', {
             labels: konsLabels,
             datasets: [
