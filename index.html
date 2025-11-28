@@ -339,22 +339,49 @@
 
                     <div class="xl:col-span-1">
                         <div id="table-card" class="overflow-hidden rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark shadow-sm">
-                            <h3 id="table-header" class="p-4 text-lg font-bold text-[#0c141d] dark:text-white border-b border-border-light dark:border-border-dark">Laporan Terbaru</h3>
+                            <div id="table-header" class="flex justify-between items-center p-4 border-b border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark">
+    <h3 class="text-lg font-bold text-[#0c141d] dark:text-white">Laporan Terbaru</h3>
+    
+    <div class="flex items-center gap-2">
+        <button id="prev-page-btn" onclick="changePage(-1)" disabled 
+                class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-primary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+            <span class="material-symbols-outlined text-sm">chevron_left</span>
+        </button>
+        
+        <span id="page-indicator" class="text-xs font-semibold text-gray-500 dark:text-gray-400 min-w-[30px] text-center">
+            1
+        </span>
+
+        <button id="next-page-btn" onclick="changePage(1)" disabled
+                class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-primary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+            <span class="material-symbols-outlined text-sm">chevron_right</span>
+        </button>
+    </div>
+</div>
                             
-                            <div id="table-scroll-container" class="overflow-x-auto overflow-y-auto custom-scrollbar">
-                                <table class="w-full text-sm text-left">
-                                    <thead class="bg-background-light dark:bg-background-dark sticky top-0">
-                                        <tr>
-                                            <th class="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">Lokasi (Korban)</th>
-                                            <th class="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">Status</th>
-                                            <th class="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">Tanggal</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="data-table-body" class="divide-y divide-border-light dark:divide-border-dark">
-                                        <tr><td colspan="3" class="px-6 py-4 text-center text-gray-500">Memuat data...</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
+<div id="table-scroll-container" class="overflow-x-auto overflow-y-scroll custom-scrollbar"> 
+    <table class="w-full text-sm text-left table-fixed"> 
+        <thead class="bg-background-light dark:bg-background-dark sticky top-0 z-10">
+            <tr>
+                <th class="w-6/12 px-4 py-3 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">
+                    Lokasi (Korban)
+                </th>
+                
+                <th class="w-3/12 px-4 py-3 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">
+                    Status
+                </th>
+                
+                <th class="w-3/12 px-4 py-3 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">
+                    Tanggal
+                </th>
+            </tr>
+        </thead>
+        
+        <tbody id="data-table-body" class="divide-y divide-border-light dark:divide-border-dark">
+            <tr><td colspan="3" class="px-6 py-4 text-center text-gray-500">Memuat data...</td></tr>
+        </tbody>
+    </table>
+</div>
                         </div>
                     </div>
                 </div>
@@ -477,6 +504,8 @@
         let chartKecamatanInstance, chartKerusakanInstance, chartKonstruksiInstance; //
         let heatLayer; //
         let currentTimeFilter = 'all'; // Variabel baru untuk filter waktu
+	let currentPage = 1;
+	const rowsPerPage = 50;
 	let isAudioUnlocked = false;
 	let fetchInterval; 
 
@@ -874,54 +903,81 @@
 
 	}
             
-        function updateDataTable(data) {
-            dataTableBody.innerHTML = '';
+	function changePage(direction) {
+        currentPage += direction;
+    // Panggil ulang proses filter & render tabel
+    // Kita gunakan applyFiltersAndProcess agar data tetap tersinkron dengan filter waktu
+    	applyFiltersAndProcess(); 
+	}
+
+function updateDataTable(data) {
+            const tbody = document.getElementById('data-table-body');
+            tbody.innerHTML = '';
+
             if (data.length === 0) {
-                dataTableBody.innerHTML = `<tr><td colspan="3" class="px-6 py-4 text-center text-gray-500">Tidak ada data untuk filter ini.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="3" class="px-6 py-4 text-center text-gray-500">Tidak ada data untuk filter ini.</td></tr>`;
+                // Update UI pagination jadi 0
+                document.getElementById('page-indicator').innerText = '0';
+                document.getElementById('prev-page-btn').disabled = true;
+                document.getElementById('next-page-btn').disabled = true;
                 return;
             }
+
+            // 1. Urutkan Data (Terbaru di atas)
             const sortedData = [...data].sort((a, b) => {
-                if (a.dateObj && b.dateObj) {
-                    return b.dateObj - a.dateObj; 
-                } else if (a.dateObj) {
-                    return -1; 
-                } else if (b.dateObj) {
-                    return 1; 
-                }
-                return 0; 
+                if (a.dateObj && b.dateObj) return b.dateObj - a.dateObj;
+                else if (a.dateObj) return -1;
+                else if (b.dateObj) return 1;
+                return 0;
             });
-            sortedData.slice(0, 50).forEach(item => { 
-                
-                // --- LOGIKA BARU UNTUK STATUS PIPELINE ---
-                let statusText = '';
-                let statusClass = '';
+
+            // 2. Hitung Pagination
+            const totalPages = Math.ceil(sortedData.length / rowsPerPage);
+            
+            // Validasi currentPage agar tidak out of bound
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            // 3. Potong Data Sesuai Halaman (Slice)
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+            const paginatedData = sortedData.slice(startIndex, endIndex);
+
+            // 4. Render Baris Tabel
+            paginatedData.forEach(item => {
+                let statusText = '', statusClass = '';
 
                 if (item.linkMonitoring) {
-                    // 3. Penanganan Tuntas (Green)
                     statusText = 'Tuntas';
                     statusClass = 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
                 } else if (item.linkSerahTerima) {
-                    // 2. Menunggu Monitoring (Yellow)
                     statusText = 'Tersalurkan';
                     statusClass = 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
                 } else {
-                    // 1. Menunggu Penyaluran (Red)
                     statusText = 'Terkaji';
                     statusClass = 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
                 }
-                // --- AKHIR LOGIKA BARU ---
 
-                // Format tanggal di tabel (sudah benar, DD/MM/YYYY)
                 const tanggal = item.dateObj ? item.dateObj.toLocaleDateString('id-ID') : (item.tanggalWaktu || 'N/A');
-                
-                // --- PERBARUI HTML ROW ---
-                const row = `<tr class="hover:bg-background-light dark:hover:bg-background-dark transition-colors cursor-pointer" onclick='openMarkerByIdx("${item.idx}")'>
-<td class="px-4 py-4 whitespace-nowrap font-medium">${item.nama || 'N/A'} <br> <span class="text-xs text-gray-500">${item.jalandusun || ''}</span></td>
-<td class="px-4 py-4 whitespace-nowrap"><span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">${statusText}</span></td>
-<td class="px-4 py-4 whitespace-nowrap text-gray-500 dark:text-gray-400">${tanggal}</td>
-</tr>`;
-dataTableBody.innerHTML += row;
+
+                const row = `
+                <tr class="hover:bg-background-light dark:hover:bg-background-dark transition-colors cursor-pointer" onclick='openMarkerByIdx("${item.idx}")'>
+                    <td class="px-4 py-4 whitespace-nowrap font-medium">
+                        ${item.nama || 'N/A'} <br> 
+                        <span class="text-xs text-gray-500">${item.jalandusun || ''}</span>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">${statusText}</span>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap text-gray-500 dark:text-gray-400">${tanggal}</td>
+                </tr>`;
+                tbody.innerHTML += row;
             });
+
+            // 5. Update UI Tombol Pagination
+            document.getElementById('page-indicator').innerText = `${currentPage} / ${totalPages}`;
+            document.getElementById('prev-page-btn').disabled = currentPage === 1;
+            document.getElementById('next-page-btn').disabled = currentPage === totalPages;
         }
         
         function openMarkerByIdx(idx) {
@@ -1909,6 +1965,7 @@ function getDriveImgUrl(url) {
                 });
                 button.classList.add('bg-primary/10', 'text-primary', 'font-medium');
                 currentTimeFilter = button.getAttribute('data-filter');
+		currentPage = 1;
                 applyFiltersAndProcess();
             });
         });
@@ -1929,7 +1986,3 @@ function getDriveImgUrl(url) {
 
 </body>
 </html>
-
-
-
-
