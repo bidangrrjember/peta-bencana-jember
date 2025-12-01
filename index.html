@@ -1399,43 +1399,34 @@ async function fetchWeather() {
             });
         }
 
-        async function handleSidebarUpload(fileType, reportIndex) {
+async function handleSidebarUpload(fileType, reportIndex) {
             
-            // Kita akan menggunakan DATA_URL global
             const UPLOAD_URL = DATA_URL;
-
             let fileInput;
             let uploadButton;
             let columnName;
             
-// --- LOGIKA DIPERLUAS ---
+            // --- IDENTIFIKASI ELEMEN ---
             if (fileType === 'disposisi') {
                 fileInput = document.getElementById('file-disposisi-input');
                 uploadButton = document.getElementById('upload-disposisi-btn');
                 columnName = 'Link Disposisi'; 
-            
             } else if (fileType === 'serahTerima') {
-                // PERBAIKAN DISINI: Sebelumnya 'file-serah-terima-input' (salah), harusnya 'file-serahTerima-input'
                 fileInput = document.getElementById('file-serahTerima-input'); 
                 uploadButton = document.getElementById('upload-serahTerima-btn');
                 columnName = 'Link Serah Terima'; 
-            
             } else if (fileType === 'monitoring') {
                 fileInput = document.getElementById('file-monitoring-input');
                 uploadButton = document.getElementById('upload-monitoring-btn');
                 columnName = 'Link Monitoring'; 
-            
             } else if (fileType === 'dokumentasi') {
                 fileInput = document.getElementById('file-dokumentasi-input');
-                // Dokumentasi tidak punya tombol loading text khusus, jadi button bisa null
                 uploadButton = null; 
                 columnName = 'Link Dokumentasi'; 
-            
             } else {
                 showNotification('Tipe file upload tidak dikenal.');
                 return;
             }
-
 
             if (!fileInput || fileInput.files.length === 0) {
                 showNotification('Gagal: Silakan pilih setidaknya satu file terlebih dahulu.');
@@ -1450,38 +1441,58 @@ async function fetchWeather() {
                 return;
             }
 
-            if (uploadButton) {
+            // --- UI LOADING STATE (PERBAIKAN LOKASI) ---
+            let originalContent = '';
+            let addPhotoBox = null;
+
+            if (fileType === 'dokumentasi') {
+                // CARI KOTAK TAMBAH BERDASARKAN ID BARU
+                addPhotoBox = document.getElementById('add-photo-btn');
+                
+                if(addPhotoBox) {
+                    originalContent = addPhotoBox.innerHTML;
+                    
+                    // Ganti isi kotak tersebut dengan spinner
+                    addPhotoBox.innerHTML = `
+                        <div class="flex flex-col items-center justify-center w-full h-full animate-pulse">
+                            <span class="material-symbols-outlined animate-spin text-3xl text-primary">progress_activity</span>
+                            <span class="text-[10px] text-gray-500 font-medium mt-2">Uploading...</span>
+                            <span class="text-[10px] text-gray-400 font-bold" id="upload-progress-text">0/${filesToUpload.length}</span>
+                        </div>
+                    `;
+                    addPhotoBox.onclick = null; // Matikan klik
+                    addPhotoBox.classList.add('cursor-not-allowed', 'bg-gray-100', 'dark:bg-gray-800');
+                }
+            } else if (uploadButton) {
                 uploadButton.disabled = true;
-                uploadButton.innerHTML = '<span class="material-symbols-outlined animate-spin">progress_activity</span> Mengupload (0%)...';
+                uploadButton.innerHTML = '<span class="material-symbols-outlined animate-spin">progress_activity</span> Mengupload...';
             }
             
             let filesUploaded = 0;
 
             try {
-                // --- LOOP BARU UNTUK MULTI-FILE ---
+                // --- LOOP UPLOAD ---
                 for (const file of filesToUpload) {
                     const fileBase64 = await readFileAsBase64(file);
-                    
-                    // Update progress button
                     filesUploaded++;
-                    if (uploadButton) {
-                         uploadButton.innerHTML = `<span class="material-symbols-outlined animate-spin">progress_activity</span> Mengupload (${filesUploaded}/${filesToUpload.length})...`;
+                    
+                    if (fileType === 'dokumentasi' && document.getElementById('upload-progress-text')) {
+                        document.getElementById('upload-progress-text').innerText = `${filesUploaded}/${filesToUpload.length}`;
+                    } else if (uploadButton) {
+                         uploadButton.innerHTML = `<span class="material-symbols-outlined animate-spin">progress_activity</span> (${filesUploaded}/${filesToUpload.length})...`;
                     }
                     
                     const payload = {
-                        mode: 'update', // Memberi tahu doPost untuk update
+                        mode: 'update', 
                         file: fileBase64,
-                        laporanId: reportData.timestamp, // Menggunakan timestamp unik dari data
-                        columnName: columnName, // Nama kolom yang akan diupdate
-                        
+                        laporanId: reportData.timestamp,
+                        columnName: columnName,
                         folderData: {
                             jenisBencana: reportData.bencana,
                             alamatDesa: reportData.desakelurahan,
                             alamatKecamatan: reportData.kec,
                             namaKK: reportData.nama
                         },
-                        // **PENTING:** Tambahkan file index ke kolom GAS agar URL-nya tidak menimpa, 
-                        // karena GAS Anda saat ini menyimpan URL file per baris.
                         fileIndex: filesUploaded, 
                         tanggalLaporan: reportData.tanggalWaktu ? reportData.tanggalWaktu.split(' ').slice(0, 3).join(' ') : ""
                     };
@@ -1493,19 +1504,24 @@ async function fetchWeather() {
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     });
                 }
-                // --- AKHIR LOOP BARU ---
 
                 showNotification(`Sukses! ${filesToUpload.length} file berhasil diupload.`);
                 
-                closeSidebar();
+                closeSidebar(); 
                 if(fetchInterval) clearInterval(fetchInterval);
-                fetchData(); // Panggil data baru
+                fetchData(); 
                 fetchInterval = setInterval(fetchData, 5000);
 
             } catch (error) {
                 console.error('Gagal upload file:', error);
                 showNotification(`Gagal: ${error.message}`);
-                if (uploadButton) {
+                
+                // Restore UI jika gagal
+                if (fileType === 'dokumentasi' && addPhotoBox) {
+                    addPhotoBox.innerHTML = originalContent;
+                    addPhotoBox.onclick = function() { document.getElementById('file-dokumentasi-input').click(); };
+                    addPhotoBox.classList.remove('cursor-not-allowed', 'bg-gray-100', 'dark:bg-gray-800');
+                } else if (uploadButton) {
                     uploadButton.disabled = false;
                     uploadButton.innerHTML = '<span class="material-symbols-outlined">upload_file</span> Upload';
                 }
@@ -1753,7 +1769,7 @@ function getDriveImgUrl(url) {
             // Tombol "Tambah Foto" (Hanya jika < 8)
             if (photoCount < MAX_PHOTOS) {
                 galleryHtml += `
-                <div onclick="document.getElementById('file-dokumentasi-input').click()" 
+                <div id="add-photo-btn" onclick="document.getElementById('file-dokumentasi-input').click()" 
                      class="aspect-square bg-gray-50 dark:bg-gray-800/50 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group">
                     <span class="material-symbols-outlined text-gray-400 group-hover:text-primary transition-colors text-3xl">add_a_photo</span>
                     <span class="text-[10px] text-gray-500 group-hover:text-primary font-medium mt-1">Tambah</span>
