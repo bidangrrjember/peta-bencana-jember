@@ -504,7 +504,7 @@
 
 </header>
 
-            <div class="flex-1 p-4 lg:p-6 overflow-y-auto custom-scrollbar bg-background-light dark:bg-background-dark">
+            <div class="flex-1 p-4 lg:p-6 overflow-hidden bg-background-light dark:bg-background-dark flex flex-col">
     
     <div id="dashboard-view" class="transition-all duration-300 ease-in-out opacity-100 scale-100 origin-top">
         
@@ -599,9 +599,9 @@
     </div> 
     
 
-<div id="reports-view" class="hidden h-full flex flex-col gap-4 overflow-y-auto no-scrollbar transition-all duration-300 ease-in-out opacity-0 scale-95 origin-top p-1">
+<div id="reports-view" class="hidden w-full flex-1 flex flex-col gap-4 overflow-hidden transition-all duration-300 ease-in-out opacity-0 scale-95 origin-top p-1">
     
-    <div class="flex-1 min-h-[300px] flex flex-col bg-white dark:bg-card-dark p-6 rounded-lg border border-border-light dark:border-border-dark shadow-sm">
+    <div class="flex-1 min-h-0 flex flex-col bg-white dark:bg-card-dark p-6 rounded-lg border border-border-light dark:border-border-dark shadow-sm">
         <h4 class="font-bold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2 text-base shrink-0">
             <span class="material-symbols-outlined text-primary">ssid_chart</span> Tren Kejadian Bencana (Bulanan)
         </h4>
@@ -610,9 +610,9 @@
         </div>
     </div>
 
-    <div class="flex-1 min-h-[300px] grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-4">
         
-        <div class="flex flex-col bg-white dark:bg-card-dark p-6 rounded-lg border border-border-light dark:border-border-dark shadow-sm">
+        <div class="flex flex-col overflow-hidden bg-white dark:bg-card-dark p-6 rounded-lg border border-border-light dark:border-border-dark shadow-sm">
             <h4 class="font-bold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2 text-base shrink-0">
                 <span class="material-symbols-outlined text-red-500">pie_chart</span> Statistik Tingkat Kerusakan
             </h4>
@@ -621,7 +621,7 @@
             </div>
         </div>
 
-        <div class="lg:col-span-2 flex flex-col bg-white dark:bg-card-dark p-6 rounded-lg border border-border-light dark:border-border-dark shadow-sm">
+        <div class="lg:col-span-2 flex flex-col overflow-hidden bg-white dark:bg-card-dark p-6 rounded-lg border border-border-light dark:border-border-dark shadow-sm">
             <h4 class="font-bold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2 text-base shrink-0">
                 <span class="material-symbols-outlined text-orange-500">foundation</span> Kerentanan Bangunan (Konstruksi)
             </h4>
@@ -2274,72 +2274,70 @@ function getDriveImgUrl(url) {
          * FUNGSI: Menyesuaikan tinggi PETA dan TABEL agar pas di layar (Revisi)
          */
         function adjustTableHeight() {
-            // Dapatkan elemen-elemen penting
-            const mainArea = document.querySelector('main'); // Container <main>
-            const header = mainArea ? mainArea.querySelector('header') : null; // Header di dalam main
-            const contentScroller = mainArea ? mainArea.querySelector('div.overflow-y-auto') : null; // Area konten yg scroll
-            const summaryBox = document.getElementById('summary-box'); // Kotak summary
-            const mapCard = document.getElementById('map-card');
-            const tableCard = document.getElementById('table-card');
-            const tableHeader = document.getElementById('table-header');
-            const tableScroller = document.getElementById('table-scroll-container');
+    // Definisi Elemen
+    const mainArea = document.querySelector('main'); 
+    const header = mainArea ? mainArea.querySelector('header') : null;
+    const contentScroller = mainArea ? mainArea.querySelector('div.overflow-y-auto') : null; // Container scroll utama
+    
+    const dashboardView = document.getElementById('dashboard-view');
+    const summaryBox = document.getElementById('summary-box');
+    const mapCard = document.getElementById('map-card');
+    const tableCard = document.getElementById('table-card');
+    const tableHeader = document.getElementById('table-header');
+    const tableScroller = document.getElementById('table-scroll-container');
 
-            // Hanya jalankan di layar besar (xl) dan jika semua elemen ada
-            if (window.innerWidth >= 1280 && mainArea && header && contentScroller && summaryBox && mapCard && tableCard && tableHeader && tableScroller) {
-                try {
-                    // Tinggi total area main (harus = tinggi layar)
-                    const mainHeight = mainArea.offsetHeight;
-                    // Tinggi header
-                    const headerHeight = header.offsetHeight;
-                    // Padding vertikal area konten (p-6 = 1.5rem * 16px/rem * 2 = 48px)
-                    const contentPaddingY = 48;
-                    // Tinggi summary box
-                    const summaryHeight = summaryBox.offsetHeight;
-                    // Gap antar grid (gap-6 = 1.5rem * 16px/rem = 24px)
-                    const gridGap = 24;
-
-                    // Hitung tinggi MAKSIMAL yang tersisa untuk baris grid (peta & tabel)
-                    const availableHeight = mainHeight - headerHeight - contentPaddingY - summaryHeight - gridGap;
-
-                    // Batasi tinggi minimal (misal 300px) agar tidak terlalu pendek
-                    const targetGridRowHeight = Math.max(availableHeight, 300);
-
-                    // Set tinggi kartu peta dan tabel
-                    mapCard.style.height = targetGridRowHeight + 'px';
-                    tableCard.style.height = targetGridRowHeight + 'px';
-
-                    // Hitung tinggi untuk scroller tabel
-                    const tableHeaderHeight = tableHeader.offsetHeight;
-                    const scrollerMaxHeight = targetGridRowHeight - tableHeaderHeight - 1; // Kurangi border
-
-                    tableScroller.style.maxHeight = scrollerMaxHeight + 'px';
-                    tableScroller.style.height = scrollerMaxHeight + 'px'; // Set height juga
-
-                    // Pastikan area konten utama TIDAK bisa scroll
-                    contentScroller.style.overflowY = 'hidden';
-
-                } catch (e) {
-                     console.error("Error calculating heights:", e);
-                     // Jika error, fallback ke scroll default
-                     if(contentScroller) contentScroller.style.overflowY = 'auto';
-                     if(mapCard) mapCard.style.height = '';
-                     if(tableCard) tableCard.style.height = '';
-                     if(tableScroller) {
-                         tableScroller.style.maxHeight = '';
-                         tableScroller.style.height = '';
-                     }
-                }
-
-            } else if (contentScroller && mapCard && tableCard && tableScroller) {
-                 // Di layar kecil, biarkan area konten utama yg scroll
-                 contentScroller.style.overflowY = 'auto';
-                 // Reset tinggi peta & tabel agar otomatis
-                 mapCard.style.height = '';
-                 tableCard.style.height = '';
-                 tableScroller.style.maxHeight = ''; // Mungkin perlu atur max-h default lagi di CSS jika mau
-                 tableScroller.style.height = '';
-            }
+    // 1. CEK PENTING: Jika sedang di REPORTS view, jangan kunci scroll!
+    if (dashboardView && dashboardView.classList.contains('hidden')) {
+        if(contentScroller) {
+            contentScroller.style.overflowY = 'auto'; // Pastikan bisa scroll
         }
+        return; // Hentikan fungsi, biarkan layout bebas
+    }
+
+    // 2. Logic Dashboard (Hanya jalan di layar besar XL)
+    if (window.innerWidth >= 1280 && mainArea && header && contentScroller && summaryBox && mapCard && tableCard && tableHeader && tableScroller) {
+        try {
+            const mainHeight = mainArea.offsetHeight;
+            const headerHeight = header.offsetHeight;
+            const contentPaddingY = 48; // p-6 = 24px atas + 24px bawah
+            const summaryHeight = summaryBox.offsetHeight;
+            const gridGap = 24; // gap-6
+
+            // Hitung sisa ruang untuk Peta & Tabel
+            const availableHeight = mainHeight - headerHeight - contentPaddingY - summaryHeight - gridGap;
+            const targetGridRowHeight = Math.max(availableHeight, 300); // Minimal 300px
+
+            // Terapkan Tinggi
+            mapCard.style.height = targetGridRowHeight + 'px';
+            tableCard.style.height = targetGridRowHeight + 'px';
+
+            // Hitung scroller dalam tabel
+            const tableHeaderHeight = tableHeader.offsetHeight;
+            const scrollerMaxHeight = targetGridRowHeight - tableHeaderHeight - 2; // -2 untuk border
+
+            tableScroller.style.maxHeight = scrollerMaxHeight + 'px';
+            tableScroller.style.height = scrollerMaxHeight + 'px';
+
+            // Kunci scroll utama agar dashboard tampil "App-like" (tanpa scroll luar)
+            contentScroller.style.overflowY = 'hidden';
+
+        } catch (e) {
+            console.error("Error calculating heights:", e);
+            // Fallback jika error
+            if(contentScroller) contentScroller.style.overflowY = 'auto';
+        }
+
+    } else if (contentScroller) {
+        // Di layar kecil (Mobile/Tablet), biarkan scroll normal
+        contentScroller.style.overflowY = 'auto';
+        if(mapCard) mapCard.style.height = '';
+        if(tableCard) tableCard.style.height = '';
+        if(tableScroller) {
+            tableScroller.style.maxHeight = '';
+            tableScroller.style.height = '';
+        }
+    }
+}
 
         fetchData(); 
         fetchInterval = setInterval(fetchData, 5000);
