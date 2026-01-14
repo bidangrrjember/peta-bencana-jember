@@ -107,7 +107,21 @@
         z-index: 10 !important;
       }
 
-.flatpickr-month {
+      /* === FIX SCROLL MOBILE === */
+    @media (max-width: 1024px) {
+        /* Gunakan unit 'dvh' (Dynamic Viewport Height) jika support, agar pas dengan address bar */
+        .fixed.inset-0 {
+            height: 100dvh !important; 
+        }
+        
+        /* Paksa area scroll agar selalu aktif di HP */
+        #main-scroller {
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important; /* Agar scroll licin di iPhone */
+        }
+    }
+
+        .flatpickr-month {
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
@@ -333,7 +347,7 @@
         Browser Anda tidak mendukung elemen audio.
     </audio>
     
-    <div class="flex h-screen">
+    <div class="flex fixed inset-0 w-full h-full overflow-hidden" style="height: 100dvh;">
         <aside id="filter-sidebar" class="fixed lg:static w-64 bg-card-light dark:bg-card-dark flex flex-col p-6 border-r border-border-light dark:border-border-dark h-full z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
             
             <div class="flex items-center justify-between gap-3 mb-8">
@@ -461,7 +475,7 @@
         <div id="filter-overlay" class="fixed inset-0 bg-black/30 z-40 lg:hidden hidden"></div>
 
 
-        <main class="flex-1 flex flex-col overflow-hidden h-screen relative">
+        <main class="flex-1 flex flex-col overflow-hidden h-full relative">
             
             <header class="flex items-center justify-between p-4 lg:p-6 border-b border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark">
             
@@ -504,7 +518,7 @@
 
 </header>
 
-            <div class="flex-1 p-4 lg:p-6 overflow-hidden bg-background-light dark:bg-background-dark flex flex-col">
+            <div class="flex-1 p-4 lg:p-6 overflow-y-auto custom-scrollbar bg-background-light dark:bg-background-dark pb-32">
     
     <div id="dashboard-view" class="transition-all duration-300 ease-in-out opacity-100 scale-100 origin-top">
         
@@ -2291,6 +2305,7 @@ function getDriveImgUrl(url) {
     const header = mainArea ? mainArea.querySelector('header') : null;
     const contentScroller = mainArea ? mainArea.querySelector('div.overflow-y-auto') : null; // Container scroll utama
     
+    // Elemen Dashboard
     const dashboardView = document.getElementById('dashboard-view');
     const summaryBox = document.getElementById('summary-box');
     const mapCard = document.getElementById('map-card');
@@ -2298,55 +2313,54 @@ function getDriveImgUrl(url) {
     const tableHeader = document.getElementById('table-header');
     const tableScroller = document.getElementById('table-scroll-container');
 
-    // 1. CEK PENTING: Jika sedang di REPORTS view, jangan kunci scroll!
-    if (dashboardView && dashboardView.classList.contains('hidden')) {
-        if(contentScroller) {
-            contentScroller.style.overflowY = 'auto'; // Pastikan bisa scroll
-        }
-        return; // Hentikan fungsi, biarkan layout bebas
-    }
+    // Cek apakah contentScroller ada. Jika tidak, stop.
+    if (!contentScroller) return;
 
-    // 2. Logic Dashboard (Hanya jalan di layar besar XL)
-    if (window.innerWidth >= 1280 && mainArea && header && contentScroller && summaryBox && mapCard && tableCard && tableHeader && tableScroller) {
-        try {
-            const mainHeight = mainArea.offsetHeight;
-            const headerHeight = header.offsetHeight;
-            const contentPaddingY = 48; // p-6 = 24px atas + 24px bawah
-            const summaryHeight = summaryBox.offsetHeight;
-            const gridGap = 24; // gap-6
-
-            // Hitung sisa ruang untuk Peta & Tabel
-            const availableHeight = mainHeight - headerHeight - contentPaddingY - summaryHeight - gridGap;
-            const targetGridRowHeight = Math.max(availableHeight, 300); // Minimal 300px
-
-            // Terapkan Tinggi
-            mapCard.style.height = targetGridRowHeight + 'px';
-            tableCard.style.height = targetGridRowHeight + 'px';
-
-            // Hitung scroller dalam tabel
-            const tableHeaderHeight = tableHeader.offsetHeight;
-            const scrollerMaxHeight = targetGridRowHeight - tableHeaderHeight - 2; // -2 untuk border
-
-            tableScroller.style.maxHeight = scrollerMaxHeight + 'px';
-            tableScroller.style.height = scrollerMaxHeight + 'px';
-
-            // Kunci scroll utama agar dashboard tampil "App-like" (tanpa scroll luar)
-            contentScroller.style.overflowY = 'hidden';
-
-        } catch (e) {
-            console.error("Error calculating heights:", e);
-            // Fallback jika error
-            if(contentScroller) contentScroller.style.overflowY = 'auto';
-        }
-
-    } else if (contentScroller) {
-        // Di layar kecil (Mobile/Tablet), biarkan scroll normal
-        contentScroller.style.overflowY = 'auto';
+    // 1. MODE MOBILE / TABLET (< 1280px) atau Bukan Dashboard
+    // Prioritas utama: Pastikan scroll container UTAMA selalu aktif di HP
+    if (window.innerWidth < 1280 || (dashboardView && dashboardView.classList.contains('hidden'))) {
+        contentScroller.style.overflowY = 'auto'; // PAKSA SCROLL AKTIF
+        
+        // Reset tinggi manual yang mungkin diset mode desktop
         if(mapCard) mapCard.style.height = '';
         if(tableCard) tableCard.style.height = '';
         if(tableScroller) {
             tableScroller.style.maxHeight = '';
             tableScroller.style.height = '';
+        }
+        return; // Selesai, jangan jalankan logic desktop
+    }
+
+    // 2. MODE DESKTOP DASHBOARD (>= 1280px)
+    // Logic menghitung tinggi agar pas satu layar (App-like feel)
+    if (mainArea && header && summaryBox && mapCard && tableCard && tableHeader && tableScroller) {
+        try {
+            const mainHeight = mainArea.offsetHeight;
+            const headerHeight = header.offsetHeight;
+            const contentPaddingY = 48; // padding atas bawah
+            const summaryHeight = summaryBox.offsetHeight;
+            const gridGap = 24;
+
+            // Hitung sisa ruang
+            const availableHeight = mainHeight - headerHeight - contentPaddingY - summaryHeight - gridGap;
+            const targetGridRowHeight = Math.max(availableHeight, 300);
+
+            // Terapkan Tinggi
+            mapCard.style.height = targetGridRowHeight + 'px';
+            tableCard.style.height = targetGridRowHeight + 'px';
+
+            const tableHeaderHeight = tableHeader.offsetHeight;
+            const scrollerMaxHeight = targetGridRowHeight - tableHeaderHeight - 2;
+
+            tableScroller.style.maxHeight = scrollerMaxHeight + 'px';
+            tableScroller.style.height = scrollerMaxHeight + 'px';
+
+            // Di desktop dashboard, kunci scroll utama biar rapi
+            contentScroller.style.overflowY = 'hidden';
+
+        } catch (e) {
+            console.error("Error calculating heights:", e);
+            contentScroller.style.overflowY = 'auto'; // Fallback aman
         }
     }
 }
