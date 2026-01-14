@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="id" class="light">
 <head>
-    <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> <title>Dashboard Peta Bencana</title> <link rel="icon" href="https://bidangrrjember.github.io/peta-bencana-jember/logo-bpbd.png" type="image/png"> <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/> <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.css" /> <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.js" charset="utf-8"></script> <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script> <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" /> <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/> <script>
+    <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> <title>Dashboard Peta Bencana</title> <link rel="icon" href="https://bidangrrjember.github.io/peta-bencana-jember/logo-bpbd.png" type="image/png"> <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/> <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.css" /> <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.js" charset="utf-8"></script> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script> <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script> <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script> <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" /> <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/> <script>
       //
       tailwind.config = {
         darkMode: "class",
@@ -106,6 +107,153 @@
         z-index: 10 !important;
       }
 
+.flatpickr-month {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        height: 40px !important; /* Tinggi kompak */
+        padding: 0 10px !important;
+        position: relative !important;
+        overflow: visible !important;
+        margin-bottom: 5px !important;
+    }
+
+    /* Sembunyikan Panah Kiri/Kanan */
+    .flatpickr-prev-month, .flatpickr-next-month {
+        display: none !important; 
+    }
+
+    /* Container Teks Tengah */
+    .flatpickr-current-month {
+        position: static !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important; 
+        padding: 0 !important;
+    }
+
+    /* === 2. FIX DROPDOWN BULAN & TAHUN (THEMING) === */
+    
+    /* Style Dasar Input Select & Tahun */
+    .flatpickr-current-month .flatpickr-monthDropdown-months,
+    .flatpickr-current-month input.cur-year {
+        font-family: 'Inter', sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 0.95rem !important;
+        color: inherit !important;
+        appearance: none !important;        /* Hilangkan panah bawaan browser */
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        background: transparent !important;
+        border: none !important;
+        padding: 2px 4px !important;
+        margin: 0 !important;
+        cursor: pointer !important;
+        outline: none !important;            /* Hilangkan garis biru saat diklik */
+    }
+    
+    /* Hilangkan spinner pada input tahun */
+    .flatpickr-current-month .numInputWrapper span { display: none !important; }
+    
+    /* Hover Effect untuk Judul */
+    .flatpickr-current-month .flatpickr-monthDropdown-months:hover,
+    .flatpickr-current-month input.cur-year:hover {
+        background-color: rgba(0,0,0,0.05) !important;
+        border-radius: 4px !important;
+    }
+    html.dark .flatpickr-current-month .flatpickr-monthDropdown-months:hover,
+    html.dark .flatpickr-current-month input.cur-year:hover {
+        background-color: rgba(255,255,255,0.1) !important;
+    }
+
+    /* >>> BAGIAN PENTING: WARNA ISI DROPDOWN (OPTIONS) <<< */
+    
+    /* Default (Light Mode) - Latar Putih, Teks Gelap */
+    .flatpickr-monthDropdown-months option {
+        background-color: #FFFFFF !important;
+        color: #333333 !important;
+        padding: 10px !important;
+        font-size: 0.9rem !important;
+    }
+
+    /* Dark Mode - Latar Gelap, Teks Terang */
+    html.dark .flatpickr-monthDropdown-months option {
+        background-color: #1E1E1E !important; /* Warna Card Dark */
+        color: #EAEAEA !important;
+    }
+
+
+    /* === 3. CONTAINER UTAMA KALENDER === */
+    .flatpickr-calendar {
+        font-family: 'Inter', sans-serif !important;
+        border-radius: 0.75rem !important;
+        border: none !important;
+        width: 330px !important;
+        padding: 6px 12px 12px 12px !important; 
+        margin-top: 8px !important;
+    }
+    .flatpickr-calendar:before, .flatpickr-calendar:after { display: none !important; }
+
+    .flatpickr-innerContainer, .flatpickr-rContainer, .dayContainer, .flatpickr-weekdays {
+        width: 100% !important;
+    }
+    .flatpickr-weekdays { margin-bottom: 8px !important; }
+    
+    span.flatpickr-weekday {
+        font-size: 0.8rem !important;
+        font-weight: 500 !important;
+        color: #9CA3AF !important;
+    }
+
+    .flatpickr-day {
+        border-radius: 0.5rem !important;
+        font-weight: 500 !important;
+        font-size: 0.95rem !important;
+        height: 40px !important; 
+        line-height: 40px !important;
+        max-width: 40px !important;
+        margin: 2px !important;
+        border: 1px solid transparent !important;
+    }
+
+    /* === 4. TEMA LIGHT MODE === */
+    html.light .flatpickr-calendar {
+        background: #FFFFFF !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.01) !important;
+        border: 1px solid #E5E7EB !important;
+    }
+    html.light .flatpickr-day { color: #374151 !important; } 
+    html.light .flatpickr-month { color: #111827 !important; fill: #6B7280 !important; }
+    
+    html.light .flatpickr-day:hover {
+        background: #EFF6FF !important; 
+        color: #007BFF !important;
+    }
+
+    /* === 5. TEMA DARK MODE === */
+    html.dark .flatpickr-calendar {
+        background: #1E1E1E !important; 
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2) !important;
+        border: 1px solid #333333 !important; 
+    }
+    html.dark .flatpickr-month { color: #EAEAEA !important; fill: #9CA3AF !important; }
+    html.dark .flatpickr-day { color: #D1D5DB !important; }
+    
+    html.dark .flatpickr-day:hover {
+        background: rgba(0, 123, 255, 0.15) !important; 
+        color: #007BFF !important;
+    }
+
+    /* === 6. SELEKSI (WARNA BIRU) === */
+    .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange, 
+    .flatpickr-day.selected:focus, .flatpickr-day.selected:hover {
+        background: #007BFF !important;
+        border-color: #007BFF !important;
+        color: #FFFFFF !important;
+        box-shadow: 0 4px 10px -2px rgba(0, 123, 255, 0.5) !important;
+    }
+
       /* === CSS BARU UNTUK LAYER CONTROL DARK MODE === */
       /* Style dasar (Light mode - ini mungkin sudah ada/default) */
       .leaflet-control-layers {
@@ -196,23 +344,89 @@
                     <span class="material-symbols-outlined">close</span>
                 </button>
             </div>
-            <div class="flex-grow overflow-y-auto custom-scrollbar">
-                <h2 class="text-sm font-semibold uppercase text-gray-500 dark:text-gray-400 mb-4">Filter Data</h2>
-                <div class="space-y-6">
-
-                    <div>
-                        <h3 class="text-sm font-medium mb-3">Filter Waktu</h3>
-                        <div class="flex flex-col space-y-2" id="time-filter-buttons">
-                            <button data-filter="7days" class="filter-btn w-full text-sm text-left px-4 py-2 rounded border border-border-light dark:border-border-dark hover:bg-primary/10 transition-colors">7 Hari Terakhir</button>
-                            <button data-filter="1month" class="filter-btn w-full text-sm text-left px-4 py-2 rounded border border-border-light dark:border-border-dark hover:bg-primary/10 transition-colors">1 Bulan Terakhir</button>
-                            <button data-filter="1year" class="filter-btn w-full text-sm text-left px-4 py-2 rounded border border-border-light dark:border-border-dark hover:bg-primary/10 transition-colors">1 Tahun Terakhir</button>
-                            <button data-filter="all" class="filter-btn w-full text-sm text-left px-4 py-2 rounded border border-border-light dark:border-border-dark hover:bg-primary/10 transition-colors bg-primary/10 text-primary font-medium">Semua Waktu</button>
-                        </div>
-                    </div>
-                    
-                    
-                                </div>
+            <div class="flex-grow overflow-y-auto no-scrollbar">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-semibold uppercase text-gray-500 dark:text-gray-400">Filter Data</h2>
+        <button onclick="resetAllFilters()" class="text-xs text-primary hover:text-blue-600 font-medium transition-colors">
+            Reset Filter
+        </button>
+    </div>
+    
+    <div class="space-y-6 pb-20"> <div class="relative z-30">
+    <h3 class="text-sm font-medium mb-3 flex items-center gap-2">
+        <span class="material-symbols-outlined text-base text-gray-400">date_range</span> Rentang Waktu
+    </h3>
+    <div class="flex flex-col space-y-3">
+        
+        <div class="relative">
+            <label class="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Dari Tanggal</label>
+            <div class="relative group">
+                <input type="text" id="filter-start-date" placeholder="Pilih Tanggal..." readonly="readonly"
+                    class="w-full text-sm pl-4 pr-10 py-3 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-text-light dark:text-text-dark cursor-pointer group-hover:border-primary">
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <span class="material-symbols-outlined text-gray-400 text-lg group-hover:text-primary transition-colors">calendar_today</span>
+                </div>
             </div>
+        </div>
+
+        <div class="relative">
+            <label class="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Sampai Tanggal</label>
+            <div class="relative group">
+                <input type="text" id="filter-end-date" placeholder="Pilih Tanggal..." readonly="readonly"
+                    class="w-full text-sm pl-4 pr-10 py-3 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-text-light dark:text-text-dark cursor-pointer group-hover:border-primary">
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <span class="material-symbols-outlined text-gray-400 text-lg group-hover:text-primary transition-colors">event</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+        <div class="mb-4 relative z-20"> 
+            <h3 class="text-sm font-medium mb-3 flex items-center gap-2">
+                <span class="material-symbols-outlined text-base text-gray-400">flood</span> Jenis Bencana
+            </h3>
+            
+            <input type="hidden" id="filter-bencana" value="all">
+
+            <button id="btn-dropdown-bencana" onclick="toggleDropdown('bencana')" 
+                class="w-full flex items-center justify-between text-sm px-4 py-3 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-xl hover:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-text-light dark:text-text-dark group text-left">
+                <span id="label-dropdown-bencana" class="truncate">Semua Jenis Bencana</span>
+                <span id="arrow-bencana" class="material-symbols-outlined text-gray-400 transition-transform duration-300 group-hover:text-primary">expand_more</span>
+            </button>
+
+            <div id="menu-dropdown-bencana" 
+                class="hidden absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#1E1E1E] border border-gray-100 dark:border-gray-700 rounded-xl shadow-xl overflow-hidden z-50 transform origin-top transition-all duration-200">
+                <div class="max-h-60 overflow-y-auto no-scrollbar p-1 space-y-1" id="list-bencana"></div>
+            </div>
+        </div>
+
+        <div class="mb-4 relative z-10">
+            <h3 class="text-sm font-medium mb-3 flex items-center gap-2">
+                <span class="material-symbols-outlined text-base text-gray-400">map</span> Kecamatan
+            </h3>
+            
+            <input type="hidden" id="filter-kecamatan" value="all">
+
+            <button id="btn-dropdown-kecamatan" onclick="toggleDropdown('kecamatan')" 
+                class="w-full flex items-center justify-between text-sm px-4 py-3 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-xl hover:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-text-light dark:text-text-dark group text-left">
+                <span id="label-dropdown-kecamatan" class="truncate">Semua Kecamatan</span>
+                <span id="arrow-kecamatan" class="material-symbols-outlined text-gray-400 transition-transform duration-300 group-hover:text-primary">expand_more</span>
+            </button>
+
+            <div id="menu-dropdown-kecamatan" 
+                class="hidden absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#1E1E1E] border border-gray-100 dark:border-gray-700 rounded-xl shadow-xl overflow-hidden z-50 transform origin-top transition-all duration-200">
+                <div class="p-2 border-b border-gray-100 dark:border-gray-700 sticky top-0 bg-white dark:bg-[#1E1E1E] z-10">
+                    <input type="text" id="search-kecamatan-input" placeholder="Cari kecamatan..." 
+                           class="w-full text-xs px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border-none focus:ring-1 focus:ring-primary text-text-light dark:text-text-dark placeholder-gray-400">
+                </div>
+                <div class="max-h-60 overflow-y-auto no-scrollbar p-1 space-y-1" id="list-kecamatan"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
 
 	<div id="weather-forecast-container" 
      class="p-6 border-t border-border-light dark:border-border-dark">
@@ -801,55 +1015,37 @@
          * Tugas: Membaca 'item.dateObj' untuk memfilter waktu
          */
         function getFilteredData() {
-            // 1. Tentukan 'hari ini' jam 00:00:00
-            const today = new Date();
-            today.setHours(0, 0, 0, 0); 
+    // 1. Ambil Nilai dari Input HTML
+    const startDateVal = document.getElementById('filter-start-date').value;
+    const endDateVal = document.getElementById('filter-end-date').value;
+    const selectedBencana = document.getElementById('filter-bencana').value;
+    const selectedKecamatan = document.getElementById('filter-kecamatan').value;
 
-            let timeFilteredData = allData.filter(item => {
-                // Selalu loloskan filter 'Semua Waktu'
-                if (currentTimeFilter === 'all') {
-                    return true;
-                }
+    // Konversi string tanggal input ke Object Date (set jam ke 00:00:00)
+    let startDate = startDateVal ? new Date(startDateVal) : null;
+    if(startDate) startDate.setHours(0,0,0,0);
 
-                // 2. Dapatkan tanggal item (yang sudah dibuat oleh fetchData)
-                const itemDate = item.dateObj; 
-                
-                // Jika tanggal tidak valid (gagal parsing), jangan tampilkan
-                if (!itemDate) { 
-                    return false; 
-                }
+    let endDate = endDateVal ? new Date(endDateVal) : null;
+    if(endDate) endDate.setHours(23,59,59,999); // Akhir hari tersebut
 
-                // 3. Dapatkan tanggal item jam 00:00:00
-                const itemDateOnly = new Date(itemDate.getTime());
-                itemDateOnly.setHours(0, 0, 0, 0);
-                
-                // 4. Hitung selisih milidetik
-                const diffMs = today.getTime() - itemDateOnly.getTime();
-                
-                // 5. Cek data dari masa depan (selisih negatif)
-                if (diffMs < 0) {
-                    return false;
-                }
-                
-                // 6. Konversi selisih ke hari (dibulatkan)
-                const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24)); 
-                
-                // 7. Terapkan filter
-                switch(currentTimeFilter) {
-                    case '7days':
-                        return diffDays < 7;
-                    case '1month':
-                        return diffDays < 30;
-                    case '1year':
-                        return diffDays < 365;
-                    default:
-                        return true; // Failsafe
-                }
-            });
+    // 2. Lakukan Filter Array
+    return allData.filter(item => {
+        // A. Filter Validasi Data Dasar
+        if (!item.dateObj) return false;
 
-                       
-            return timeFilteredData;
-        }
+        // B. Filter Rentang Waktu (Jika user mengisi tanggal)
+        if (startDate && item.dateObj < startDate) return false;
+        if (endDate && item.dateObj > endDate) return false;
+
+        // C. Filter Jenis Bencana
+        if (selectedBencana !== 'all' && item.bencana !== selectedBencana) return false;
+
+        // D. Filter Kecamatan
+        if (selectedKecamatan !== 'all' && item.kec !== selectedKecamatan) return false;
+
+        return true; // Lolos semua filter
+    });
+}
 
         function processMapData(data) {
         // Hapus layer control lama jika ada
@@ -1052,6 +1248,204 @@ function updateDataTable(data) {
                 select.innerHTML += `<option value="${kec}">${kec}</option>`;
             });
         }
+
+let activeDropdown = null; // Menyimpan ID dropdown yang sedang terbuka
+
+// 1. FUNGSI RENDER OPSI CUSTOM (Gantikan populateFilterOptions lama dengan ini)
+function populateFilterOptions() {
+    if (!allData || allData.length === 0) return;
+
+    // Ambil data unik
+    const uniqueBencana = [...new Set(allData.map(d => d.bencana).filter(x => x))].sort();
+    const uniqueKecamatan = [...new Set(allData.map(d => d.kec).filter(x => x))].sort();
+
+    // Render List Bencana
+    renderCustomOptions('bencana', uniqueBencana, 'Semua Jenis Bencana');
+    
+    // Render List Kecamatan
+    renderCustomOptions('kecamatan', uniqueKecamatan, 'Semua Kecamatan');
+}
+
+// --- INISIALISASI KALENDER (FLATPICKR) ---
+document.addEventListener("DOMContentLoaded", function() {
+    
+    // Konfigurasi Kalender
+    const configDate = {
+        dateFormat: "Y-m-d",     // Format data untuk sistem (2026-01-14)
+        altInput: true,          // Aktifkan tampilan alternatif
+        altFormat: "j F Y",      // Tampilan di layar: "14 Januari 2026"
+        locale: "id",            // Bahasa Indonesia (Sen, Sel, Rab...)
+        disableMobile: "true",   // Paksa pakai tema kita di HP (jangan pakai native HP)
+        onChange: function(selectedDates, dateStr, instance) {
+            // Langsung filter data begitu tanggal dipilih
+            currentPage = 1;
+            applyFiltersAndProcess();
+        }
+    };
+
+    // Pasang ke Element HTML
+    const fpStart = flatpickr("#filter-start-date", configDate);
+    const fpEnd = flatpickr("#filter-end-date", configDate);
+});
+
+// Update fungsi Reset agar kalender juga bersih
+function resetAllFilters() {
+    // Bersihkan Kalender Flatpickr
+    const startDateElem = document.querySelector("#filter-start-date");
+    const endDateElem = document.querySelector("#filter-end-date");
+    
+    if(startDateElem && startDateElem._flatpickr) startDateElem._flatpickr.clear();
+    if(endDateElem && endDateElem._flatpickr) endDateElem._flatpickr.clear();
+
+    // Reset Dropdown & Input lain
+    document.getElementById('filter-bencana').value = 'all';
+    document.getElementById('filter-kecamatan').value = 'all';
+    document.getElementById('label-dropdown-bencana').innerText = 'Semua Jenis Bencana';
+    document.getElementById('label-dropdown-kecamatan').innerText = 'Semua Kecamatan';
+    
+    // Reset Proses
+    currentPage = 1;
+    applyFiltersAndProcess();
+    populateFilterOptions();
+}
+
+// 2. FUNGSI GENERATE HTML OPSI
+function renderCustomOptions(type, dataArray, defaultLabel) {
+    const listContainer = document.getElementById(`list-${type}`);
+    const currentVal = document.getElementById(`filter-${type}`).value;
+    
+    let html = '';
+
+    // Tambahkan opsi "Semua"
+    const isAllActive = currentVal === 'all' ? 'bg-primary/10 text-primary font-semibold' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800';
+    
+    html += `
+    <div onclick="selectCustomOption('${type}', 'all', '${defaultLabel}')" 
+         class="cursor-pointer px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-between ${isAllActive}">
+        <span>${defaultLabel}</span>
+        ${currentVal === 'all' ? '<span class="material-symbols-outlined text-sm">check</span>' : ''}
+    </div>`;
+
+    // Tambahkan opsi dari Data
+    dataArray.forEach(item => {
+        const isActive = currentVal === item ? 'bg-primary/10 text-primary font-semibold' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800';
+        
+        html += `
+        <div onclick="selectCustomOption('${type}', '${item}', '${item}')" 
+             class="cursor-pointer px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-between ${isActive} item-option">
+            <span>${item}</span>
+            ${currentVal === item ? '<span class="material-symbols-outlined text-sm">check</span>' : ''}
+        </div>`;
+    });
+
+    listContainer.innerHTML = html;
+}
+
+// 3. FUNGSI BUKA/TUTUP DROPDOWN
+function toggleDropdown(type) {
+    const menu = document.getElementById(`menu-dropdown-${type}`);
+    const arrow = document.getElementById(`arrow-${type}`);
+    const btn = document.getElementById(`btn-dropdown-${type}`);
+
+    // Jika dropdown ini sudah terbuka, tutup. Jika belum, buka.
+    if (activeDropdown === type) {
+        closeAllDropdowns();
+    } else {
+        closeAllDropdowns(); // Tutup yang lain dulu
+        menu.classList.remove('hidden');
+        arrow.style.transform = 'rotate(180deg)';
+        btn.classList.add('border-primary', 'ring-2', 'ring-primary/20'); // Highlight tombol
+        activeDropdown = type;
+        
+        // Reset Search Input jika ada (khusus kecamatan)
+        if(type === 'kecamatan') {
+            const searchInput = document.getElementById('search-kecamatan-input');
+            if(searchInput) {
+                searchInput.value = '';
+                filterKecamatanList(''); // Reset list
+                searchInput.focus();
+            }
+        }
+    }
+}
+
+function closeAllDropdowns() {
+    ['bencana', 'kecamatan'].forEach(type => {
+        const menu = document.getElementById(`menu-dropdown-${type}`);
+        const arrow = document.getElementById(`arrow-${type}`);
+        const btn = document.getElementById(`btn-dropdown-${type}`);
+        
+        if (menu) menu.classList.add('hidden');
+        if (arrow) arrow.style.transform = 'rotate(0deg)';
+        if (btn) btn.classList.remove('border-primary', 'ring-2', 'ring-primary/20');
+    });
+    activeDropdown = null;
+}
+
+// 4. FUNGSI SAAT OPSI DIPILIH
+function selectCustomOption(type, value, label) {
+    // A. Update Nilai di Input Hidden (ini yang dibaca oleh getFilteredData)
+    document.getElementById(`filter-${type}`).value = value;
+    
+    // B. Update Tampilan Tombol Trigger
+    document.getElementById(`label-dropdown-${type}`).innerText = label;
+    
+    // C. Tutup Dropdown
+    closeAllDropdowns();
+    
+    // D. Trigger Proses Filter Utama (Reset ke page 1)
+    // Kita render ulang opsi agar tanda centang (checklist) berpindah
+    // Tapi kita panggil populateFilterOptions setelah filter berjalan saja agar efisien
+    
+    currentPage = 1;
+    applyFiltersAndProcess();
+    
+    // Render ulang opsi untuk update visual Checklist
+    populateFilterOptions();
+}
+
+// 5. EVENT LISTENER: KLIK DI LUAR (CLOSE)
+document.addEventListener('click', function(e) {
+    // Cek apakah klik terjadi di dalam area dropdown manapun
+    const isClickInside = e.target.closest('.relative.z-10') || e.target.closest('.relative.z-20');
+    if (!isClickInside) {
+        closeAllDropdowns();
+    }
+});
+
+// 6. EVENT LISTENER: PENCARIAN KECAMATAN (BONUS)
+const searchKecInput = document.getElementById('search-kecamatan-input');
+if(searchKecInput) {
+    searchKecInput.addEventListener('input', (e) => {
+        filterKecamatanList(e.target.value.toLowerCase());
+    });
+}
+
+function filterKecamatanList(query) {
+    const items = document.querySelectorAll('#list-kecamatan .item-option');
+    items.forEach(item => {
+        const text = item.innerText.toLowerCase();
+        if(text.includes(query)) {
+            item.classList.remove('hidden');
+        } else {
+            item.classList.add('hidden');
+        }
+    });
+}
+
+// --- EVENT LISTENER UNTUK FILTER BARU ---
+// Pasang ini di bagian bawah script, atau di dalam window.onload
+const filterInputs = ['filter-start-date', 'filter-end-date', 'filter-bencana', 'filter-kecamatan'];
+filterInputs.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) {
+        el.addEventListener('change', () => {
+            currentPage = 1; // Reset ke halaman 1 setiap ganti filter
+            applyFiltersAndProcess();
+        });
+    }
+});
+
 
         // =================================================================
 // GANTI FUNGSI LAMA ANDA DENGAN YANG INI SECARA KESELURUHAN
@@ -1358,7 +1752,8 @@ async function fetchWeather() {
                         }
                     }
                     
-                    allData = processedData; 
+                    allData = processedData;
+		    populateFilterOptions(); 
 		    renderReportCharts();
                     applyFiltersAndProcess();
 		    adjustTableHeight();
