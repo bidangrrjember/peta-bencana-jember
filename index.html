@@ -121,23 +121,19 @@
         }
     }
 
-        .flatpickr-month {
+.flatpickr-month {
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        height: 40px !important; /* Tinggi kompak */
-        padding: 0 10px !important;
+        height: 40px !important;
+        padding: 0 !important; /* Hapus padding di header agar rata tepi */
+        margin-bottom: 10px !important;
         position: relative !important;
         overflow: visible !important;
-        margin-bottom: 5px !important;
     }
 
-    /* Sembunyikan Panah Kiri/Kanan */
-    .flatpickr-prev-month, .flatpickr-next-month {
-        display: none !important; 
-    }
+    .flatpickr-prev-month, .flatpickr-next-month { display: none !important; }
 
-    /* Container Teks Tengah */
     .flatpickr-current-month {
         position: static !important;
         display: flex !important;
@@ -147,30 +143,22 @@
         padding: 0 !important;
     }
 
-    /* === 2. FIX DROPDOWN BULAN & TAHUN (THEMING) === */
-    
-    /* Style Dasar Input Select & Tahun */
+    /* === 2. DROPDOWN BULAN & TAHUN === */
     .flatpickr-current-month .flatpickr-monthDropdown-months,
     .flatpickr-current-month input.cur-year {
         font-family: 'Inter', sans-serif !important;
         font-weight: 600 !important;
         font-size: 0.95rem !important;
         color: inherit !important;
-        appearance: none !important;        /* Hilangkan panah bawaan browser */
-        -webkit-appearance: none !important;
-        -moz-appearance: none !important;
+        appearance: none !important;
         background: transparent !important;
         border: none !important;
         padding: 2px 4px !important;
         margin: 0 !important;
-        cursor: pointer !important;
-        outline: none !important;            /* Hilangkan garis biru saat diklik */
+        outline: none !important;
     }
-    
-    /* Hilangkan spinner pada input tahun */
     .flatpickr-current-month .numInputWrapper span { display: none !important; }
     
-    /* Hover Effect untuk Judul */
     .flatpickr-current-month .flatpickr-monthDropdown-months:hover,
     .flatpickr-current-month input.cur-year:hover {
         background-color: rgba(0,0,0,0.05) !important;
@@ -180,58 +168,91 @@
     html.dark .flatpickr-current-month input.cur-year:hover {
         background-color: rgba(255,255,255,0.1) !important;
     }
-
-    /* >>> BAGIAN PENTING: WARNA ISI DROPDOWN (OPTIONS) <<< */
-    
-    /* Default (Light Mode) - Latar Putih, Teks Gelap */
     .flatpickr-monthDropdown-months option {
         background-color: #FFFFFF !important;
         color: #333333 !important;
-        padding: 10px !important;
-        font-size: 0.9rem !important;
     }
-
-    /* Dark Mode - Latar Gelap, Teks Terang */
     html.dark .flatpickr-monthDropdown-months option {
-        background-color: #1E1E1E !important; /* Warna Card Dark */
+        background-color: #1E1E1E !important;
         color: #EAEAEA !important;
     }
 
 
-    /* === 3. CONTAINER UTAMA KALENDER === */
+    /* === 3. CONTAINER UTAMA (Presisi Lebar) === */
     .flatpickr-calendar {
         font-family: 'Inter', sans-serif !important;
         border-radius: 0.75rem !important;
         border: none !important;
-        width: 330px !important;
-        padding: 6px 12px 12px 12px !important; 
+        width: 340px !important; /* Lebar optimal */
+        padding: 15px !important; /* Padding luar pembungkus */
         margin-top: 8px !important;
     }
     .flatpickr-calendar:before, .flatpickr-calendar:after { display: none !important; }
 
-    .flatpickr-innerContainer, .flatpickr-rContainer, .dayContainer, .flatpickr-weekdays {
+    /* Pastikan Inner Container Full Width & Tanpa Padding aneh */
+    .flatpickr-innerContainer, .flatpickr-rContainer, .dayContainer {
         width: 100% !important;
-    }
-    .flatpickr-weekdays { margin-bottom: 8px !important; }
-    
-    span.flatpickr-weekday {
-        font-size: 0.8rem !important;
-        font-weight: 500 !important;
-        color: #9CA3AF !important;
+        box-sizing: border-box !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
     }
 
+
+    /* === 4. PENYEJAJARAN HARI (HEADER) === */
+    .flatpickr-weekdays { 
+        display: flex !important;
+        align-items: center !important;
+        width: 100% !important;
+        height: 30px !important;
+        margin-bottom: 5px !important; 
+        overflow: hidden !important;
+    }
+    
+    .flatpickr-weekdaycontainer {
+        display: flex !important;
+        width: 100% !important;
+        padding: 0 !important;
+    }
+
+    /* ITEM NAMA HARI (Sen, Sel, Rab) */
+    span.flatpickr-weekday {
+        font-size: 0.8rem !important;
+        font-weight: 600 !important;
+        color: #9CA3AF !important;
+        text-align: center !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        
+        /* KUNCI 1: Lebar harus presisi 100/7 */
+        flex: 0 0 14.2857% !important; 
+        max-width: 14.2857% !important;
+        margin: 0 !important;
+    }
+
+
+    /* === 5. PENYEJAJARAN TANGGAL (BODY) === */
     .flatpickr-day {
         border-radius: 0.5rem !important;
         font-weight: 500 !important;
-        font-size: 0.95rem !important;
-        height: 40px !important; 
-        line-height: 40px !important;
-        max-width: 40px !important;
-        margin: 2px !important;
+        font-size: 0.9rem !important;
+        height: 38px !important;
+        line-height: 38px !important;
+        margin: 2px 0 !important; /* Margin Atas Bawah saja */
         border: 1px solid transparent !important;
+        
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        
+        /* KUNCI 2: Lebar harus SAMA PERSIS dengan header */
+        flex-basis: 14.2857% !important;
+        max-width: 14.2857% !important;
     }
 
-    /* === 4. TEMA LIGHT MODE === */
+
+    /* === 6. TEMA LIGHT & DARK (Sama seperti sebelumnya) === */
     html.light .flatpickr-calendar {
         background: #FFFFFF !important;
         box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.01) !important;
@@ -239,13 +260,8 @@
     }
     html.light .flatpickr-day { color: #374151 !important; } 
     html.light .flatpickr-month { color: #111827 !important; fill: #6B7280 !important; }
-    
-    html.light .flatpickr-day:hover {
-        background: #EFF6FF !important; 
-        color: #007BFF !important;
-    }
+    html.light .flatpickr-day:hover { background: #EFF6FF !important; color: #007BFF !important; }
 
-    /* === 5. TEMA DARK MODE === */
     html.dark .flatpickr-calendar {
         background: #1E1E1E !important; 
         box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2) !important;
@@ -253,20 +269,18 @@
     }
     html.dark .flatpickr-month { color: #EAEAEA !important; fill: #9CA3AF !important; }
     html.dark .flatpickr-day { color: #D1D5DB !important; }
-    
-    html.dark .flatpickr-day:hover {
-        background: rgba(0, 123, 255, 0.15) !important; 
-        color: #007BFF !important;
-    }
+    html.dark .flatpickr-day:hover { background: rgba(0, 123, 255, 0.15) !important; color: #007BFF !important; }
 
-    /* === 6. SELEKSI (WARNA BIRU) === */
+    /* === 7. SELEKSI === */
     .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange, 
     .flatpickr-day.selected:focus, .flatpickr-day.selected:hover {
         background: #007BFF !important;
         border-color: #007BFF !important;
         color: #FFFFFF !important;
-        box-shadow: 0 4px 10px -2px rgba(0, 123, 255, 0.5) !important;
+        box-shadow: none !important;
     }
+    .flatpickr-day.today { border-color: #E5E7EB !important; }
+    html.dark .flatpickr-day.today { border-color: #4B5563 !important; }
 
       /* === CSS BARU UNTUK LAYER CONTROL DARK MODE === */
       /* Style dasar (Light mode - ini mungkin sudah ada/default) */
