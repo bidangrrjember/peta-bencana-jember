@@ -2576,107 +2576,106 @@ function getDriveImgUrl(url) {
     // 1. LOGIKA SWITCH VIEW (DASHBOARD <-> REPORTS)
     // ==========================================
 	function switchView(viewName) {
-        const dashboardView = document.getElementById('dashboard-view');
-        const reportsView = document.getElementById('reports-view');
-        
-        // ELEMENT BARU
-        const navPill = document.getElementById('nav-pill');
-        const navDashboard = document.getElementById('nav-dashboard');
-        const navReports = document.getElementById('nav-reports');
-        const floatBtn = document.getElementById('open-form-btn'); 
+    const dashboardView = document.getElementById('dashboard-view');
+    const reportsView = document.getElementById('reports-view');
+    const navPill = document.getElementById('nav-pill');
+    const navDashboard = document.getElementById('nav-dashboard');
+    const navReports = document.getElementById('nav-reports');
+    const floatBtn = document.getElementById('open-form-btn'); 
+    
+    // Ambil elemen scroll utama
+    const mainArea = document.querySelector('main'); 
+    const contentScroller = mainArea ? mainArea.querySelector('div.overflow-y-auto') : null;
 
-        // Style Text (Hanya warna, karena background diurus oleh Pill)
-        const textActive = [
-            'text-primary', 
-            'hover:text-primary', 
-            'dark:hover:text-primary'
-        ];
-        const textInactive = [
-            'text-gray-500', 
-            'dark:text-gray-400', 
-            'hover:text-gray-900',    
-            'dark:hover:text-gray-100'
-        ];
+    // Style Text
+    const textActive = ['text-primary', 'hover:text-primary', 'dark:hover:text-primary'];
+    const textInactive = ['text-gray-500', 'dark:text-gray-400', 'hover:text-gray-900', 'dark:hover:text-gray-100'];
+    const animVisible = ['opacity-100', 'scale-100']; 
+    const animHidden = ['opacity-0', 'scale-95'];
+    const btnVisible = ['opacity-100', 'scale-100'];
+    const btnHidden = ['opacity-0', 'scale-0'];
 
-        // Class Animasi View
-        const animVisible = ['opacity-100', 'scale-100']; 
-        const animHidden = ['opacity-0', 'scale-95'];
-        const btnVisible = ['opacity-100', 'scale-100'];
-        const btnHidden = ['opacity-0', 'scale-0'];
+    if (viewName === 'dashboard') {
+        // --- KE DASHBOARD ---
+        navPill.classList.remove('translate-x-full');
+        navPill.classList.add('translate-x-0');
 
-        if (viewName === 'dashboard') {
-            // 1. ANIMASI NAVIGASI (SLIDING PILL)
-            // Geser Pill ke Kiri (Hapus translate-x-full, tambah translate-x-0)
-            navPill.classList.remove('translate-x-full');
-            navPill.classList.add('translate-x-0');
+        navDashboard.classList.add(...textActive);
+        navDashboard.classList.remove(...textInactive);
+        navReports.classList.remove(...textActive);
+        navReports.classList.add(...textInactive);
 
-            // Update Warna Teks
-            navDashboard.classList.add(...textActive);
-            navDashboard.classList.remove(...textInactive);
-            navReports.classList.remove(...textActive);
-            navReports.classList.add(...textInactive);
+        reportsView.classList.remove(...animVisible);
+        reportsView.classList.add(...animHidden);
 
-            // 2. ANIMASI KELUAR (Reports)
-            reportsView.classList.remove(...animVisible);
-            reportsView.classList.add(...animHidden);
-
-            setTimeout(() => {
-                // SWAP
-                reportsView.classList.add('hidden');
-                dashboardView.classList.remove('hidden');
-                void dashboardView.offsetWidth; 
-
-                // ANIMASI MASUK
-                dashboardView.classList.remove(...animHidden);
-                dashboardView.classList.add(...animVisible);
-
-                // BUTTON POP UP
-                if(floatBtn) {
-                    floatBtn.classList.remove('hidden'); 
-                    void floatBtn.offsetWidth; 
-                    floatBtn.classList.remove(...btnHidden); 
-                    floatBtn.classList.add(...btnVisible);   
-                }
-
-                if (typeof adjustTableHeight === 'function') adjustTableHeight();
-                if (map) map.invalidateSize(); 
-
-            }, 300);
-
-        } else if (viewName === 'reports') {
-            // 1. ANIMASI NAVIGASI (SLIDING PILL)
-            // Geser Pill ke Kanan
-            navPill.classList.remove('translate-x-0');
-            navPill.classList.add('translate-x-full');
-
-            // Update Warna Teks
-            navDashboard.classList.remove(...textActive);
-            navDashboard.classList.add(...textInactive);
-            navReports.classList.add(...textActive);
-            navReports.classList.remove(...textInactive);
-
-            // 2. ANIMASI KELUAR (Dashboard)
-            dashboardView.classList.remove(...animVisible);
-            dashboardView.classList.add(...animHidden);
+        setTimeout(() => {
+            reportsView.classList.add('hidden');
+            dashboardView.classList.remove('hidden');
             
+            // Paksa reflow
+            void dashboardView.offsetWidth; 
+
+            dashboardView.classList.remove(...animHidden);
+            dashboardView.classList.add(...animVisible);
+
             if(floatBtn) {
-                floatBtn.classList.remove(...btnVisible);
-                floatBtn.classList.add(...btnHidden);
+                floatBtn.classList.remove('hidden'); 
+                void floatBtn.offsetWidth; 
+                floatBtn.classList.remove(...btnHidden); 
+                floatBtn.classList.add(...btnVisible);   
             }
-            
-            setTimeout(() => {
-                dashboardView.classList.add('hidden');
-                reportsView.classList.remove('hidden');
-                if(floatBtn) floatBtn.classList.add('hidden');
 
-                void reportsView.offsetWidth;
-                reportsView.classList.remove(...animHidden);
-                reportsView.classList.add(...animVisible);
-                
-                renderReportCharts(getFilteredData(), true);
-            }, 300);
+            // Recalculate layout & scroll dashboard
+            if (typeof adjustTableHeight === 'function') adjustTableHeight();
+            if (map) map.invalidateSize(); 
+
+        }, 300);
+
+    } else if (viewName === 'reports') {
+        // --- KE REPORTS ---
+        navPill.classList.remove('translate-x-0');
+        navPill.classList.add('translate-x-full');
+
+        navDashboard.classList.remove(...textActive);
+        navDashboard.classList.add(...textInactive);
+        navReports.classList.add(...textActive);
+        navReports.classList.remove(...textInactive);
+
+        dashboardView.classList.remove(...animVisible);
+        dashboardView.classList.add(...animHidden);
+        
+        if(floatBtn) {
+            floatBtn.classList.remove(...btnVisible);
+            floatBtn.classList.add(...btnHidden);
         }
+        
+        setTimeout(() => {
+            dashboardView.classList.add('hidden');
+            reportsView.classList.remove('hidden');
+            if(floatBtn) floatBtn.classList.add('hidden');
+
+            // 1. SOLUSI SCROLL: Langsung buka kunci scroll SEBELUM chart dirender
+            if(contentScroller) {
+                contentScroller.style.overflowY = 'auto';
+                contentScroller.style.height = ''; // Reset height paksaan dashboard
+                contentScroller.style.maxHeight = ''; 
+            }
+
+            void reportsView.offsetWidth;
+            reportsView.classList.remove(...animHidden);
+            reportsView.classList.add(...animVisible);
+            
+            // 2. SOLUSI LAG: Gunakan requestAnimationFrame
+            // Ini memberi jeda napas agar animasi CSS selesai dulu, baru render Chart berat
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    renderReportCharts(getFilteredData(), true);
+                }, 50); // Delay dikit biar transisi mulus
+            });
+            
+        }, 300);
     }
+}
 
     // ==========================================
     // 2. FUNGSI RENDER CHART (ANTI-CRASH)
