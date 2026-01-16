@@ -1797,58 +1797,63 @@ async function fetchWeather() {
   }
 }
 
-/**
-         * FUNGSI KRUSIAL 2: EKSEKUTOR (fetchData)
-         * Tugas: Mengambil data DAN memanggil parser untuk setiap baris data
-         */
-        function fetchData() {
-            fetch(DATA_URL)
-                .then(r => r.json())
-                .then(rawData => {
-                    /* loader.style.display = 'none'; */
-		    
-		    loader.style.opacity = '0';
-                    // 2. Setelah animasi selesai (500ms), sembunyikan total
-                    setTimeout(() => {
-                        loader.style.display = 'none';
-                    }, 500); // Samakan dengan durasi transisi CSS
-                    // --- AKHIR KODE PENGGANTI ---
+// Variabel global untuk menyimpan data terakhir
+let lastDataString = ""; 
 
-                    // --- INI BAGIAN PENTING UNTUK MENCIPTAKAN .dateObj ---
-                    const processedData = rawData.map((item, index) => {
-                        item.dateObj = parseIndonesianDate(item.tanggalWaktu);
-			item.idx = index;
-                        return item;
-                    });
-                    // --- AKHIR BAGIAN PENTING ---
+function fetchData() {
+    fetch(DATA_URL)
+        .then(r => r.json())
+        .then(rawData => {
+            
+            // 1. Sembunyikan Loader (Hanya visual)
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => { loader.style.display = 'none'; }, 500);
+            }
 
-                    if (allData.length > 0 && processedData.length > allData.length) {
-                        const newData = processedData[processedData.length - 1];
-			map.flyTo([newData.lat, newData.lng], 15);
-                        showNotification(`Laporan baru masuk: ${newData.nama}`);
-			const audio = document.getElementById('notification-sound');
-                        if (audio) { // Pastikan elemen audio ada
-                            audio.play().catch(error => {
-                                // Browser modern kadang memblokir auto-play
-                                // Beri tahu user jika suara gagal diputar
-                                console.warn("Suara notifikasi gagal diputar:", error);
-                                // Anda bisa tambahkan notifikasi visual tambahan di sini jika perlu
-                            });
-                        }
-                    }
-                    
-                    allData = processedData;
-		    populateFilterOptions(); 
-                    applyFiltersAndProcess(false);
-		    adjustTableHeight();
-		    map.invalidateSize(); 
-                })
-                .catch(error => {
-                    console.error('Gagal mengambil data:', error);
-                    loader.style.display = 'none';
-                    showNotification('Gagal memuat data. Cek konsol.');
-                });
-        }
+            // 2. CEK PERUBAHAN DATA (Fitur Anti-Kedip)
+            // Kita ubah data jadi string untuk dibandingkan
+            const currentDataString = JSON.stringify(rawData);
+            
+            // Jika data SAMA PERSIS dengan sebelumnya, STOP di sini. Jangan update peta.
+            if (currentDataString === lastDataString) {
+                return; // Keluar fungsi, tidak ada kedip
+            }
+
+            // Jika data BEDA, simpan data baru dan lanjut update
+            lastDataString = currentDataString;
+
+            // --- PROSES DATA (Kode Asli) ---
+            const processedData = rawData.map((item, index) => {
+                item.dateObj = parseIndonesianDate(item.tanggalWaktu);
+                item.idx = index;
+                return item;
+            });
+
+            // Notifikasi Data Baru (Logic Asli)
+            if (allData.length > 0 && processedData.length > allData.length) {
+                const newData = processedData[processedData.length - 1];
+                map.flyTo([newData.lat, newData.lng], 15);
+                showNotification(`Laporan baru masuk: ${newData.nama}`);
+                const audio = document.getElementById('notification-sound');
+                if (audio) audio.play().catch(e => console.warn(e));
+            }
+            
+            allData = processedData;
+            
+            // Update UI
+            populateFilterOptions(); 
+            applyFiltersAndProcess(false);
+            adjustTableHeight();
+            map.invalidateSize(); 
+
+        })
+        .catch(error => {
+            console.error('Gagal mengambil data:', error);
+            if(loader) loader.style.display = 'none';
+            // showNotification('Gagal memuat data. Cek konsol.'); // Opsional: dimatikan biar tidak ganggu kalau internet putus nyambung
+        });
+}
 
         function showNotification(message) {
             notification.innerText = message;
