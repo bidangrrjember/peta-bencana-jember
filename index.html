@@ -372,7 +372,7 @@
                     <span class="material-symbols-outlined">close</span>
                 </button>
             </div>
-            <div class="flex-grow overflow-y-auto no-scrollbar">
+            <div class="flex-grow overflow-y-auto no-scrollbar flex flex-col">
     <div class="flex items-center justify-between mb-4">
         <h2 class="text-sm font-semibold uppercase text-gray-500 dark:text-gray-400">Filter Data</h2>
         <button onclick="resetAllFilters()" class="text-xs text-primary hover:text-blue-600 font-medium transition-colors">
@@ -456,31 +456,57 @@
     </div>
 </div>
 
-	<div id="weather-forecast-container" 
-     class="p-6 border-t border-border-light dark:border-border-dark">
-  <h3 class="text-sm font-semibold uppercase text-gray-500 dark:text-gray-400 mb-4">
-    Prakiraan Cuaca
-  </h3>
-  <div class="flex items-center gap-4 mb-3">
-    <span id="weather-icon" class="material-symbols-outlined text-5xl text-primary">
-      hourglass_empty
-    </span>
-    <div>
-      <p id="weather-temp" class="text-3xl font-bold">--°C</p>
-      <p id="weather-desc" class="text-sm text-gray-500 dark:text-gray-400">
-        Memuat...
-      </p>
+<div id="weather-forecast-container" class="mt-auto w-full pb-0 pt-4"> 
+    
+    <div class="w-full mb-5 border-t border-dashed border-gray-300 dark:border-gray-700"></div>
+
+    <h3 class="text-xs font-bold mb-3 flex items-center gap-2 text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">
+        <span class="material-symbols-outlined text-sm">device_thermostat</span> 
+        Cuaca Terkini
+    </h3>
+
+    <div class="relative w-full rounded-xl bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark p-4 transition-all hover:border-primary group shadow-sm hover:shadow-md">
+        
+        <div class="flex items-center justify-between gap-2 mb-3">
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5 mb-1">
+                    <span class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400 truncate">Jember</span>
+                </div>
+                <div class="flex items-start">
+                    <span id="weather-temp" class="text-4xl font-extrabold text-text-light dark:text-text-dark tracking-tighter leading-none">--</span>
+                    <span class="text-lg text-primary font-bold ml-0.5 leading-none">°C</span>
+                </div>
+            </div>
+
+            <div class="shrink-0 flex flex-col items-center justify-center pl-3 border-l border-gray-200 dark:border-gray-700 border-dashed">
+                <span id="weather-icon" class="material-symbols-outlined text-4xl text-primary transition-transform group-hover:scale-110 duration-300 drop-shadow-sm">
+                    cloud_queue
+                </span>
+                <p id="weather-desc" class="text-[10px] font-medium text-gray-500 dark:text-gray-400 mt-1 capitalize text-center leading-tight max-w-[60px] truncate">
+                    Memuat...
+                </p>
+            </div>
+        </div>
+
+        <div class="h-px w-full bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-700 to-transparent mb-3"></div>
+
+        <div class="flex items-center justify-between">
+            <div class="flex flex-col">
+                <span class="text-[9px] text-gray-400 uppercase font-semibold tracking-wide">Harian</span>
+                <div class="flex items-center gap-1 text-xs font-bold text-gray-600 dark:text-gray-300">
+                    <span id="weather-range">--° / --°</span>
+                </div>
+            </div>
+
+            <a href="https://open-meteo.com/" target="_blank" class="flex items-center gap-1 text-[9px] text-gray-400 hover:text-primary transition-colors py-1 px-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800">
+                Open-Meteo <span class="material-symbols-outlined text-[10px]">open_in_new</span>
+            </a>
+        </div>
     </div>
-  </div>
-  <p id="weather-range" class="text-xs text-gray-500 dark:text-gray-400 mb-3">
-    Tertinggi: --° / Terendah: --°
-  </p>
-  <p class="text-[10px] text-gray-400 dark:text-gray-500">
-    Didukung oleh 
-    <a href="https://open-meteo.com/" target="_blank" class="underline hover:text-primary">
-      Open-Meteo.com
-    </a>
-  </p>
 </div>
 
 
