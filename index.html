@@ -1054,6 +1054,32 @@
             updateDataTable(filteredData);
             renderReportCharts(filteredData, enableAnimation);
         }
+
+	function zoomToFilteredKecamatan(kecName) {
+    // 1. Jika user memilih 'Semua Kecamatan' -> Reset ke tampilan awal Jember
+    if (kecName === 'all') {
+        map.flyTo([-8.17, 113.70], 12, { duration: 1.5 });
+        return;
+    }
+
+    // 2. Cari semua titik bencana di kecamatan yang dipilih
+    const relevantData = allData.filter(item => item.kec === kecName);
+
+    // 3. Jika ada datanya, hitung batas area (bounds) dan zoom
+    if (relevantData.length > 0) {
+        const latLngs = relevantData.map(d => [d.lat, d.lng]);
+        const bounds = L.latLngBounds(latLngs);
+        
+        map.flyToBounds(bounds, { 
+            padding: [50, 50],  // Memberi jarak tepi agar marker tidak kepotong header/sidebar
+            maxZoom: 15,        // Mencegah zoom terlalu dekat jika datanya cuma 1 titik
+            duration: 1.5       // Kecepatan animasi terbang
+        });
+    } else {
+        // Opsional: Jika kecamatan tersebut belum ada data bencananya
+        showNotification(`Belum ada data bencana di Kec. ${kecName}`);
+    }
+}
 	
 	function unlockAudio() {
             if (!isAudioUnlocked) { // Hanya jalankan sekali
@@ -1177,7 +1203,10 @@ function processMapData(data) {
                 zoomToBoundsOnClick: true,  // Zoom otomatis saat cluster diklik
                 spiderfyOnMaxZoom: true,    // Pecah jadi jaring laba-laba jika lokasi sama persis
                 disableClusteringAtZoom: 17, // Pada zoom 17, jangan di-cluster lagi (tampilkan titik asli)
-                maxClusterRadius: 50        // Jarak radius untuk mengelompokkan titik
+                maxClusterRadius: 50,        // Jarak radius untuk mengelompokkan titik
+		removeOutsideVisibleBounds: false,
+		animate: true,
+                animateAddingMarkers: true
             }).addTo(map);
         }
 
@@ -1347,10 +1376,19 @@ function resetAllFilters() {
     document.getElementById('label-dropdown-bencana').innerText = 'Semua Jenis Bencana';
     document.getElementById('label-dropdown-kecamatan').innerText = 'Semua Kecamatan';
     
+    // Reset Search Input Kecamatan (jika ada sisa ketikan)
+    const searchKecInput = document.getElementById('search-kecamatan-input');
+    if(searchKecInput) searchKecInput.value = '';
+
     // Reset Proses
     currentPage = 1;
     applyFiltersAndProcess(true);
     populateFilterOptions();
+
+    // --- TAMBAHAN KODE DI SINI ---
+    // Kembalikan peta ke posisi awal (Reset Zoom)
+    map.flyTo([-8.17, 113.70], 12, { duration: 1.5 });
+    // -----------------------------
 }
 
 // 2. FUNGSI GENERATE HTML OPSI
@@ -1426,9 +1464,8 @@ function closeAllDropdowns() {
     activeDropdown = null;
 }
 
-// 4. FUNGSI SAAT OPSI DIPILIH
 function selectCustomOption(type, value, label) {
-    // A. Update Nilai di Input Hidden (ini yang dibaca oleh getFilteredData)
+    // A. Update Nilai di Input Hidden
     document.getElementById(`filter-${type}`).value = value;
     
     // B. Update Tampilan Tombol Trigger
@@ -1437,14 +1474,18 @@ function selectCustomOption(type, value, label) {
     // C. Tutup Dropdown
     closeAllDropdowns();
     
-    // D. Trigger Proses Filter Utama (Reset ke page 1)
-    // Kita render ulang opsi agar tanda centang (checklist) berpindah
-    // Tapi kita panggil populateFilterOptions setelah filter berjalan saja agar efisien
-    
+    // D. Trigger Proses Filter Utama
     currentPage = 1;
     applyFiltersAndProcess(true);
     
-    // Render ulang opsi untuk update visual Checklist
+    // --- TAMBAHAN KODE DI SINI ---
+    // Jika yang dipilih adalah KECAMATAN, panggil fungsi zoom otomatis
+    if (type === 'kecamatan') {
+        zoomToFilteredKecamatan(value);
+    }
+    // -----------------------------
+    
+    // Render ulang opsi
     populateFilterOptions();
 }
 
