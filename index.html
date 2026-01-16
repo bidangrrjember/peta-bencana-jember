@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="id" class="light">
 <head>
-    <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> <title>Dashboard Peta Bencana</title> <link rel="icon" href="https://bidangrrjember.github.io/peta-bencana-jember/logo-bpbd.png" type="image/png"> <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/> <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.css" /> <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.js" charset="utf-8"></script> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> <title>Dashboard Peta Bencana</title> <link rel="icon" href="https://bidangrrjember.github.io/peta-bencana-jember/logo-bpbd.png" type="image/png"> <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/> <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script> <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.css" /> <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.js" charset="utf-8"></script> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script> <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script> <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script> <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" /> <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/> <script>
       //
       tailwind.config = {
@@ -1119,109 +1121,79 @@
     });
 }
 
-        function processMapData(data) {
-        // Hapus layer control lama jika ada
-        if (mainLayerControl) mainLayerControl.remove();
+function processMapData(data) {
+    // Hapus layer control lama jika ada
+    if (mainLayerControl) mainLayerControl.remove();
 
-        // Kosongkan layer group (sesuaikan: layerGroups atau allMarkersLayer)
-        Object.values(layerGroups).forEach(lg => lg.clearLayers());
-        // atau: allMarkersLayer.clearLayers();
+    // Kosongkan marker lama
+    Object.values(layerGroups).forEach(lg => lg.clearLayers());
 
-        let overlayMaps = {};
-        
-        // Loop data
-        data.forEach(item => {
-            const bencana = item.bencana || "Tidak Terkategori";
-            let chosenIcon; // Variabel ikon pilihan
+    // Loop data untuk membuat marker
+    data.forEach(item => {
+        const bencana = item.bencana || "Tidak Terkategori";
+        let chosenIcon; 
 
-            // Tentukan ikon berdasarkan status pipeline
-            // Kita cek dari kondisi paling akhir (Monitoring)
-            if (item.linkMonitoring) {
-                // 3. Sudah Monitoring -> Hijau
-                chosenIcon = iconMonitoring;
-            } else if (item.linkSerahTerima) {
-                // 2. Sudah Serah Terima (tapi belum monitoring) -> Kuning
-                chosenIcon = iconSerahTerima;
-            } else {
-                // 1. Masih Terkaji (belum serah terima & belum monitoring) -> Merah
-                chosenIcon = iconTerkaji;
-            }
+        // Tentukan ikon berdasarkan status (Logic sama seperti sebelumnya)
+        if (item.linkMonitoring) {
+            chosenIcon = iconMonitoring; // Hijau
+        } else if (item.linkSerahTerima) {
+            chosenIcon = iconSerahTerima; // Kuning
+        } else {
+            chosenIcon = iconTerkaji; // Merah
+        }
 
-            // Cek data baru menggunakan item.dateObj
-            const now = new Date();
-            const itemDate = item.dateObj;
-            let isNew = false;
-            if (itemDate) {
-                const diffHours = (now - itemDate) / (1000 * 60 * 60);
-                isNew = diffHours <= 24;
-            }
+        // Cek data baru (< 24 jam)
+        const now = new Date();
+        const itemDate = item.dateObj;
+        let isNew = false;
+        if (itemDate) {
+            const diffHours = (now - itemDate) / (1000 * 60 * 60);
+            isNew = diffHours <= 24;
+        }
 
-            // --- PERBAIKAN IKON MINIMALIS ---
-            // 1. Buat SEMUA marker dengan ikon standar (chosenIcon)
-            const marker = L.marker([item.lat, item.lng], { icon: chosenIcon });
+        // Buat Marker
+        const marker = L.marker([item.lat, item.lng], { icon: chosenIcon });
 
-            // 2. Jika marker baru, tambahkan kelas 'marker-new' ke elemen gambar SETELAH dibuat
-            if (isNew) {
-                // Tambahkan event 'add' untuk memastikan elemen marker sudah ada di DOM
-                marker.on('add', function() {
-                    // Dapatkan elemen HTML marker
-                    const markerElement = this.getElement();
-                    if (markerElement) {
-                        // Tambahkan kelas 'marker-new' ke elemen utama marker
-                        // CSS kita (.marker-new img) akan menargetkan gambar di dalamnya
-                        markerElement.classList.add('marker-new');
-                    }
-                });
-            }
-            // --- AKHIR PERBAIKAN IKON MINIMALIS ---
-
-
-            // --- PASTIKAN HOVER LISTENER DIHAPUS ---
-            // marker.on('mouseover', function() { /* HAPUS */ });
-            // marker.on('mouseout', function() { /* HAPUS */ });
-            // --- AKHIR HAPUS HOVER ---
-
-
-            // Listener klik tetap ada
-            marker.on('click', () => {
-                openSidebarWithData(item);
+        // Efek Pulse untuk Data Baru
+        if (isNew) {
+            marker.on('add', function() {
+                const markerElement = this.getElement();
+                if (markerElement) markerElement.classList.add('marker-new');
             });
+        }
 
-            // Tambahkan ke layer group (sesuaikan)
-            if (!layerGroups[bencana]) layerGroups[bencana] = L.layerGroup().addTo(map);
-            if (layerGroups[bencana]) layerGroups[bencana].addLayer(marker);
-            // atau: allMarkersLayer.addLayer(marker);
+        // Event Klik Marker
+        marker.on('click', () => {
+            openSidebarWithData(item);
+        });
 
-            
-        }); // Akhir data.forEach
+        // --- BAGIAN INI YANG DIUBAH (IMPLEMENTASI CLUSTER) ---
+        
+        // Cek apakah grup untuk jenis bencana ini sudah ada?
+        if (!layerGroups[bencana]) {
+            // Jika belum, buat Grup CLUSTER baru
+            layerGroups[bencana] = L.markerClusterGroup({
+                showCoverageOnHover: false, // Matikan area biru saat hover (biar rapi)
+                zoomToBoundsOnClick: true,  // Zoom otomatis saat cluster diklik
+                spiderfyOnMaxZoom: true,    // Pecah jadi jaring laba-laba jika lokasi sama persis
+                disableClusteringAtZoom: 17, // Pada zoom 17, jangan di-cluster lagi (tampilkan titik asli)
+                maxClusterRadius: 50        // Jarak radius untuk mengelompokkan titik
+            }).addTo(map);
+        }
 
-        // Buat kontrol HANYA untuk baseMaps
-       /* mainLayerControl = L.control.layers(baseMaps, {}, { position: 'bottomright' }).addTo(map); */
+        // Tambahkan marker ke dalam grup Cluster, BUKAN langsung ke map
+        layerGroups[bencana].addLayer(marker);
+    }); 
 
-	// 1. Lokasi Terkaji: Data yang BELUM punya linkSerahTerima DAN BELUM punya linkMonitoring
-        // (Ini adalah tahap awal atau tahap disposisi)
-        const totalTerkaji = data.filter(item => 
-            !item.linkSerahTerima && !item.linkMonitoring
-        ).length;
+    // Hitung Statistik (Sama seperti kode lama)
+    const totalTerkaji = data.filter(item => !item.linkSerahTerima && !item.linkMonitoring).length;
+    const totalBantuan = data.filter(item => item.linkSerahTerima && !item.linkMonitoring).length;
+    const totalMonitoring = data.filter(item => item.linkMonitoring).length;
 
-        // 2. Serah Terima Bantuan: Data yang SUDAH punya linkSerahTerima TAPI BELUM punya linkMonitoring
-        // (Ini adalah tahap tengah)
-        const totalBantuan = data.filter(item => 
-            item.linkSerahTerima && !item.linkMonitoring
-        ).length;
-
-        // 3. Lokasi Monitoring: Data yang SUDAH punya linkMonitoring
-        // (Ini adalah tahap akhir)
-        const totalMonitoring = data.filter(item => 
-            item.linkMonitoring
-        ).length;
-
-        // Update nilai di kartu
-        if (statTerkajiEl) statTerkajiEl.innerText = totalTerkaji.toLocaleString('id-ID');
-        if (statBantuanEl) statBantuanEl.innerText = totalBantuan.toLocaleString('id-ID');
-        if (statMonitoringEl) statMonitoringEl.innerText = totalMonitoring.toLocaleString('id-ID');
-
-	}
+    if (statTerkajiEl) statTerkajiEl.innerText = totalTerkaji.toLocaleString('id-ID');
+    if (statBantuanEl) statBantuanEl.innerText = totalBantuan.toLocaleString('id-ID');
+    if (statMonitoringEl) statMonitoringEl.innerText = totalMonitoring.toLocaleString('id-ID');
+}
             
 	function changePage(direction) {
         currentPage += direction;
