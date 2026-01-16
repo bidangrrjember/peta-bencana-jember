@@ -631,7 +631,7 @@
     
     <div class="h-[400px] shrink-0 flex flex-col bg-white dark:bg-card-dark p-6 rounded-lg border border-border-light dark:border-border-dark shadow-sm">
     <h4 class="font-bold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2 text-base shrink-0">
-        <span class="material-symbols-outlined text-primary">ssid_chart</span> Tren Kejadian Bencana (Bulanan)
+        <span class="material-symbols-outlined text-primary">ssid_chart</span> <span id="tren-chart-title">Tren Kejadian Bencana (Bulanan)</span>
     </h4>
     <div class="relative flex-1 w-full min-h-0">
         <canvas id="chartTrenBulanan"></canvas>
@@ -667,7 +667,7 @@
              </h4>
         </div>
         
-        <div class="overflow-x-auto custom-scrollbar">
+        <div class="overflow-x-auto no-scrollbar">
             <table class="w-full text-sm text-center border-collapse whitespace-nowrap">
                 <thead id="material-table-head" class="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-bold text-xs uppercase tracking-wider">
                     </thead>
@@ -702,22 +702,33 @@
             </div>
             <div id="sidebar-content" class="p-5 overflow-y-auto flex-1 no-scrollbar space-y-4">
                 </div>
-            <div id="sidebar-footer" class="p-6 border-t border-border-light dark:border-border-dark bg-white dark:bg-card-dark flex flex-col gap-3 z-20">
+            <div id="sidebar-footer" class="p-4 border-t border-border-light dark:border-border-dark bg-white dark:bg-card-dark flex flex-col gap-3 z-20">
     
     <a href="#" id="download-laporan-btn" target="_blank" 
-       class="hidden w-full items-center justify-center gap-2 px-6 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow-lg shadow-emerald-600/20 transition-all duration-200 hover:scale-[1.02] active:scale-95 group">
-        <span class="material-symbols-outlined group-hover:animate-bounce">description</span>
-        <span>Unduh Laporan JITUPASNA</span>
+       class="hidden w-full items-center justify-center gap-2 px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm shadow-md shadow-emerald-600/20 transition-all duration-200 hover:scale-[1.02] active:scale-95">
+        <span class="material-symbols-outlined text-lg">description</span>
+        <span>Unduh Laporan</span>
     </a>
 
-    <a href="#" id="route-button-link" target="_blank" 
-       class="flex w-full items-center justify-center gap-2 px-6 py-4 bg-primary hover:bg-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-500/30 transition-all duration-200 hover:scale-[1.02] active:scale-95 group">
-        <span class="material-symbols-outlined group-hover:rotate-45 transition-transform duration-300">directions</span>
-        <span>Buka Rute Lokasi</span>
-    </a>
+    <div class="flex gap-3 h-14">
+        
+        <a href="#" id="route-button-link" target="_blank" 
+           class="flex-1 h-full flex items-center justify-center gap-2 px-4 bg-primary hover:bg-blue-600 text-white rounded-xl font-bold text-sm shadow-md shadow-blue-500/30 transition-all duration-200 hover:scale-[1.02] active:scale-95">
+            <span class="material-symbols-outlined text-xl">directions</span>
+            <span>Buka Rute Lokasi</span>
+        </a>
+
+        <a href="#" id="share-wa-btn" target="_blank" 
+           class="flex-none w-14 h-full flex items-center justify-center bg-[#25D366] hover:bg-[#128C7E] text-white rounded-xl shadow-md shadow-green-500/30 transition-all duration-200 hover:scale-105 active:scale-95"
+           title="Kirim Laporan via WhatsApp">
+            <svg class="w-8 h-8 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+            </svg>
+        </a>
+
+    </div>
 
 </div>
-        </div>
 
     </div>
 
@@ -1006,14 +1017,14 @@
 
         // --- Fungsi Pemrosesan Data ---
 
-        function applyFiltersAndProcess() {
+        function applyFiltersAndProcess(enableAnimation = false) {
             const filteredData = getFilteredData();
             processMapData(filteredData);
            if (dashboardModal.style.display === 'flex') {
-                updateDashboardCharts(filteredData);
+                updateDashboardCharts(filteredData, enableAnimation);
             }
             updateDataTable(filteredData);
-            
+            renderReportCharts(filteredData, enableAnimation);
         }
 	
 	function unlockAudio() {
@@ -1190,7 +1201,7 @@
         currentPage += direction;
     // Panggil ulang proses filter & render tabel
     // Kita gunakan applyFiltersAndProcess agar data tetap tersinkron dengan filter waktu
-    	applyFiltersAndProcess(); 
+    	applyFiltersAndProcess(false); 
 	}
 
 function updateDataTable(data) {
@@ -1314,7 +1325,7 @@ document.addEventListener("DOMContentLoaded", function() {
         onChange: function(selectedDates, dateStr, instance) {
             // Langsung filter data begitu tanggal dipilih
             currentPage = 1;
-            applyFiltersAndProcess();
+            applyFiltersAndProcess(true);
         }
     };
 
@@ -1340,7 +1351,7 @@ function resetAllFilters() {
     
     // Reset Proses
     currentPage = 1;
-    applyFiltersAndProcess();
+    applyFiltersAndProcess(true);
     populateFilterOptions();
 }
 
@@ -1433,7 +1444,7 @@ function selectCustomOption(type, value, label) {
     // Tapi kita panggil populateFilterOptions setelah filter berjalan saja agar efisien
     
     currentPage = 1;
-    applyFiltersAndProcess();
+    applyFiltersAndProcess(true);
     
     // Render ulang opsi untuk update visual Checklist
     populateFilterOptions();
@@ -1476,7 +1487,7 @@ filterInputs.forEach(id => {
     if(el) {
         el.addEventListener('change', () => {
             currentPage = 1; // Reset ke halaman 1 setiap ganti filter
-            applyFiltersAndProcess();
+            applyFiltersAndProcess(true);
         });
     }
 });
@@ -1485,7 +1496,7 @@ filterInputs.forEach(id => {
         // =================================================================
 // GANTI FUNGSI LAMA ANDA DENGAN YANG INI SECARA KESELURUHAN
 // =================================================================
-function updateDashboardCharts(data) {
+function updateDashboardCharts(data, enableAnimation = false) {
     
     // --- 1. Persiapan Data Kecamatan ---
     const kecamatanCounts = data.reduce((acc, item) => { const kecamatan = item.kecamatan || "N/A"; acc[kecamatan] = (acc[kecamatan] || 0) + 1; return acc; }, {});
@@ -1530,7 +1541,7 @@ function updateDashboardCharts(data) {
         // Chart SUDAH ADA, update datanya
         chartKecamatanInstance.data.labels = kecLabels;
         chartKecamatanInstance.data.datasets[0].data = kecData;
-        chartKecamatanInstance.update();
+        chartKecamatanInstance.update(enableAnimation ? 'default' : 'none');
     } else {
         // Chart BELUM ADA, buat baru
         chartKecamatanInstance = new Chart(document.getElementById('chartKecamatan'), {
@@ -1546,7 +1557,7 @@ function updateDashboardCharts(data) {
         chartKerusakanInstance.data.labels = sortedLabels;
         chartKerusakanInstance.data.datasets[0].data = sortedData;
         chartKerusakanInstance.data.datasets[0].backgroundColor = sortedColors;
-        chartKerusakanInstance.update();
+        chartKerusakanInstance.update(enableAnimation ? 'default' : 'none');
     } else {
         // Chart BELUM ADA, buat baru
         chartKerusakanInstance = new Chart(document.getElementById('chartKerusakan'), {
@@ -1563,7 +1574,7 @@ function updateDashboardCharts(data) {
         chartKonstruksiInstance.data.datasets[0].data = konsDataRingan;
         chartKonstruksiInstance.data.datasets[1].data = konsDataSedang;
         chartKonstruksiInstance.data.datasets[2].data = konsDataBerat;
-        chartKonstruksiInstance.update();
+        chartKonstruksiInstance.update(enableAnimation ? 'default' : 'none');
     } else {
         // Chart BELUM ADA, buat baru
         chartKonstruksiInstance = new Chart(document.getElementById('chartKonstruksi'), {
@@ -1789,8 +1800,7 @@ async function fetchWeather() {
                     
                     allData = processedData;
 		    populateFilterOptions(); 
-		    renderReportCharts();
-                    applyFiltersAndProcess();
+                    applyFiltersAndProcess(false);
 		    adjustTableHeight();
 		    map.invalidateSize(); 
                 })
@@ -2217,7 +2227,45 @@ function getDriveImgUrl(url) {
 
             // --- SETUP TOMBOL & HEADER ---
             const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${data.lat},${data.lng}`; 
-            sidebarTitle.innerText = data.nama || 'Detail Laporan';
+            
+	    const toDms = (deg, isLat) => {
+        const absolute = Math.abs(deg);
+        const degrees = Math.floor(absolute);
+        const minutesNotTruncated = (absolute - degrees) * 60;
+        const minutes = Math.floor(minutesNotTruncated);
+        const seconds = ((minutesNotTruncated - minutes) * 60).toFixed(1);
+        const direction = isLat ? (deg >= 0 ? "N" : "S") : (deg >= 0 ? "E" : "W");
+        return `${degrees}° ${minutes}' ${seconds}" ${direction}`;
+    };
+    const koordinatDMS = `${toDms(data.lat, true)} • ${toDms(data.lng, false)}`;
+
+    // 2. Siapkan Daftar Material (Looping dari object data.bantuan)
+    let listMaterial = [];
+    if (data.bantuan && typeof data.bantuan === 'object') {
+        for (const [material, jumlah] of Object.entries(data.bantuan)) {
+            // Hanya masukkan jika jumlahnya valid dan lebih dari 0
+            if (parseFloat(jumlah) > 0) {
+                listMaterial.push(`- ${material}: ${jumlah}`);
+            }
+        }
+    }
+    const materialString = listMaterial.length > 0 ? listMaterial.join('\n') : "- Belum ada data material";
+
+    // 3. Susun Format Pesan
+    const pesanWA = `*DATA PENERIMA BANTUAN BPBD*\n\n` +
+        `*Nama Penerima:* ${data.nama}\n` +
+        `*Alamat:* ${data.jalandusun || '-'}, Desa ${data.desakelurahan}, Kec. ${data.kec}\n` +
+        `*Koordinat:* ${koordinatDMS}\n\n` +
+        `*Material yang Dibantu:*\n${materialString}\n\n` +
+        `_Link Maps:_\n${googleMapsUrl}`;
+
+    // 4. Update Link Tombol WhatsApp
+    const btnWA = document.getElementById('share-wa-btn');
+    if (btnWA) {
+        btnWA.href = `https://wa.me/?text=${encodeURIComponent(pesanWA)}`;
+    }
+
+	    sidebarTitle.innerText = data.nama || 'Detail Laporan';
             
             const tanggalAsesmen = data.dateObj 
                 ? data.dateObj.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) 
@@ -2494,7 +2542,7 @@ function getDriveImgUrl(url) {
                 button.classList.add('bg-primary/10', 'text-primary', 'font-medium');
                 currentTimeFilter = button.getAttribute('data-filter');
 		currentPage = 1;
-                applyFiltersAndProcess();
+                applyFiltersAndProcess(true);
             });
         });
 
@@ -2599,7 +2647,7 @@ function getDriveImgUrl(url) {
                 reportsView.classList.remove(...animHidden);
                 reportsView.classList.add(...animVisible);
                 
-                renderReportCharts();
+                renderReportCharts(getFilteredData(), true);
             }, 300);
         }
     }
@@ -2611,9 +2659,10 @@ function getDriveImgUrl(url) {
 // --- VARIABEL GLOBAL CHART ---
     let reportChartInstances = {};
 
-    function renderReportCharts() {
+    function renderReportCharts(data, enableAnimation = false) {
         // 1. CEK DATA
-        if (!allData || allData.length === 0) return;
+        const sourceData = data || allData;
+        if (!sourceData) return;
 
         // --- 2. PERSIAPAN DATA (Sama seperti sebelumnya) ---
         let materialStats = {};
@@ -2621,7 +2670,28 @@ function getDriveImgUrl(url) {
         let kerusakanMap = { "Rusak Ringan": 0, "Rusak Sedang": 0, "Rusak Berat": 0 };
         let konstruksiMap = {}; 
 
-        allData.forEach(d => {
+        // --- LOGIKA BARU: Tentukan Mode Harian/Bulanan ---
+        const startDateVal = document.getElementById('filter-start-date').value;
+        const endDateVal = document.getElementById('filter-end-date').value;
+        let isDaily = false;
+
+        if (startDateVal && endDateVal) {
+            const start = new Date(startDateVal);
+            const end = new Date(endDateVal);
+            const diffTime = Math.abs(end - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+            if (diffDays <= 32) { 
+                isDaily = true;
+            }
+        }
+
+        // Update Judul Chart
+        const titleEl = document.getElementById('tren-chart-title');
+        if(titleEl) {
+            titleEl.innerText = isDaily ? "Tren Kejadian Bencana (Harian)" : "Tren Kejadian Bencana (Bulanan)";
+        }
+
+        sourceData.forEach(d => {
             // A. Hitung Material
             if(d.bantuan && typeof d.bantuan === 'object') {
                 for (const [mat, jumlah] of Object.entries(d.bantuan)) {
@@ -2631,8 +2701,20 @@ function getDriveImgUrl(url) {
             }
             // B. Hitung Tren
             if(d.dateObj && d.dateObj instanceof Date && !isNaN(d.dateObj)) {
-                const sortKey = d.dateObj.toISOString().slice(0, 7);
-                const labelName = d.dateObj.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
+                let sortKey, labelName;
+                if (isDaily) {
+                    const y = d.dateObj.getFullYear();
+                    const m = String(d.dateObj.getMonth() + 1).padStart(2, '0');
+                    const day = String(d.dateObj.getDate()).padStart(2, '0');
+                    sortKey = `${y}-${m}-${day}`;
+                    labelName = d.dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+                } else {
+                    const y = d.dateObj.getFullYear();
+                    const m = String(d.dateObj.getMonth() + 1).padStart(2, '0');
+                    sortKey = `${y}-${m}`;
+                    labelName = d.dateObj.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
+                }
+
                 if(!trendDataMap[sortKey]) trendDataMap[sortKey] = { label: labelName, count: 0 };
                 trendDataMap[sortKey].count++;
             }
@@ -2689,7 +2771,7 @@ function getDriveImgUrl(url) {
                 // JIKA ADA: Cukup UPDATE datanya saja (Jangan dihancurkan!)
                 reportChartInstances[id].data = data;
                 reportChartInstances[id].options = options;
-                reportChartInstances[id].update('none'); // 'none' = Update instan tanpa animasi ulang
+                reportChartInstances[id].update(enableAnimation ? 'default' : 'none'); // Update dengan animasi default (smooth)
             } else {
                 // JIKA BELUM: Baru buat chart baru
                 const ctx = canvas.getContext('2d');
