@@ -1287,10 +1287,15 @@ if (statTidakDibantuEl) statTidakDibantuEl.innerText = totalTidakDibantuCount.to
             
 	function changePage(direction) {
         currentPage += direction;
-    // Panggil ulang proses filter & render tabel
-    // Kita gunakan applyFiltersAndProcess agar data tetap tersinkron dengan filter waktu
-    	applyFiltersAndProcess(false); 
-	}
+        
+        // --- PERBAIKAN: HANYA UPDATE TABEL ---
+        // Kita ambil data yang sesuai filter saat ini
+        const filteredData = getFilteredData(); 
+        
+        // Lalu render ulang tabelnya SAJA.
+        // Jangan panggil 'applyFiltersAndProcess()' karena itu akan mereset peta.
+        updateDataTable(filteredData); 
+    }
 
 function updateDataTable(data) {
             const tbody = document.getElementById('data-table-body');
