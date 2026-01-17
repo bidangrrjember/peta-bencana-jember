@@ -877,6 +877,12 @@
 	let isAudioUnlocked = false;
 	let fetchInterval; 
 
+	const checkIsDibantu = (item) => {
+    if (!item.bantuan || typeof item.bantuan !== 'object') return false;
+    // Cek apakah ada setidaknya satu material yang jumlahnya > 0
+    return Object.values(item.bantuan).some(val => parseFloat(val) > 0);
+};
+
         // --- Inisialisasi Peta ---
         const map = L.map('map', { center: [-8.17, 113.70], zoom: 12, attributionControl: false, zoomControl: false }); //
         const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map); //
@@ -1244,44 +1250,39 @@ function processMapData(data) {
         layerGroups[bencana].addLayer(marker);
     }); 
 
-// --- UPDATE STATISTIK (LOGIKA BARU: TIDAK DIBANTU = TUNTAS) ---
+// ============================================================
+// UPDATE STATISTIK (LOGIKA: TIDAK DIBANTU = MASUK TUNTAS)
+// ============================================================
 
-    // Helper: Cek apakah item ini menerima bantuan (ada material > 0)
-    const isDibantu = (item) => {
-        if (!item.bantuan || typeof item.bantuan !== 'object') return false;
-        // Cek apakah ada setidaknya satu material yang jumlahnya > 0
-        return Object.values(item.bantuan).some(val => parseFloat(val) > 0);
-    };
+// 1. Menunggu Penyaluran (Merah)
+// Syarat: HARUS DIBANTU + Belum Serah Terima + Belum Monitoring
+const totalTerkaji = data.filter(item => 
+    checkIsDibantu(item) && !item.linkSerahTerima && !item.linkMonitoring
+).length;
 
-    // 1. Menunggu Penyaluran (Merah)
-    // Syarat: HARUS DIBANTU + Belum Serah Terima + Belum Monitoring
-    const totalTerkaji = data.filter(item => 
-        isDibantu(item) && !item.linkSerahTerima && !item.linkMonitoring
-    ).length;
+// 2. Menunggu Monitoring (Kuning)
+// Syarat: HARUS DIBANTU + Sudah Serah Terima + Belum Monitoring
+const totalBantuan = data.filter(item => 
+    checkIsDibantu(item) && item.linkSerahTerima && !item.linkMonitoring
+).length;
 
-    // 2. Menunggu Monitoring (Kuning)
-    // Syarat: HARUS DIBANTU + Sudah Serah Terima + Belum Monitoring
-    const totalBantuan = data.filter(item => 
-        isDibantu(item) && item.linkSerahTerima && !item.linkMonitoring
-    ).length;
+// 3. Penanganan Tuntas (Hijau)
+// Syarat: (DIBANTU + Sudah Monitoring) ATAU (TIDAK DIBANTU)
+const totalMonitoring = data.filter(item => 
+    (checkIsDibantu(item) && item.linkMonitoring) || (!checkIsDibantu(item))
+).length;
 
-    // 3. Penanganan Tuntas (Hijau)
-    // Syarat: (DIBANTU + Sudah Monitoring) ATAU (TIDAK DIBANTU)
-    const totalMonitoring = data.filter(item => 
-        (isDibantu(item) && item.linkMonitoring) || (!isDibantu(item))
-    ).length;
+// 4. Hitungan Bantuan (Untuk Tile Biru & Abu)
+const totalDibantuCount = data.filter(item => checkIsDibantu(item)).length;
+const totalTidakDibantuCount = data.length - totalDibantuCount;
 
-    // 4. Kategori Umum (Untuk 2 Tile Kanan)
-    const totalDibantuCount = data.filter(item => isDibantu(item)).length;
-    const totalTidakDibantuCount = data.length - totalDibantuCount;
+// Render ke HTML
+if (statTerkajiEl) statTerkajiEl.innerText = totalTerkaji.toLocaleString('id-ID');
+if (statBantuanEl) statBantuanEl.innerText = totalBantuan.toLocaleString('id-ID');
+if (statMonitoringEl) statMonitoringEl.innerText = totalMonitoring.toLocaleString('id-ID');
 
-    // --- RENDER KE HTML ---
-    if (statTerkajiEl) statTerkajiEl.innerText = totalTerkaji.toLocaleString('id-ID');
-    if (statBantuanEl) statBantuanEl.innerText = totalBantuan.toLocaleString('id-ID');
-    if (statMonitoringEl) statMonitoringEl.innerText = totalMonitoring.toLocaleString('id-ID');
-    
-    if (statDibantuEl) statDibantuEl.innerText = totalDibantuCount.toLocaleString('id-ID');
-    if (statTidakDibantuEl) statTidakDibantuEl.innerText = totalTidakDibantuCount.toLocaleString('id-ID');
+if (statDibantuEl) statDibantuEl.innerText = totalDibantuCount.toLocaleString('id-ID');
+if (statTidakDibantuEl) statTidakDibantuEl.innerText = totalTidakDibantuCount.toLocaleString('id-ID');
 }
             
 	function changePage(direction) {
@@ -1328,13 +1329,23 @@ function updateDataTable(data) {
             paginatedData.forEach(item => {
                 let statusText = '', statusClass = '';
 
-                if (item.linkMonitoring) {
+const isDibantu = checkIsDibantu(item); // Pastikan fungsi helper ini sudah ada di atas
+
+                if (item.linkMonitoring || !isDibantu) {
+                    // KASUS TUNTAS (Gabungan)
+                    // 1. Sudah dimonitoring (Selesai)
+                    // 2. ATAU Tidak Dibantu (Otomatis Selesai)
+                    // Keduanya sekarang HIJAU dan labelnya cuma "Tuntas"
                     statusText = 'Tuntas';
                     statusClass = 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+                
                 } else if (item.linkSerahTerima) {
+                    // Kasus: Dibantu & Sudah Serah Terima (Tersalurkan) - KUNING
                     statusText = 'Tersalurkan';
                     statusClass = 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+                
                 } else {
+                    // Kasus: Dibantu & Belum apa-apa (Terkaji) - MERAH
                     statusText = 'Terkaji';
                     statusClass = 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
                 }
