@@ -469,7 +469,7 @@
 
     <div class="relative w-full rounded-xl bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark p-4 transition-all hover:border-primary group shadow-sm hover:shadow-md">
         
-        <div class="flex items-center justify-between gap-2 mb-3">
+        <div class="flex items-start justify-between gap-2 mb-3">
             <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-1.5 mb-1">
                     <span class="relative flex h-2 w-2">
@@ -486,13 +486,13 @@
                 </div>
             </div>
 
-            <div class="shrink-0 flex flex-col items-center justify-center pl-3 border-l border-gray-200 dark:border-gray-700 border-dashed">
-                <div id="weather-icon" class="w-16 h-16 flex items-center justify-center transition-transform group-hover:scale-110 duration-300 drop-shadow-sm">
-    </div>
-                <p id="weather-desc" class="text-[10px] font-medium text-gray-500 dark:text-gray-400 mt-1 capitalize text-center leading-tight max-w-[60px] truncate">
-                    Memuat...
-                </p>
-            </div>
+            <div class="shrink-0 flex flex-col items-center justify-center pl-3">
+    <div id="weather-icon" class="w-16 h-16 flex items-center justify-center transition-transform group-hover:scale-110 duration-300 drop-shadow-sm">
+        </div>
+    <p id="weather-desc" class="text-[10px] font-medium text-gray-500 dark:text-gray-400 mt-1 capitalize text-center leading-tight whitespace-nowrap">
+        Memuat...
+    </p>
+</div>
         </div>
 
         <div class="h-px w-full bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-700 to-transparent mb-3"></div>
@@ -1129,25 +1129,30 @@
 
         // --- Fungsi Pemrosesan Data ---
 
-        // GANTI FUNGSI INI SEPENUHNYA
 function applyFiltersAndProcess(enableAnimation = false) {
     
-    // 1. Ambil Data LENGKAP untuk Statistik (Tiles tetap utuh)
+    // 1. Ambil Data LENGKAP (Hanya filter Sidebar, abaikan filter Tile)
+    //    Ini dipakai untuk: Angka Statistik Tiles & Grafik Laporan (Reports)
     const dataForStats = getFilteredData(true); 
 
-    // 2. Ambil Data TERFILTER untuk Tampilan (Peta hanya yang diklik)
+    // 2. Ambil Data SPESIFIK (Ikut filter Tile yang diklik)
+    //    Ini dipakai untuk: Peta, Tabel, & Chart Analisis Modal
     const dataForView = getFilteredData(false);
 
-    // 3. Eksekusi
-    updateSummaryStats(dataForStats); // Update Angka (Pakai data lengkap)
-    processMapData(dataForView);      // Update Peta (Pakai data filter)
+    // 3. Eksekusi Update UI
     
-    // Update Chart & Tabel pakai data filter
+    // A. Update yang TIDAK BOLEH terpengaruh Tiles (Gunakan dataForStats)
+    updateSummaryStats(dataForStats); 
+    renderReportCharts(dataForStats, enableAnimation); // <--- PERUBAHAN PENTING DI SINI
+
+    // B. Update yang HARUS terpengaruh Tiles (Gunakan dataForView)
+    processMapData(dataForView);      
+    updateDataTable(dataForView);     
+    
+    // C. Modal Dashboard (Analisis) biasanya mengikuti apa yang tampil di peta
     if (dashboardModal && dashboardModal.style.display === 'flex') {
         updateDashboardCharts(dataForView, enableAnimation);
     }
-    updateDataTable(dataForView);     
-    renderReportCharts(dataForView, enableAnimation);
 }
 
 	function zoomToFilteredKecamatan(kecName) {
@@ -2974,8 +2979,9 @@ function getDriveImgUrl(url) {
             // Ini memberi jeda napas agar animasi CSS selesai dulu, baru render Chart berat
             requestAnimationFrame(() => {
                 setTimeout(() => {
-                    renderReportCharts(getFilteredData(), true);
-                }, 50); // Delay dikit biar transisi mulus
+                    // Tambahkan 'true' agar saat pindah tab, dia mengambil data utuh (abaikan tile)
+                    renderReportCharts(getFilteredData(true), true); 
+                }, 50); 
             });
             
         }, 300);
