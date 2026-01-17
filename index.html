@@ -487,9 +487,8 @@
             </div>
 
             <div class="shrink-0 flex flex-col items-center justify-center pl-3 border-l border-gray-200 dark:border-gray-700 border-dashed">
-                <span id="weather-icon" class="material-symbols-outlined text-4xl text-primary transition-transform group-hover:scale-110 duration-300 drop-shadow-sm">
-                    cloud_queue
-                </span>
+                <div id="weather-icon" class="w-16 h-16 flex items-center justify-center transition-transform group-hover:scale-110 duration-300 drop-shadow-sm">
+    </div>
                 <p id="weather-desc" class="text-[10px] font-medium text-gray-500 dark:text-gray-400 mt-1 capitalize text-center leading-tight max-w-[60px] truncate">
                     Memuat...
                 </p>
@@ -1725,54 +1724,179 @@ function updateDashboardCharts(data, enableAnimation = false) {
             return newDate;
         }
 
-	function getWeatherInfo(code) {
-  const weatherMap = {
-    0: ["clear_day", "Cerah"],
-    1: ["partly_cloudy_day", "Cerah Berawan"],
-    2: ["cloud", "Berawan"],
-    3: ["cloudy", "Mendung"],
-    45: ["foggy", "Kabut"],
-    48: ["foggy", "Kabut"],
-    51: ["rainy_light", "Gerimis Ringan"],
-    53: ["rainy", "Gerimis"],
-    55: ["rainy", "Gerimis Lebat"],
-    61: ["rainy_light", "Hujan Ringan"],
-    63: ["rainy", "Hujan Sedang"],
-    65: ["rainy_heavy", "Hujan Lebat"],
-    80: ["rainy_light", "Hujan Ringan"],
-    81: ["rainy", "Hujan Sedang"],
-    82: ["rainy_heavy", "Hujan Lebat"],
-    95: ["thunderstorm", "Badai Petir"],
-    96: ["thunderstorm", "Badai Petir"],
-    99: ["thunderstorm", "Badai Petir"],
-  };
-  return weatherMap[code] || ["thermostat", "N/A"];
+// 1. Fungsi Database Ikon Animasi (VERSI REVISI - AWAN RAPI)
+function getAnimatedSvg(type) {
+    const colors = {
+        sun: '#FACC15',    // Kuning
+        cloud: '#94A3B8',  // Abu-abu Awan Depan
+        cloudBack: '#CBD5E1', // Abu-abu Awan Belakang (lebih muda)
+        rain: '#3B82F6',   // Biru Hujan
+        bolt: '#F59E0B'    // Oranye Petir
+    };
+
+    // Path Awan Standar (Bentuk Fluffy Normal)
+    // Digunakan ulang di berbagai kondisi
+    const cloudPath = `d="M48,44 H16 c-4.4,0-8-3.6-8-8 s3.6-8,8-8 c0.4,0,0.7,0,1.1,0.1 c1.2-4.8,5.5-8.1,10.9-8.1 c6.6,0,12,5.4,12,12 c0,0.3,0,0.7-0.1,1 c3.6,0.6,6.1,3.7,6.1,7.3 C56,40.4,52.4,44,48,44z"`;
+
+    const icons = {
+        // A. CERAH
+        clear: `
+            <svg viewBox="0 0 64 64" class="w-full h-full overflow-visible">
+                <defs>
+                    <filter id="blur-glow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur"/>
+                        <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+                    </filter>
+                </defs>
+                <g filter="url(#blur-glow)">
+                    <g>
+                        <animateTransform attributeName="transform" type="rotate" from="0 32 32" to="360 32 32" dur="12s" repeatCount="indefinite"/>
+                        <path d="M32 10 L32 6 M32 58 L32 54 M10 32 L6 32 M58 32 L54 32 M16.44 16.44 L13.61 13.61 M47.56 47.56 L50.39 50.39 M16.44 47.56 L13.61 50.39 M47.56 16.44 L50.39 13.61" 
+                              stroke="${colors.sun}" stroke-width="3" stroke-linecap="round" />
+                    </g>
+                    <circle cx="32" cy="32" r="10" fill="${colors.sun}">
+                        <animate attributeName="r" values="10;11;10" dur="2s" repeatCount="indefinite"/>
+                    </circle>
+                </g>
+            </svg>`,
+
+        // B. CERAH BERAWAN
+        partly_cloudy: `
+            <svg viewBox="0 0 64 64" class="w-full h-full overflow-visible">
+                <g transform="translate(8,-8)">
+                    <g>
+                         <animateTransform attributeName="transform" type="rotate" from="0 32 32" to="360 32 32" dur="12s" repeatCount="indefinite"/>
+                         <path d="M32 10 L32 6 M32 58 L32 54 M10 32 L6 32 M58 32 L54 32 M16.44 16.44 L13.61 13.61 M47.56 47.56 L50.39 50.39 M16.44 47.56 L13.61 50.39 M47.56 16.44 L50.39 13.61" 
+                              stroke="${colors.sun}" stroke-width="2.5" stroke-linecap="round" />
+                    </g>
+                    <circle cx="32" cy="32" r="9" fill="${colors.sun}" />
+                </g>
+                <path ${cloudPath} fill="${colors.cloud}" stroke="white" stroke-width="1.5" stroke-linejoin="round">
+                    <animateTransform attributeName="transform" type="translate" values="0 0; 2 0; 0 0" dur="4s" repeatCount="indefinite" />
+                </path>
+            </svg>`,
+
+        // C. MENDUNG/BERAWAN (YANG TADI RUSAK)
+        cloudy: `
+            <svg viewBox="0 0 64 64" class="w-full h-full overflow-visible">
+                <path ${cloudPath} fill="${colors.cloudBack}" transform="translate(10, -8) scale(0.9)">
+                     <animateTransform attributeName="transform" type="translate" values="10 -8; 6 -8; 10 -8" dur="6s" repeatCount="indefinite" />
+                </path>
+                <path ${cloudPath} fill="${colors.cloud}" stroke="white" stroke-width="1.5" stroke-linejoin="round">
+                    <animateTransform attributeName="transform" type="translate" values="0 0; 0 -2; 0 0" dur="3s" repeatCount="indefinite" />
+                </path>
+            </svg>`,
+
+        // D. HUJAN
+        rain: `
+            <svg viewBox="0 0 64 64" class="w-full h-full overflow-visible">
+                <path ${cloudPath} fill="${colors.cloud}" stroke="white" stroke-width="1.5">
+                    <animateTransform attributeName="transform" type="translate" values="0 0; 0 -1; 0 0" dur="3s" repeatCount="indefinite" />
+                </path>
+                <g transform="translate(0, 10)">
+                    <line x1="24" y1="38" x2="24" y2="44" stroke="${colors.rain}" stroke-width="2" stroke-linecap="round">
+                        <animate attributeName="y1" values="38; 50" dur="0.8s" repeatCount="indefinite" />
+                        <animate attributeName="y2" values="44; 56" dur="0.8s" repeatCount="indefinite" />
+                        <animate attributeName="opacity" values="1; 0" dur="0.8s" repeatCount="indefinite" />
+                    </line>
+                    <line x1="32" y1="42" x2="32" y2="48" stroke="${colors.rain}" stroke-width="2" stroke-linecap="round">
+                        <animate attributeName="y1" values="42; 54" dur="0.8s" begin="0.3s" repeatCount="indefinite" />
+                        <animate attributeName="y2" values="48; 60" dur="0.8s" begin="0.3s" repeatCount="indefinite" />
+                        <animate attributeName="opacity" values="1; 0" dur="0.8s" begin="0.3s" repeatCount="indefinite" />
+                    </line>
+                    <line x1="40" y1="38" x2="40" y2="44" stroke="${colors.rain}" stroke-width="2" stroke-linecap="round">
+                        <animate attributeName="y1" values="38; 50" dur="0.8s" begin="0.1s" repeatCount="indefinite" />
+                        <animate attributeName="y2" values="44; 56" dur="0.8s" begin="0.1s" repeatCount="indefinite" />
+                        <animate attributeName="opacity" values="1; 0" dur="0.8s" begin="0.1s" repeatCount="indefinite" />
+                    </line>
+                </g>
+            </svg>`,
+
+        // E. BADAI
+        storm: `
+            <svg viewBox="0 0 64 64" class="w-full h-full overflow-visible">
+                <path ${cloudPath} fill="#64748B" stroke="white" stroke-width="1.5">
+                    <animateTransform attributeName="transform" type="translate" values="0 0; 1 0; 0 0" dur="0.2s" repeatCount="indefinite" />
+                </path>
+                <path d="M30 40 L24 52 H30 L26 64" stroke="${colors.bolt}" stroke-width="2" fill="none" stroke-linejoin="round">
+                    <animate attributeName="opacity" values="0; 1; 0; 0; 1; 0" dur="2s" repeatCount="indefinite" />
+                    <animate attributeName="stroke" values="${colors.bolt}; white; ${colors.bolt}" dur="0.5s" repeatCount="indefinite" />
+                </path>
+                <line x1="38" y1="42" x2="36" y2="50" stroke="${colors.rain}" stroke-width="2">
+                     <animate attributeName="y1" values="42; 52" dur="0.5s" repeatCount="indefinite" />
+                     <animate attributeName="opacity" values="1; 0" dur="0.5s" repeatCount="indefinite" />
+                </line>
+            </svg>`,
+
+        // F. KABUT (Tetap sama)
+        fog: `
+            <svg viewBox="0 0 64 64" class="w-full h-full overflow-visible">
+                <path d="M16 26 H48" stroke="${colors.cloud}" stroke-width="3" stroke-linecap="round" opacity="0.5">
+                    <animate attributeName="d" values="M16 26 H48; M14 26 H50; M16 26" dur="4s" repeatCount="indefinite"/>
+                </path>
+                <path d="M12 36 H52" stroke="${colors.cloud}" stroke-width="3" stroke-linecap="round">
+                    <animate attributeName="d" values="M12 36 H52; M16 36 H48; M12 36" dur="5s" repeatCount="indefinite"/>
+                </path>
+                <path d="M18 46 H46" stroke="${colors.cloud}" stroke-width="3" stroke-linecap="round" opacity="0.5">
+                    <animate attributeName="d" values="M18 46 H46; M14 46 H50; M18 46" dur="4s" repeatCount="indefinite"/>
+                </path>
+            </svg>`
+    };
+
+    return icons[type] || icons.clear;
 }
 
-/**
- * Memperbarui UI cuaca di sidebar
- * @param {object} data - Data JSON dari Open-Meteo
- */
+// 2. Fungsi Mapping Kode WMO ke Tipe SVG
+function getWeatherInfo(code) {
+  // Mapping Kode -> [TipeSVG, DeskripsiText]
+  const weatherMap = {
+    0: ["clear", "Cerah"],
+    1: ["partly_cloudy", "Cerah Berawan"],
+    2: ["partly_cloudy", "Berawan"],
+    3: ["cloudy", "Mendung"],
+    45: ["fog", "Kabut"],
+    48: ["fog", "Kabut Tebal"],
+    51: ["rain", "Gerimis Ringan"],
+    53: ["rain", "Gerimis"],
+    55: ["rain", "Gerimis Lebat"],
+    61: ["rain", "Hujan Ringan"],
+    63: ["rain", "Hujan Sedang"],
+    65: ["rain", "Hujan Lebat"],
+    80: ["rain", "Hujan Lokal"],
+    81: ["rain", "Hujan Deras"],
+    82: ["storm", "Hujan Badai"],
+    95: ["storm", "Badai Petir"],
+    96: ["storm", "Badai Petir Ringan"],
+    99: ["storm", "Badai Petir Kuat"],
+  };
+  return weatherMap[code] || ["clear", "N/A"];
+}
+
+// 3. Fungsi Update UI (Sudah disesuaikan untuk SVG)
 function updateWeatherUI(data) {
   try {
     const current = data.current_weather;
     const daily = data.daily;
     
-    // Mendapatkan ikon dan deskripsi
-    const [iconName, description] = getWeatherInfo(current.weathercode);
+    // Ambil Tipe SVG (misal: 'rain') dan Deskripsi (misal: 'Hujan')
+    const [svgType, description] = getWeatherInfo(current.weathercode);
 
-    // Update Elemen DOM
-    document.getElementById('weather-icon').innerText = iconName;
+    // DAPATKAN KODE HTML SVG ANIMASI
+    const svgHtml = getAnimatedSvg(svgType);
+
+    // Masukkan SVG ke dalam DIV (gunakan innerHTML)
+    const iconContainer = document.getElementById('weather-icon');
+    if (iconContainer) {
+        iconContainer.innerHTML = svgHtml;
+    }
     
-    // --- PERBAIKAN DI SINI (Hapus "°C" di belakang angka) ---
-    document.getElementById('weather-temp').innerText = Math.round(current.temperature); 
-    // Sebelumnya: ...innerText = `${Math.round(current.temperature)}°C`;
-    
+    // Update Teks Suhu & Deskripsi
+    document.getElementById('weather-temp').innerText = Math.round(current.temperature);
     document.getElementById('weather-desc').innerText = description;
     
-    // Update Min/Max
+    // Update Range
     document.getElementById('weather-range').innerText = 
-      `Tertinggi: ${Math.round(daily.temperature_2m_max[0])}° / Terendah: ${Math.round(daily.temperature_2m_min[0])}°`;
+      `${Math.round(daily.temperature_2m_max[0])}° / ${Math.round(daily.temperature_2m_min[0])}°`;
 
   } catch (e) {
     console.error("Gagal memperbarui UI cuaca:", e);
