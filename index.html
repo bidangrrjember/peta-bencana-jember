@@ -5,7 +5,6 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
 <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.css" /> <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.js" charset="utf-8"></script> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script> <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script> <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script> <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" /> <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/> <script>
-      //
       tailwind.config = {
         darkMode: "class",
         theme: {
@@ -25,7 +24,7 @@
               "display": ["Inter", "sans-serif"]
             },
             borderRadius: {
-              "DEFAULT": "0.75rem", // Disesuaikan sedikit
+              "DEFAULT": "0.75rem",
               "lg": "1rem",
               "xl": "1.5rem"
             },
@@ -35,25 +34,22 @@
     </script>
 
     <style>
-      /* */
       body {
         font-family: 'Inter', sans-serif;
-        overflow-y: hidden; /* Mencegah double scrollbar */
+        overflow-y: hidden;
 
       }
-      /* */
       .leaflet-pane[style*="z-index: 650"] {
         pointer-events: none;
       }
 
       .dot {
-        width: 12px; /* Ukuran titik */
+        width: 12px;
         height: 12px;
-        background-color: #007BFF; /* Warna titik (primary color) */
+        background-color: #007BFF;
         border-radius: 50%;
       }
-
-      /* Animasi */
+		
       @keyframes loader-dot-pulse {
         0%, 80%, 100% {
           transform: scale(0);
@@ -69,7 +65,6 @@
         animation: loader-dot-pulse 1.4s infinite ease-in-out both;
       }
 
-      /* Delay untuk titik kedua dan ketiga */
       .animation-delay-200 {
         animation-delay: 0.16s;
       }
@@ -81,45 +76,43 @@
     	display: none;
       }
       .no-scrollbar {
-    	-ms-overflow-style: none;  /* IE dan Edge */
-        scrollbar-width: none;  /* Firefox */
+    	-ms-overflow-style: none;
+        scrollbar-width: none;
       }
      
-      /* */
       @keyframes pulse-glow {
         0% { 
           filter: drop-shadow(0 0 2px rgba(23, 162, 184, 0.7)); 
-          /* opacity: 0.7; (Opsional: buat ikon sedikit transparan di awal) */
+
         } 
         70% { 
-          filter: drop-shadow(0 0 10px rgba(23, 162, 184, 0)); /* Glow menyebar */
-          /* opacity: 1; (Opsional: kembali normal) */
+          filter: drop-shadow(0 0 10px rgba(23, 162, 184, 0));
+
         }
         100% { 
           filter: drop-shadow(0 0 2px rgba(23, 162, 184, 0)); 
-          /* opacity: 0.7; (Opsional: kembali transparan) */
+
         }
       }
 
       .marker-new img {
         animation: pulse-glow 2s infinite;
       }
-      /* Perbaikan z-index untuk Leaflet controls agar di atas sidebar detail */
+
       .leaflet-control-container {
         z-index: 10 !important;
       }
 
-      /* === FIX SCROLL MOBILE === */
+
     @media (max-width: 1024px) {
-        /* Gunakan unit 'dvh' (Dynamic Viewport Height) jika support, agar pas dengan address bar */
         .fixed.inset-0 {
             height: 100dvh !important; 
         }
         
-        /* Paksa area scroll agar selalu aktif di HP */
+
         #main-scroller {
             overflow-y: auto !important;
-            -webkit-overflow-scrolling: touch !important; /* Agar scroll licin di iPhone */
+            -webkit-overflow-scrolling: touch !important;
         }
     }
 
@@ -128,7 +121,7 @@
         align-items: center !important;
         justify-content: center !important;
         height: 40px !important;
-        padding: 0 !important; /* Hapus padding di header agar rata tepi */
+        padding: 0 !important;
         margin-bottom: 10px !important;
         position: relative !important;
         overflow: visible !important;
@@ -145,7 +138,6 @@
         padding: 0 !important;
     }
 
-    /* === 2. DROPDOWN BULAN & TAHUN === */
     .flatpickr-current-month .flatpickr-monthDropdown-months,
     .flatpickr-current-month input.cur-year {
         font-family: 'Inter', sans-serif !important;
@@ -179,19 +171,15 @@
         color: #EAEAEA !important;
     }
 
-
-    /* === 3. CONTAINER UTAMA (Presisi Lebar) === */
     .flatpickr-calendar {
         font-family: 'Inter', sans-serif !important;
         border-radius: 0.75rem !important;
         border: none !important;
-        width: 340px !important; /* Lebar optimal */
-        padding: 15px !important; /* Padding luar pembungkus */
+        width: 340px !important;
+        padding: 15px !important;
         margin-top: 8px !important;
     }
     .flatpickr-calendar:before, .flatpickr-calendar:after { display: none !important; }
-
-    /* Pastikan Inner Container Full Width & Tanpa Padding aneh */
     .flatpickr-innerContainer, .flatpickr-rContainer, .dayContainer {
         width: 100% !important;
         box-sizing: border-box !important;
@@ -200,8 +188,6 @@
         max-width: 100% !important;
     }
 
-
-    /* === 4. PENYEJAJARAN HARI (HEADER) === */
     .flatpickr-weekdays { 
         display: flex !important;
         align-items: center !important;
@@ -217,7 +203,6 @@
         padding: 0 !important;
     }
 
-    /* ITEM NAMA HARI (Sen, Sel, Rab) */
     span.flatpickr-weekday {
         font-size: 0.8rem !important;
         font-weight: 600 !important;
@@ -226,35 +211,26 @@
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
-        
-        /* KUNCI 1: Lebar harus presisi 100/7 */
         flex: 0 0 14.2857% !important; 
         max-width: 14.2857% !important;
         margin: 0 !important;
     }
 
-
-    /* === 5. PENYEJAJARAN TANGGAL (BODY) === */
     .flatpickr-day {
         border-radius: 0.5rem !important;
         font-weight: 500 !important;
         font-size: 0.9rem !important;
         height: 38px !important;
         line-height: 38px !important;
-        margin: 2px 0 !important; /* Margin Atas Bawah saja */
+        margin: 2px 0 !important;
         border: 1px solid transparent !important;
-        
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        
-        /* KUNCI 2: Lebar harus SAMA PERSIS dengan header */
         flex-basis: 14.2857% !important;
         max-width: 14.2857% !important;
     }
 
-
-    /* === 6. TEMA LIGHT & DARK (Sama seperti sebelumnya) === */
     html.light .flatpickr-calendar {
         background: #FFFFFF !important;
         box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.01) !important;
@@ -272,8 +248,7 @@
     html.dark .flatpickr-month { color: #EAEAEA !important; fill: #9CA3AF !important; }
     html.dark .flatpickr-day { color: #D1D5DB !important; }
     html.dark .flatpickr-day:hover { background: rgba(0, 123, 255, 0.15) !important; color: #007BFF !important; }
-
-    /* === 7. SELEKSI === */
+		
     .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange, 
     .flatpickr-day.selected:focus, .flatpickr-day.selected:hover {
         background: #007BFF !important;
@@ -284,51 +259,41 @@
     .flatpickr-day.today { border-color: #E5E7EB !important; }
     html.dark .flatpickr-day.today { border-color: #4B5563 !important; }
 
-      /* === CSS BARU UNTUK LAYER CONTROL DARK MODE === */
-      /* Style dasar (Light mode - ini mungkin sudah ada/default) */
       .leaflet-control-layers {
-        background-color: white; /* Background putih */
+        background-color: white;
         box-shadow: 0 1px 5px rgba(0,0,0,0.4);
         border-radius: 5px;
       }
       .leaflet-control-layers a {
-         /* Icon default Leaflet menggunakan background-image,
-            jadi kita tidak bisa langsung ganti warna ikonnya
-            dengan 'color'. Tapi kita bisa pastikan teks (jika ada)
-            dan background-nya kontras. */
-         color: #333; /* Warna teks (jika ada) gelap */
+         color: #333;
       }
       .leaflet-control-layers-separator {
-          border-top: 1px solid #ddd; /* Garis pemisah terang */
+          border-top: 1px solid #ddd;
       }
-      .leaflet-control-layers-selector { /* Checkbox/radio */
+      .leaflet-control-layers-selector {
         vertical-align: middle;
       }
       .leaflet-control-layers label {
-        color: #333; /* Warna label terang */
-        display: inline-block; /* Agar padding bekerja */
+        color: #333;
+        display: inline-block;
         padding: 4px 6px;
       }
 
-      /* Style Dark Mode */
       .dark .leaflet-control-layers {
-        background-color: #1E1E1E; /* Background gelap (card-dark) */
-        box-shadow: 0 1px 5px rgba(255, 255, 255, 0.2); /* Shadow lebih terang */
-        border: 1px solid #333333; /* Border gelap (border-dark) */
+        background-color: #1E1E1E;
+        box-shadow: 0 1px 5px rgba(255, 255, 255, 0.2);
+        border: 1px solid #333333;
       }
       .dark .leaflet-control-layers a {
-        /* Ikon Leaflet default mungkin tetap gelap, kontrasnya mungkin kurang ideal */
-         color: #EAEAEA; /* Warna teks (jika ada) terang */
+         color: #EAEAEA;
       }
        .dark .leaflet-control-layers-separator {
-          border-top: 1px solid #333333; /* Garis pemisah gelap */
+          border-top: 1px solid #333333;
       }
        .dark .leaflet-control-layers label {
-        color: #EAEAEA; /* Warna label gelap */
+        color: #EAEAEA;
       }
-      /* === AKHIR CSS LAYER CONTROL === */
 
-      /* Scrollbar kustom untuk sidebar */
       .custom-scrollbar::-webkit-scrollbar { width: 4px; }
       .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #c4c4c4; border-radius: 4px; }
       .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
@@ -336,12 +301,10 @@
       
 
       #loader {
-        /* Style loader Anda yg lama (position, z-index, dll.)
-           ATAU style loader titik (position, display: flex, background, z-index) */
-        opacity: 1; /* Awalnya terlihat */
+        opacity: 1;
  	transition: opacity 0.5s ease-out;
   	z-index: 2147483647;
-        transition: opacity 0.5s ease-out; /* Efek fade 0.5 detik */
+        transition: opacity 0.5s ease-out;
       }
     </style>
 </head>
@@ -937,17 +900,17 @@
                 <div class="chart-container p-4 rounded-lg border border-border-light dark:border-border-dark shadow-sm lg:col-span-3 force-bantuan-layout" id="bantuan-table-container">
     <h5 class="text-center font-semibold mb-3">Total Bantuan Stimulan Diberikan</h5>
     <style>
-        /* Target khusus untuk layout bantuan */
+		
         .force-bantuan-layout .bantuan-table-wrapper {
-            overflow-x: auto !important; /* Paksa scroll horizontal */
+            overflow-x: auto !important;
             width: 100% !important;
             -webkit-overflow-scrolling: touch;
         }
         .force-bantuan-layout .bantuan-table {
-            width: 100% !important; /* Paksa tabel mengisi wrapper */
+            width: 100% !important;
             border-collapse: collapse !important;
             margin-top: 10px !important;
-            table-layout: auto !important; /* Biarkan browser atur kolom */
+            table-layout: auto !important;
         }
         .force-bantuan-layout .bantuan-table th,
         .force-bantuan-layout .bantuan-table td {
@@ -955,16 +918,15 @@
             padding: 6px 8px !important;
             text-align: center !important;
             font-size: 0.9em !important;
-            white-space: nowrap !important; /* Paling penting: jangan potong teks */
+            white-space: nowrap !important;
         }
         .force-bantuan-layout .bantuan-table th {
             background-color: #F6F7F9 !important;
             font-weight: 500 !important;
-            position: sticky !important; /* Header tetap di atas */
+            position: sticky !important;
             top: 0;
             z-index: 1;
         }
-        /* Style Dark Mode (juga dipaksa) */
         .dark .force-bantuan-layout .bantuan-table th,
         .dark .force-bantuan-layout .bantuan-table td {
             border-color: #333333 !important;
@@ -984,20 +946,14 @@
 
 
     <script>
-        // =============================================
-        // SKRIP DARI KODE UTAMA (Fungsionalitas Inti)
-        //
-        // =============================================
-
-        // --- Variabel Global ---
-        const DATA_URL = 'https://script.google.com/macros/s/AKfycbwVwVGoNS_QlyjtpBwoQFS6Vp8IBLe-r9OmzqWEwRL74ZNcmAT-fz8k-EhXeaXNFsXS/exec'; //
-        let allData = []; //
+        const DATA_URL = 'https://script.google.com/macros/s/AKfycbwVwVGoNS_QlyjtpBwoQFS6Vp8IBLe-r9OmzqWEwRL74ZNcmAT-fz8k-EhXeaXNFsXS/exec';
+        let allData = [];
 	let weatherChartInstance = null;
-        let layerGroups = {}; //
-        let mainLayerControl; //
-        let chartKecamatanInstance, chartKerusakanInstance, chartKonstruksiInstance; //
+        let layerGroups = {};
+        let mainLayerControl;
+        let chartKecamatanInstance, chartKerusakanInstance, chartKonstruksiInstance;
         let heatLayer; //
-        let currentTimeFilter = 'all'; // Variabel baru untuk filter waktu
+        let currentTimeFilter = 'all';
 	let currentPage = 1;
 	const rowsPerPage = 50;
 	let isAudioUnlocked = false;
@@ -1005,17 +961,12 @@
 	let currentStatusFilter = 'all';
 	 
 	function filterByStatus(statusType) {
-            // 1. Logika Toggle (Klik lagi = Reset)
             if (currentStatusFilter === statusType) {
-                currentStatusFilter = 'all'; // Matikan filter
+                currentStatusFilter = 'all';
             } else {
-                currentStatusFilter = statusType; // Aktifkan filter baru
+                currentStatusFilter = statusType;
             }
-
-            // 2. Update Tampilan Visual Tile (Highlight yang aktif)
             updateTileStyles();
-
-            // 3. Terapkan Filter ke Data
             currentPage = 1;
             applyFiltersAndProcess(true);
         }
@@ -1027,34 +978,22 @@
         const el = document.getElementById(`tile-${type}`);
         if (!el) return;
 
-        // 1. Reset Style Dulu
-        // Hapus class opacity dan class ring biru yang lama
         el.classList.remove('ring-2', 'ring-primary', 'ring-offset-2', 'dark:ring-offset-card-dark', 'opacity-50');
         
-        // 2. Logika Highlight
         if (currentStatusFilter !== 'all') {
             if (currentStatusFilter === type) {
-                // Style Active:
-                // Kita biarkan kosong agar tetap terlihat normal (Opacity 100%)
-                // Tanpa garis biru (ring) lagi.
             } else {
-                // Style Inactive:
-                // Tile yang tidak dipilih akan meredup
                 el.classList.add('opacity-50');
             }
         }
     });
 }
         
-        // --- BATAS KODE BARU ---
-
 	const checkIsDibantu = (item) => {
     if (!item.bantuan || typeof item.bantuan !== 'object') return false;
-    // Cek apakah ada setidaknya satu material yang jumlahnya > 0
     return Object.values(item.bantuan).some(val => parseFloat(val) > 0);
 };
 
-        // --- Inisialisasi Peta ---
         const map = L.map('map', { center: [-8.17, 113.70], zoom: 12, attributionControl: false, zoomControl: false }); //
         const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map); //
         const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: '© Esri' }); //
@@ -1064,15 +1003,6 @@
         const hybrid = L.layerGroup([satellite, labels]); //
         const baseMaps = { "Peta Jalan": osm, "Satelit Hybrid": hybrid, "Mode Gelap": dark, "Topografi": terrain }; //
         map.createPane('labels'); map.getPane('labels').style.zIndex = 650; //
-        
-        // --- Kontrol Tombol Jitupasna ---
-        //
-
-        // --- Definisi Ikon Marker ---
-        //
-        // --- Definisi Ikon Marker ---
-        
-        // 1. Buat Ikon Kustom Bulat Kuning
         const iconTerkaji = L.divIcon({
             html: `<span style="background-color: #DC2626; width: 1.25rem; height: 1.25rem; border-radius: 50%; display: block; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.4);"></span>`,
             className: '',
@@ -1080,8 +1010,6 @@
             iconAnchor: [10, 10]
         });
 
-        // 2. Ikon Kuning (Serah Terima Bantuan)
-        // Menggunakan warna Tailwind 'amber-500'
         const iconSerahTerima = L.divIcon({
             html: `<span style="background-color: #F59E0B; width: 1.25rem; height: 1.25rem; border-radius: 50%; display: block; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.4);"></span>`,
             className: '',
@@ -1089,8 +1017,6 @@
             iconAnchor: [10, 10]
         });
 
-        // 3. Ikon Hijau (Lokasi Monitoring)
-        // Menggunakan warna Tailwind 'green-600'
         const iconMonitoring = L.divIcon({
             html: `<span style="background-color: #16A34A; width: 1.25rem; height: 1.25rem; border-radius: 50%; display: block; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.4);"></span>`,
             className: '',
@@ -1098,50 +1024,31 @@
             iconAnchor: [10, 10]
         });
 
-        // --- DOM Elements ---
-        // --- DOM Elements ---
         const dashboardModal = document.getElementById('dashboard-modal');
         const loader = document.getElementById('loader');
         const notification = document.getElementById('notification');
-        // KODE LAMA DIHAPUS:
-        // const summaryContentEl = document.getElementById('summary-content');
-        // const statTotalEl = document.getElementById('stat-total');
-        // KODE BARU DITAMBAHKAN:
         const statTerkajiEl = document.getElementById('stat-terkaji');
         const statBantuanEl = document.getElementById('stat-bantuan');
         const statMonitoringEl = document.getElementById('stat-monitoring');
 	const statDibantuEl = document.getElementById('stat-dibantu');
         const statTidakDibantuEl = document.getElementById('stat-tidak-dibantu');
-        //
         const dataTableBody = document.getElementById('data-table-body');
         const sidebar = document.getElementById('sidebar');
-
-        // --- Event Listener: Search ---
-        //
-        // ==========================================
-        // SKRIP SEARCH BAR LIVE SUGGESTION (BARU)
-        // ==========================================
-        
         const searchInput = document.getElementById('search-input');
         const searchResults = document.getElementById('search-results');
         const clearSearchBtn = document.getElementById('clear-search-btn');
 
-        // 1. Event Listener saat mengetik
         searchInput.addEventListener('input', function(e) {
             const query = e.target.value.toLowerCase();
-
-            // Tampilkan/Sembunyikan tombol X
             if(query.length > 0) {
                 clearSearchBtn.classList.remove('hidden');
                 clearSearchBtn.classList.add('flex');
             } else {
                 clearSearchBtn.classList.add('hidden');
                 clearSearchBtn.classList.remove('flex');
-                searchResults.classList.add('hidden'); // Sembunyikan dropdown jika kosong
+                searchResults.classList.add('hidden');
                 return;
             }
-
-            // Filter Data (Cari di Nama, Desa, Kecamatan, Dusun)
             const matches = allData.filter(item => {
                 const nama = (item.nama || '').toLowerCase();
                 const desa = (item.desakelurahan || '').toLowerCase();
@@ -1153,8 +1060,6 @@
 
             displayMatches(matches, query);
         });
-
-        // 2. Fungsi Menampilkan Dropdown
         function displayMatches(matches, query) {
             if (matches.length === 0) {
                 searchResults.innerHTML = `
@@ -1164,16 +1069,10 @@
                 searchResults.classList.remove('hidden');
                 return;
             }
-
-            // Batasi hasil maksimal 50 agar tidak berat
             const limitedMatches = matches.slice(0, 50);
 
             const html = limitedMatches.map(item => {
-                // Tentukan lokasi (Desa/Kelurahan otomatis dari data)
-                // Kita gunakan logika sederhana atau ambil raw data
                 const lokasi = `${item.desakelurahan}, Kec. ${item.kec}`;
-                
-                // Tentukan warna ikon berdasarkan status
                 let statusColor = "text-red-500"; 
                 if(item.linkMonitoring) statusColor = "text-green-500";
                 else if(item.linkSerahTerima) statusColor = "text-yellow-500";
@@ -1205,24 +1104,14 @@
             searchResults.innerHTML = html;
             searchResults.classList.remove('hidden');
         }
-
-        // 3. Fungsi Saat Hasil Diklik
         function selectSearchResult(idx) {
             const item = allData.find(d => d.idx == idx);
             if (item) {
-                // Zoom ke lokasi
                 map.flyTo([item.lat, item.lng], 18);
-                
-                // Buka Sidebar
                 openSidebarWithData(item);
-                
-                // Reset Pencarian
-                // searchInput.value = item.nama; // Opsional: isi input dengan nama
-                searchResults.classList.add('hidden'); // Tutup dropdown
+                searchResults.classList.add('hidden');
             }
         }
-
-        // 4. Tombol Clear (X)
         clearSearchBtn.addEventListener('click', () => {
             searchInput.value = '';
             searchResults.classList.add('hidden');
@@ -1230,16 +1119,11 @@
             clearSearchBtn.classList.remove('flex');
             searchInput.focus();
         });
-
-        // 5. Tutup dropdown jika klik di luar
         document.addEventListener('click', function(e) {
             if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
                 searchResults.classList.add('hidden');
             }
         });
-
-        // --- Event Listener: Fullscreen ---
-        //
         document.getElementById('fullscreen-btn').addEventListener('click', () => {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen();
@@ -1250,97 +1134,62 @@
             }
         });
 
-        // --- Fungsi Pemrosesan Data ---
-
 function applyFiltersAndProcess(enableAnimation = false) {
-    
-    // 1. Ambil Data LENGKAP (Hanya filter Sidebar, abaikan filter Tile)
-    //    Ini dipakai untuk: Angka Statistik Tiles & Grafik Laporan (Reports)
     const dataForStats = getFilteredData(true); 
-
-    // 2. Ambil Data SPESIFIK (Ikut filter Tile yang diklik)
-    //    Ini dipakai untuk: Peta, Tabel, & Chart Analisis Modal
     const dataForView = getFilteredData(false);
-
-    // 3. Eksekusi Update UI
-    
-    // A. Update yang TIDAK BOLEH terpengaruh Tiles (Gunakan dataForStats)
     updateSummaryStats(dataForStats); 
-    renderReportCharts(dataForStats, enableAnimation); // <--- PERUBAHAN PENTING DI SINI
-
-    // B. Update yang HARUS terpengaruh Tiles (Gunakan dataForView)
+    renderReportCharts(dataForStats, enableAnimation);
     processMapData(dataForView);      
     updateDataTable(dataForView);     
-    
-    // C. Modal Dashboard (Analisis) biasanya mengikuti apa yang tampil di peta
     if (dashboardModal && dashboardModal.style.display === 'flex') {
         updateDashboardCharts(dataForView, enableAnimation);
     }
 }
 
 	function zoomToFilteredKecamatan(kecName) {
-    // 1. Jika user memilih 'Semua Kecamatan' -> Reset ke tampilan awal Jember
     if (kecName === 'all') {
         map.flyTo([-8.17, 113.70], 12, { duration: 1.5 });
         return;
     }
-
-    // 2. Cari semua titik bencana di kecamatan yang dipilih
     const relevantData = allData.filter(item => item.kec === kecName);
-
-    // 3. Jika ada datanya, hitung batas area (bounds) dan zoom
     if (relevantData.length > 0) {
         const latLngs = relevantData.map(d => [d.lat, d.lng]);
         const bounds = L.latLngBounds(latLngs);
         
         map.flyToBounds(bounds, { 
-            padding: [50, 50],  // Memberi jarak tepi agar marker tidak kepotong header/sidebar
-            maxZoom: 15,        // Mencegah zoom terlalu dekat jika datanya cuma 1 titik
-            duration: 1.5       // Kecepatan animasi terbang
+            padding: [50, 50],
+            maxZoom: 15,      
+            duration: 1.5     
         });
     } else {
-        // Opsional: Jika kecamatan tersebut belum ada data bencananya
         showNotification(`Belum ada data bencana di Kec. ${kecName}`);
     }
 }
 	
 	function unlockAudio() {
-            if (!isAudioUnlocked) { // Hanya jalankan sekali
+            if (!isAudioUnlocked) { 
                 const audio = document.getElementById('notification-sound');
                 if (audio) {
-                    // Coba putar suara tapi dibisukan
                     audio.muted = true;
                     audio.play().then(() => {
-                        // Jika berhasil (meskipun dibisukan), set status jadi unlocked
                         isAudioUnlocked = true;
-                        console.log("Audio context unlocked."); // Pesan di console (opsional)
-                        // Hentikan suara yang dibisukan tadi (opsional, tapi lebih baik)
+                        console.log("Audio context unlocked.");
                         audio.pause();
                         audio.currentTime = 0;
-                        audio.muted = false; // Kembalikan agar bisa bersuara nanti
-                        // Hapus listener ini agar tidak berjalan lagi
+                        audio.muted = false;
                         document.removeEventListener('click', unlockAudio);
-                        document.removeEventListener('touchstart', unlockAudio); // Juga untuk mobile
+                        document.removeEventListener('touchstart', unlockAudio);
                     }).catch(error => {
-                        // Jika gagal bahkan saat dibisukan, mungkin ada masalah lain
                         console.error("Gagal membuka kunci audio:", error);
                     });
                 }
             }
         }
 
-        // Tambahkan listener ke dokumen untuk klik atau sentuhan pertama
         document.addEventListener('click', unlockAudio);
         document.addEventListener('touchstart', unlockAudio);
 
-/**
- * FUNGSI KRUSIAL 3: FILTER (getFilteredData) - UPDATE V2
- * Parameter ignoreTileFilter: Jika true, fungsi akan mengembalikan data
- * tanpa mempedulikan tile apa yang sedang diklik (untuk keperluan statistik).
- */
-// Pastikan baris ini ada (ignoreTileFilter = false)
 function getFilteredData(ignoreTileFilter = false) {
-    // 1. Ambil Nilai dari Input HTML
     const startDateVal = document.getElementById('filter-start-date').value;
     const endDateVal = document.getElementById('filter-end-date').value;
     const selectedBencana = document.getElementById('filter-bencana').value;
@@ -1352,15 +1201,12 @@ function getFilteredData(ignoreTileFilter = false) {
     let endDate = endDateVal ? new Date(endDateVal) : null;
     if(endDate) endDate.setHours(23,59,59,999); 
 
-    // 2. Lakukan Filter Array
     return allData.filter(item => {
         if (!item.dateObj) return false;
         if (startDate && item.dateObj < startDate) return false;
         if (endDate && item.dateObj > endDate) return false;
         if (selectedBencana !== 'all' && item.bencana !== selectedBencana) return false;
         if (selectedKecamatan !== 'all' && item.kec !== selectedKecamatan) return false;
-
-        // PENTING: Filter Tile hanya jalan jika ignoreTileFilter FALSE
         if (!ignoreTileFilter && currentStatusFilter !== 'all') {
             const isDibantu = checkIsDibantu(item); 
             
@@ -1381,28 +1227,22 @@ function getFilteredData(ignoreTileFilter = false) {
     });
 }
 
-// FUNGSI BARU: KHUSUS MENGHITUNG ANGKA TILE
 function updateSummaryStats(data) {
-    // 1. Menunggu Penyaluran (Merah)
     const totalTerkaji = data.filter(item => 
         checkIsDibantu(item) && !item.linkSerahTerima && !item.linkMonitoring
     ).length;
 
-    // 2. Menunggu Monitoring (Kuning)
     const totalBantuan = data.filter(item => 
         checkIsDibantu(item) && item.linkSerahTerima && !item.linkMonitoring
     ).length;
 
-    // 3. Penanganan Tuntas (Hijau)
     const totalMonitoring = data.filter(item => 
         (checkIsDibantu(item) && item.linkMonitoring) || (!checkIsDibantu(item))
     ).length;
 
-    // 4. Hitungan Bantuan (Biru & Abu)
     const totalDibantuCount = data.filter(item => checkIsDibantu(item)).length;
     const totalTidakDibantuCount = data.length - totalDibantuCount;
 
-    // Render ke HTML
     if (statTerkajiEl) statTerkajiEl.innerText = totalTerkaji.toLocaleString('id-ID');
     if (statBantuanEl) statBantuanEl.innerText = totalBantuan.toLocaleString('id-ID');
     if (statMonitoringEl) statMonitoringEl.innerText = totalMonitoring.toLocaleString('id-ID');
@@ -1411,14 +1251,8 @@ function updateSummaryStats(data) {
 }
 
 function resetAllFilters() {
-    // ... (kode reset kalender & dropdown lama Anda biarkan di sini) ...
-    
-    // --- TAMBAHAN KODE RESET TILE ---
     currentStatusFilter = 'all';
     updateTileStyles();
-    // --------------------------------
-
-    // Reset Proses
     currentPage = 1;
     applyFiltersAndProcess(true);
     populateFilterOptions();
@@ -1427,34 +1261,21 @@ function resetAllFilters() {
 }
 
 function processMapData(data) {
-    // 1. Bersihkan Control & Layer Lama
     if (mainLayerControl) mainLayerControl.remove();
     Object.values(layerGroups).forEach(lg => lg.clearLayers());
 
-    // 2. Loop Data untuk Membuat Marker
     data.forEach(item => {
         const bencana = item.bencana || "Tidak Terkategori";
         let chosenIcon; 
+        const isDibantu = checkIsDibantu(item);
 
-        // --- LOGIKA BARU WARNA MARKER ---
-        
-        // Cek dulu apakah dia dibantu?
-        const isDibantu = checkIsDibantu(item); // Pastikan fungsi helper ini ada di atas script
-
-        // Jika (Sudah Monitoring) ATAU (Tidak Dibantu) -> Ikon HIJAU (Tuntas)
         if (item.linkMonitoring || !isDibantu) {
             chosenIcon = iconMonitoring; 
-        
-        // Jika Dibantu & Sudah Serah Terima -> Ikon KUNING (Tersalurkan)
         } else if (item.linkSerahTerima) {
             chosenIcon = iconSerahTerima; 
-        
-        // Sisanya (Dibantu & Belum apa-apa) -> Ikon MERAH (Menunggu)
         } else {
             chosenIcon = iconTerkaji; 
         }
-
-        // Cek Data Baru
         const now = new Date();
         const itemDate = item.dateObj;
         let isNew = false;
@@ -1462,8 +1283,6 @@ function processMapData(data) {
             const diffHours = (now - itemDate) / (1000 * 60 * 60);
             isNew = diffHours <= 24;
         }
-
-        // Buat Marker
         const marker = L.marker([item.lat, item.lng], { icon: chosenIcon });
 
         if (isNew) {
@@ -1476,8 +1295,6 @@ function processMapData(data) {
         marker.on('click', () => {
             openSidebarWithData(item);
         });
-
-        // 3. Masukkan Marker ke Cluster
         if (!layerGroups[bencana]) {
             layerGroups[bencana] = L.markerClusterGroup({
                 showCoverageOnHover: false,
@@ -1497,44 +1314,24 @@ function processMapData(data) {
             
 	function changePage(direction) {
         currentPage += direction;
-        
-        // --- PERBAIKAN: HANYA UPDATE TABEL ---
-        // Kita ambil data yang sesuai filter saat ini
         const filteredData = getFilteredData(); 
-        
-        // Lalu render ulang tabelnya SAJA.
-        // Jangan panggil 'applyFiltersAndProcess()' karena itu akan mereset peta.
         updateDataTable(filteredData); 
     }
 
-// ==========================================
-// PROYEK BESAR: WEATHER FOCUS MODE (REVISI CLEAN)
-// ==========================================
-
 let isWeatherMode = false;
-
-// Variabel untuk menyimpan halaman terakhir sebelum masuk Weather
 let lastActiveView = 'dashboard'; 
 
 function toggleWeatherMode() {
     isWeatherMode = !isWeatherMode; 
-    
-    // Elemen View
     const dashboardView = document.getElementById('dashboard-view');
     const reportsView = document.getElementById('reports-view');
     const weatherFocusView = document.getElementById('weather-focus-view');
-    
-    // Elemen Navigasi
     const navPill = document.getElementById('nav-pill');
     const navDashboard = document.getElementById('nav-dashboard');
     const navReports = document.getElementById('nav-reports');
     const floatBtn = document.getElementById('open-form-btn'); 
-
-    // Scroller Utama
     const mainArea = document.querySelector('main'); 
     const contentScroller = mainArea ? mainArea.querySelector('div.overflow-y-auto') : null;
-
-    // Class Animasi
     const animVisible = ['opacity-100', 'scale-100'];
     const animHidden = ['opacity-0', 'scale-95'];
     
@@ -1542,21 +1339,11 @@ function toggleWeatherMode() {
     const textInactive = ['text-gray-500', 'dark:text-gray-400', 'hover:text-gray-900', 'dark:hover:text-gray-100'];
 
     if (isWeatherMode) {
-        // ==========================================
-        // 1. MASUK KE MODE CUACA
-        // ==========================================
-        
-        // --- LOGIKA BARU: DETEKSI HALAMAN ASAL ---
-        // Cek apakah Reports sedang terbuka (tidak hidden)?
         if (reportsView && !reportsView.classList.contains('hidden')) {
             lastActiveView = 'reports';
         } else {
-            // Jika tidak, asumsikan dari Dashboard
             lastActiveView = 'dashboard';
         }
-        // -----------------------------------------
-
-        // A. ANIMASI KELUAR (Dashboard/Reports)
         if (dashboardView && !dashboardView.classList.contains('hidden')) {
             dashboardView.classList.remove(...animVisible);
             dashboardView.classList.add(...animHidden);
@@ -1569,8 +1356,6 @@ function toggleWeatherMode() {
             floatBtn.classList.remove('opacity-100', 'scale-100');
             floatBtn.classList.add('opacity-0', 'scale-0'); 
         }
-
-        // B. UPDATE NAVIGASI
         if (navPill) navPill.classList.add('hidden');
         if (navDashboard) {
             navDashboard.classList.remove(...textActive);
@@ -1580,14 +1365,10 @@ function toggleWeatherMode() {
             navReports.classList.remove(...textActive);
             navReports.classList.add(...textInactive);
         }
-
-        // C. ANIMASI MASUK (Weather)
         setTimeout(() => {
             if(dashboardView) dashboardView.classList.add('hidden');
             if(reportsView) reportsView.classList.add('hidden');
             if(floatBtn) floatBtn.classList.add('hidden');
-
-            // Unlock Scroll untuk Weather
             if (contentScroller) {
                 contentScroller.style.overflowY = 'auto'; 
                 contentScroller.style.height = '';        
@@ -1610,10 +1391,6 @@ function toggleWeatherMode() {
         }, 300);
         
     } else {
-        // ==========================================
-        // 2. KELUAR DARI MODE CUACA
-        // ==========================================
-        
         if (weatherFocusView) {
             weatherFocusView.classList.remove(...animVisible);
             weatherFocusView.classList.add(...animHidden);
@@ -1623,15 +1400,12 @@ function toggleWeatherMode() {
             if (weatherFocusView) {
                 weatherFocusView.classList.add('hidden');
             }
-
-            // --- PERBAIKAN DI SINI ---
-            // Kembali ke halaman terakhir yang disimpan (Reports atau Dashboard)
             switchView(lastActiveView);
             
             setTimeout(() => {
                 if (map) map.invalidateSize();
                 if (lastActiveView === 'dashboard') {
-                    adjustTableHeight(); // Hanya hitung ulang tabel jika kembali ke Dashboard
+                    adjustTableHeight();
                 }
             }, 100);
         }, 300);
@@ -1644,14 +1418,12 @@ function updateDataTable(data) {
 
             if (data.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="3" class="px-6 py-4 text-center text-gray-500">Tidak ada data untuk filter ini.</td></tr>`;
-                // Update UI pagination jadi 0
                 document.getElementById('page-indicator').innerText = '0';
                 document.getElementById('prev-page-btn').disabled = true;
                 document.getElementById('next-page-btn').disabled = true;
                 return;
             }
 
-            // 1. Urutkan Data (Terbaru di atas)
             const sortedData = [...data].sort((a, b) => {
                 if (a.dateObj && b.dateObj) return b.dateObj - a.dateObj;
                 else if (a.dateObj) return -1;
@@ -1659,39 +1431,26 @@ function updateDataTable(data) {
                 return 0;
             });
 
-            // 2. Hitung Pagination
             const totalPages = Math.ceil(sortedData.length / rowsPerPage);
-            
-            // Validasi currentPage agar tidak out of bound
             if (currentPage < 1) currentPage = 1;
             if (currentPage > totalPages) currentPage = totalPages;
-
-            // 3. Potong Data Sesuai Halaman (Slice)
             const startIndex = (currentPage - 1) * rowsPerPage;
             const endIndex = startIndex + rowsPerPage;
             const paginatedData = sortedData.slice(startIndex, endIndex);
-
-            // 4. Render Baris Tabel
             paginatedData.forEach(item => {
                 let statusText = '', statusClass = '';
 
-const isDibantu = checkIsDibantu(item); // Pastikan fungsi helper ini sudah ada di atas
+const isDibantu = checkIsDibantu(item);
 
                 if (item.linkMonitoring || !isDibantu) {
-                    // KASUS TUNTAS (Gabungan)
-                    // 1. Sudah dimonitoring (Selesai)
-                    // 2. ATAU Tidak Dibantu (Otomatis Selesai)
-                    // Keduanya sekarang HIJAU dan labelnya cuma "Tuntas"
                     statusText = 'Tuntas';
                     statusClass = 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
                 
                 } else if (item.linkSerahTerima) {
-                    // Kasus: Dibantu & Sudah Serah Terima (Tersalurkan) - KUNING
                     statusText = 'Tersalurkan';
                     statusClass = 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
                 
                 } else {
-                    // Kasus: Dibantu & Belum apa-apa (Terkaji) - MERAH
                     statusText = 'Terkaji';
                     statusClass = 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
                 }
@@ -1712,22 +1471,18 @@ const isDibantu = checkIsDibantu(item); // Pastikan fungsi helper ini sudah ada 
                 tbody.innerHTML += row;
             });
 
-            // 5. Update UI Tombol Pagination
             document.getElementById('page-indicator').innerText = `${currentPage} / ${totalPages}`;
             document.getElementById('prev-page-btn').disabled = currentPage === 1;
             document.getElementById('next-page-btn').disabled = currentPage === totalPages;
         }
         
         function openMarkerByIdx(idx) {
-// Cari data berdasarkan index uniknya
 	const item = allData.find(d => d.idx == idx);
 	    if (item) {
-	    // 1. Pindahkan peta ke lokasi marker (Zoom)
 	    map.flyTo([item.lat, item.lng], 16);
-	    // 2. Buka sidebar dengan data item tersebut
 	    openSidebarWithData(item);
 	    } else {
-	    console.warn("Item dengan idx tidak ditemukan:", idx); // Pesan jika data tidak ketemu
+	    console.warn("Item dengan idx tidak ditemukan:", idx); 
 	    }
 	}
 
@@ -1739,83 +1494,61 @@ const isDibantu = checkIsDibantu(item); // Pastikan fungsi helper ini sudah ada 
             });
         }
 
-let activeDropdown = null; // Menyimpan ID dropdown yang sedang terbuka
+let activeDropdown = null;
 
-// 1. FUNGSI RENDER OPSI CUSTOM (Gantikan populateFilterOptions lama dengan ini)
 function populateFilterOptions() {
     if (!allData || allData.length === 0) return;
-
-    // Ambil data unik
     const uniqueBencana = [...new Set(allData.map(d => d.bencana).filter(x => x))].sort();
     const uniqueKecamatan = [...new Set(allData.map(d => d.kec).filter(x => x))].sort();
-
-    // Render List Bencana
     renderCustomOptions('bencana', uniqueBencana, 'Semua Jenis Bencana');
-    
-    // Render List Kecamatan
     renderCustomOptions('kecamatan', uniqueKecamatan, 'Semua Kecamatan');
 }
 
-// --- INISIALISASI KALENDER (FLATPICKR) ---
 document.addEventListener("DOMContentLoaded", function() {
-    
-    // Konfigurasi Kalender
     const configDate = {
-        dateFormat: "Y-m-d",     // Format data untuk sistem (2026-01-14)
-        altInput: true,          // Aktifkan tampilan alternatif
-        altFormat: "j F Y",      // Tampilan di layar: "14 Januari 2026"
-        locale: "id",            // Bahasa Indonesia (Sen, Sel, Rab...)
-        disableMobile: "true",   // Paksa pakai tema kita di HP (jangan pakai native HP)
+        dateFormat: "Y-m-d",     
+        altInput: true,          
+        altFormat: "j F Y",      
+        locale: "id",            
+        disableMobile: "true",   
         onChange: function(selectedDates, dateStr, instance) {
-            // Langsung filter data begitu tanggal dipilih
             currentPage = 1;
             applyFiltersAndProcess(true);
         }
     };
 
-    // Pasang ke Element HTML
     const fpStart = flatpickr("#filter-start-date", configDate);
     const fpEnd = flatpickr("#filter-end-date", configDate);
 });
 
-// Update fungsi Reset agar kalender juga bersih
 function resetAllFilters() {
-    // Bersihkan Kalender Flatpickr
     const startDateElem = document.querySelector("#filter-start-date");
     const endDateElem = document.querySelector("#filter-end-date");
     
     if(startDateElem && startDateElem._flatpickr) startDateElem._flatpickr.clear();
     if(endDateElem && endDateElem._flatpickr) endDateElem._flatpickr.clear();
 
-    // Reset Dropdown & Input lain
     document.getElementById('filter-bencana').value = 'all';
     document.getElementById('filter-kecamatan').value = 'all';
     document.getElementById('label-dropdown-bencana').innerText = 'Semua Jenis Bencana';
     document.getElementById('label-dropdown-kecamatan').innerText = 'Semua Kecamatan';
     
-    // Reset Search Input Kecamatan (jika ada sisa ketikan)
     const searchKecInput = document.getElementById('search-kecamatan-input');
     if(searchKecInput) searchKecInput.value = '';
 
-    // Reset Proses
     currentPage = 1;
     applyFiltersAndProcess(true);
     populateFilterOptions();
 
-    // --- TAMBAHAN KODE DI SINI ---
-    // Kembalikan peta ke posisi awal (Reset Zoom)
     map.flyTo([-8.17, 113.70], 12, { duration: 1.5 });
-    // -----------------------------
 }
 
-// 2. FUNGSI GENERATE HTML OPSI
 function renderCustomOptions(type, dataArray, defaultLabel) {
     const listContainer = document.getElementById(`list-${type}`);
     const currentVal = document.getElementById(`filter-${type}`).value;
     
     let html = '';
 
-    // Tambahkan opsi "Semua"
     const isAllActive = currentVal === 'all' ? 'bg-primary/10 text-primary font-semibold' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800';
     
     html += `
@@ -1825,7 +1558,6 @@ function renderCustomOptions(type, dataArray, defaultLabel) {
         ${currentVal === 'all' ? '<span class="material-symbols-outlined text-sm">check</span>' : ''}
     </div>`;
 
-    // Tambahkan opsi dari Data
     dataArray.forEach(item => {
         const isActive = currentVal === item ? 'bg-primary/10 text-primary font-semibold' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800';
         
@@ -1840,28 +1572,25 @@ function renderCustomOptions(type, dataArray, defaultLabel) {
     listContainer.innerHTML = html;
 }
 
-// 3. FUNGSI BUKA/TUTUP DROPDOWN
 function toggleDropdown(type) {
     const menu = document.getElementById(`menu-dropdown-${type}`);
     const arrow = document.getElementById(`arrow-${type}`);
     const btn = document.getElementById(`btn-dropdown-${type}`);
 
-    // Jika dropdown ini sudah terbuka, tutup. Jika belum, buka.
     if (activeDropdown === type) {
         closeAllDropdowns();
     } else {
-        closeAllDropdowns(); // Tutup yang lain dulu
+        closeAllDropdowns(); 
         menu.classList.remove('hidden');
         arrow.style.transform = 'rotate(180deg)';
-        btn.classList.add('border-primary', 'ring-2', 'ring-primary/20'); // Highlight tombol
+        btn.classList.add('border-primary', 'ring-2', 'ring-primary/20');
         activeDropdown = type;
         
-        // Reset Search Input jika ada (khusus kecamatan)
         if(type === 'kecamatan') {
             const searchInput = document.getElementById('search-kecamatan-input');
             if(searchInput) {
                 searchInput.value = '';
-                filterKecamatanList(''); // Reset list
+                filterKecamatanList(''); 
                 searchInput.focus();
             }
         }
@@ -1882,40 +1611,26 @@ function closeAllDropdowns() {
 }
 
 function selectCustomOption(type, value, label) {
-    // A. Update Nilai di Input Hidden
-    document.getElementById(`filter-${type}`).value = value;
-    
-    // B. Update Tampilan Tombol Trigger
+    document.getElementById(`filter-${type}`).value = value;    
     document.getElementById(`label-dropdown-${type}`).innerText = label;
-    
-    // C. Tutup Dropdown
     closeAllDropdowns();
-    
-    // D. Trigger Proses Filter Utama
     currentPage = 1;
     applyFiltersAndProcess(true);
-    
-    // --- TAMBAHAN KODE DI SINI ---
-    // Jika yang dipilih adalah KECAMATAN, panggil fungsi zoom otomatis
+	
     if (type === 'kecamatan') {
         zoomToFilteredKecamatan(value);
     }
-    // -----------------------------
-    
-    // Render ulang opsi
-    populateFilterOptions();
+
+	populateFilterOptions();
 }
 
-// 5. EVENT LISTENER: KLIK DI LUAR (CLOSE)
 document.addEventListener('click', function(e) {
-    // Cek apakah klik terjadi di dalam area dropdown manapun
     const isClickInside = e.target.closest('.relative.z-10') || e.target.closest('.relative.z-20');
     if (!isClickInside) {
         closeAllDropdowns();
     }
 });
 
-// 6. EVENT LISTENER: PENCARIAN KECAMATAN (BONUS)
 const searchKecInput = document.getElementById('search-kecamatan-input');
 if(searchKecInput) {
     searchKecInput.addEventListener('input', (e) => {
@@ -1935,37 +1650,27 @@ function filterKecamatanList(query) {
     });
 }
 
-// --- EVENT LISTENER UNTUK FILTER BARU ---
-// Pasang ini di bagian bawah script, atau di dalam window.onload
 const filterInputs = ['filter-start-date', 'filter-end-date', 'filter-bencana', 'filter-kecamatan'];
 filterInputs.forEach(id => {
     const el = document.getElementById(id);
     if(el) {
         el.addEventListener('change', () => {
-            currentPage = 1; // Reset ke halaman 1 setiap ganti filter
+            currentPage = 1;
             applyFiltersAndProcess(true);
         });
     }
 });
 
-
-        // =================================================================
-// GANTI FUNGSI LAMA ANDA DENGAN YANG INI SECARA KESELURUHAN
-// =================================================================
-function updateDashboardCharts(data, enableAnimation = false) {
-    
-    // --- 1. Persiapan Data Kecamatan ---
+function updateDashboardCharts(data, enableAnimation = false) {    
     const kecamatanCounts = data.reduce((acc, item) => { const kecamatan = item.kecamatan || "N/A"; acc[kecamatan] = (acc[kecamatan] || 0) + 1; return acc; }, {});
     const kecLabels = Object.keys(kecamatanCounts);
     const kecData = Object.values(kecamatanCounts);
-
-    // --- 2. Persiapan Data Kerusakan ---
     const kerusakanCounts = data.reduce((acc, item) => { const kerusakan = item.kerusakan || "N/A"; acc[kerusakan] = (acc[kerusakan] || 0) + 1; return acc; }, {});
     const colorMap = {
-        'Rusak Ringan': 'rgba(75, 192, 192, 0.6)', // Greenish
-        'Rusak Sedang': 'rgba(255, 206, 86, 0.6)', // Yellowish
-        'Rusak Berat': 'rgba(255, 99, 132, 0.6)', // Reddish
-        'N/A': 'rgba(201, 203, 207, 0.6)' // Abu-abu
+        'Rusak Ringan': 'rgba(75, 192, 192, 0.6)', 
+        'Rusak Sedang': 'rgba(255, 206, 86, 0.6)', 
+        'Rusak Berat': 'rgba(255, 99, 132, 0.6)', 
+        'N/A': 'rgba(201, 203, 207, 0.6)' 
     };
     const desiredOrder = ['Rusak Ringan', 'Rusak Sedang', 'Rusak Berat', 'N/A'];
     const sortedLabels = [];
@@ -1979,7 +1684,6 @@ function updateDashboardCharts(data, enableAnimation = false) {
         }
     });
 
-    // --- 3. Persiapan Data Konstruksi ---
     const konstruksiData = { 'Permanen': {}, 'Semi Permanen': {}, 'Non Permanen': {} };
     const kerusakanTypes = ['Rusak Ringan', 'Rusak Sedang', 'Rusak Berat'];
     for(const k in konstruksiData) { kerusakanTypes.forEach(t => konstruksiData[k][t] = 0); }
@@ -1989,17 +1693,11 @@ function updateDashboardCharts(data, enableAnimation = false) {
     const konsDataSedang = [konstruksiData['Permanen']['Rusak Sedang'], konstruksiData['Semi Permanen']['Rusak Sedang'], konstruksiData['Non Permanen']['Rusak Sedang']];
     const konsDataBerat = [konstruksiData['Permanen']['Rusak Berat'], konstruksiData['Semi Permanen']['Rusak Berat'], konstruksiData['Non Permanen']['Rusak Berat']];
 
-
-    // --- LOGIKA UTAMA: BUAT-ATAU-UPDATE ---
-
-    // --- Chart 1: Kecamatan ---
     if (chartKecamatanInstance) {
-        // Chart SUDAH ADA, update datanya
         chartKecamatanInstance.data.labels = kecLabels;
         chartKecamatanInstance.data.datasets[0].data = kecData;
         chartKecamatanInstance.update(enableAnimation ? 'default' : 'none');
     } else {
-        // Chart BELUM ADA, buat baru
         chartKecamatanInstance = new Chart(document.getElementById('chartKecamatan'), {
             type: 'bar',
             data: { labels: kecLabels, datasets: [{ label: 'Jumlah Kejadian', data: kecData, backgroundColor: 'rgba(54, 162, 235, 0.6)' }] },
@@ -2007,15 +1705,12 @@ function updateDashboardCharts(data, enableAnimation = false) {
         });
     }
 
-    // --- Chart 2: Kerusakan ---
     if (chartKerusakanInstance) {
-        // Chart SUDAH ADA, update datanya
         chartKerusakanInstance.data.labels = sortedLabels;
         chartKerusakanInstance.data.datasets[0].data = sortedData;
         chartKerusakanInstance.data.datasets[0].backgroundColor = sortedColors;
         chartKerusakanInstance.update(enableAnimation ? 'default' : 'none');
     } else {
-        // Chart BELUM ADA, buat baru
         chartKerusakanInstance = new Chart(document.getElementById('chartKerusakan'), {
             type: 'doughnut',
             data: { labels: sortedLabels, datasets: [{ data: sortedData, backgroundColor: sortedColors }] },
@@ -2023,16 +1718,13 @@ function updateDashboardCharts(data, enableAnimation = false) {
         });
     }
 
-    // --- Chart 3: Konstruksi ---
     if (chartKonstruksiInstance) {
-        // Chart SUDAH ADA, update datanya
         chartKonstruksiInstance.data.labels = konsLabels;
         chartKonstruksiInstance.data.datasets[0].data = konsDataRingan;
         chartKonstruksiInstance.data.datasets[1].data = konsDataSedang;
         chartKonstruksiInstance.data.datasets[2].data = konsDataBerat;
         chartKonstruksiInstance.update(enableAnimation ? 'default' : 'none');
     } else {
-        // Chart BELUM ADA, buat baru
         chartKonstruksiInstance = new Chart(document.getElementById('chartKonstruksi'), {
             type: 'bar',
             data: {
@@ -2047,7 +1739,6 @@ function updateDashboardCharts(data, enableAnimation = false) {
         });
     }
 
-    // --- 4. Update Tabel Bantuan (Ini sudah benar dari kode Anda) ---
     const bantuanLabels = [ "Semen", "Batu Bata", "Genteng", "Kalsiboard", "Kayu Balok", "Kayu Usuk", "Kayu Reng", "Besi ø 6 mm", "Besi ø 10 mm", "Terpal 3x4m", "Terpal 5x6m" ];
     const totalBantuan = {};
     bantuanLabels.forEach(label => totalBantuan[label] = 0);
@@ -2067,31 +1758,19 @@ function updateDashboardCharts(data, enableAnimation = false) {
         console.error("Elemen tabel '.bantuan-table' di dalam '.bantuan-table-wrapper' tidak ditemukan!");
     }
 }
-// =================================================================
-// AKHIR DARI FUNGSI BARU
-// =================================================================
 
-/**
-         * FUNGSI KRUSIAL 1: PARSER TANGGAL (Perbaikan v5 - Membaca Nama Bulan)
-         * Tugas: Mengubah string 'DD NamaBulan YYYY ...' menjadi Objek Date
-         */
         function parseIndonesianDate(dateString) {
             if (!dateString || typeof dateString !== 'string') {
                 console.warn('Data tanggal kosong atau bukan string:', dateString);
                 return null;
             }
 
-            // --- PERBAIKAN: Buat mapping nama bulan ke angka (0-indexed) ---
             const bulanMap = {
                 "januari": 0, "februari": 1, "maret": 2, "april": 3, "mei": 4, "juni": 5,
                 "juli": 6, "agustus": 7, "september": 8, "oktober": 9, "november": 10, "desember": 11
             };
-            // --- AKHIR PERBAIKAN ---
 
-            // Bersihkan spasi berlebih di awal/akhir
             const trimmedDateString = dateString.trim();
-
-            // Pisahkan berdasarkan spasi: ["09", "Oktober", "2025", "18:27"]
             const parts = trimmedDateString.split(' '); 
             
             if (parts.length < 3) {
@@ -2099,12 +1778,10 @@ function updateDashboardCharts(data, enableAnimation = false) {
                 return null; 
             }
 
-            // 1. Parse Tanggal
             const day = parseInt(parts[0], 10);
-            const monthName = parts[1].toLowerCase(); // "oktober"
+            const monthName = parts[1].toLowerCase();
             const year = parseInt(parts[2], 10);
-            
-            // Dapatkan angka bulan (0-11) dari mapping
+			
             const month = bulanMap[monthName];
 
             if (month === undefined) {
@@ -2112,50 +1789,39 @@ function updateDashboardCharts(data, enableAnimation = false) {
                 return null;
             }
 
-            // 2. Parse Waktu (HH:mm:ss) - jika ada
-            const timeString = parts[3] || '00:00:00'; // "18:27"
+            const timeString = parts[3] || '00:00:00';
             const timeParts = timeString.split(':'); 
-            
             const hour = parseInt(timeParts[0] || 0, 10);
             const minute = parseInt(timeParts[1] || 0, 10);
             const second = parseInt(timeParts[2] || 0, 10);
 
-            // Cek jika angkanya tidak valid (NaN)
             if (isNaN(day) || isNaN(year) || isNaN(hour) || isNaN(minute) || isNaN(second)) {
                  console.warn('Gagal parse angka tanggal:', trimmedDateString);
                  return null;
             }
 
-            // 3. Buat Objek Date
-            // new Date(TAHUN, BULAN (0-11), HARI, JAM, MENIT, DETIK)
             const newDate = new Date(year, month, day, hour, minute, second);
 
-            // 4. Validasi
             if (isNaN(newDate.getTime()) || newDate.getFullYear() !== year || newDate.getMonth() !== month || newDate.getDate() !== day) {
                  console.warn('Gagal parse tanggal (angka tidak valid):', trimmedDateString);
                  return null;
             }
             
-            // console.log('BERHASIL Parse:', trimmedDateString, '->', newDate);
             return newDate;
         }
 
-// 1. Fungsi Database Ikon Animasi (VERSI REVISI - AWAN RAPI)
 function getAnimatedSvg(type) {
     const colors = {
-        sun: '#FACC15',    // Kuning
-        cloud: '#94A3B8',  // Abu-abu Awan Depan
-        cloudBack: '#CBD5E1', // Abu-abu Awan Belakang (lebih muda)
-        rain: '#3B82F6',   // Biru Hujan
-        bolt: '#F59E0B'    // Oranye Petir
+        sun: '#FACC15',    
+        cloud: '#94A3B8',  
+        cloudBack: '#CBD5E1',
+        rain: '#3B82F6',   
+        bolt: '#F59E0B'    
     };
 
-    // Path Awan Standar (Bentuk Fluffy Normal)
-    // Digunakan ulang di berbagai kondisi
     const cloudPath = `d="M48,44 H16 c-4.4,0-8-3.6-8-8 s3.6-8,8-8 c0.4,0,0.7,0,1.1,0.1 c1.2-4.8,5.5-8.1,10.9-8.1 c6.6,0,12,5.4,12,12 c0,0.3,0,0.7-0.1,1 c3.6,0.6,6.1,3.7,6.1,7.3 C56,40.4,52.4,44,48,44z"`;
 
     const icons = {
-        // A. CERAH
         clear: `
             <svg viewBox="0 0 64 64" class="w-full h-full overflow-visible">
                 <defs>
@@ -2176,7 +1842,6 @@ function getAnimatedSvg(type) {
                 </g>
             </svg>`,
 
-        // B. CERAH BERAWAN
         partly_cloudy: `
             <svg viewBox="0 0 64 64" class="w-full h-full overflow-visible">
                 <g transform="translate(8,-8)">
@@ -2192,7 +1857,6 @@ function getAnimatedSvg(type) {
                 </path>
             </svg>`,
 
-        // C. MENDUNG/BERAWAN (YANG TADI RUSAK)
         cloudy: `
             <svg viewBox="0 0 64 64" class="w-full h-full overflow-visible">
                 <path ${cloudPath} fill="${colors.cloudBack}" transform="translate(10, -8) scale(0.9)">
@@ -2203,7 +1867,6 @@ function getAnimatedSvg(type) {
                 </path>
             </svg>`,
 
-        // D. HUJAN
         rain: `
             <svg viewBox="0 0 64 64" class="w-full h-full overflow-visible">
                 <path ${cloudPath} fill="${colors.cloud}" stroke="white" stroke-width="1.5">
@@ -2228,7 +1891,6 @@ function getAnimatedSvg(type) {
                 </g>
             </svg>`,
 
-        // E. BADAI
         storm: `
             <svg viewBox="0 0 64 64" class="w-full h-full overflow-visible">
                 <path ${cloudPath} fill="#64748B" stroke="white" stroke-width="1.5">
@@ -2244,7 +1906,6 @@ function getAnimatedSvg(type) {
                 </line>
             </svg>`,
 
-        // F. KABUT (Tetap sama)
         fog: `
             <svg viewBox="0 0 64 64" class="w-full h-full overflow-visible">
                 <path d="M16 26 H48" stroke="${colors.cloud}" stroke-width="3" stroke-linecap="round" opacity="0.5">
@@ -2262,9 +1923,7 @@ function getAnimatedSvg(type) {
     return icons[type] || icons.clear;
 }
 
-// 2. Fungsi Mapping Kode WMO ke Tipe SVG
 function getWeatherInfo(code) {
-  // Mapping Kode -> [TipeSVG, DeskripsiText]
   const weatherMap = {
     0: ["clear", "Cerah"],
     1: ["partly_cloudy", "Cerah Berawan"],
@@ -2288,22 +1947,15 @@ function getWeatherInfo(code) {
   return weatherMap[code] || ["clear", "N/A"];
 }
 
-// 3. Fungsi Update UI (Sudah disesuaikan untuk SVG)
 function updateWeatherUI(data) {
   try {
-    // PERBAIKAN: Support format data baru (data.current) dan lama (data.current_weather)
     const current = data.current || data.current_weather; 
     const daily = data.daily;
     
     if (!current) return;
 
-    // Ambil property dengan fallback nama variabel yang berbeda
-    // API Baru: weather_code, temperature_2m
-    // API Lama: weathercode, temperature
     const code = current.weather_code !== undefined ? current.weather_code : current.weathercode;
     const temp = current.temperature_2m !== undefined ? current.temperature_2m : current.temperature;
-
-    // 1. Update Ikon & Suhu
     const [svgType, description] = getWeatherInfo(code);
     const svgHtml = getAnimatedSvg(svgType);
     const iconContainer = document.getElementById('weather-icon');
@@ -2313,7 +1965,6 @@ function updateWeatherUI(data) {
     document.getElementById('weather-temp').innerText = Math.round(temp);
     document.getElementById('weather-desc').innerText = description;
     
-    // 2. Range Harian
     const todayStr = new Date().toLocaleDateString('en-CA'); 
     let todayIndex = daily.time.findIndex(t => t === todayStr);
     if (todayIndex === -1) todayIndex = 3; 
@@ -2329,15 +1980,10 @@ function updateWeatherUI(data) {
 async function fetchWeather() {
   const lat = -8.17;
   const lon = 113.70;
-  
-  // 1. URL Cuaca (Tetap sama)
   const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m,surface_pressure,visibility,is_day,soil_moisture_0_to_1cm,cloud_cover,dew_point_2m&hourly=temperature_2m,weathercode,precipitation_probability,uv_index&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,precipitation_sum&timezone=Asia/Jakarta&past_days=1`;
-  
-  // 2. URL Kualitas Udara (BARU)
   const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi,pm2_5&timezone=Asia/Jakarta`;
 
   try {
-    // Fetch keduanya secara paralel
     const [weatherRes, aqiRes] = await Promise.all([
         fetch(weatherUrl),
         fetch(aqiUrl)
@@ -2346,11 +1992,10 @@ async function fetchWeather() {
     if (!weatherRes.ok) throw new Error(`Weather API error! status: ${weatherRes.status}`);
     
     const weatherData = await weatherRes.json();
-    const aqiData = await aqiRes.ok ? await aqiRes.json() : null; // Handle jika AQI gagal tapi cuaca sukses
+    const aqiData = await aqiRes.ok ? await aqiRes.json() : null;
     
-    // Gabungkan data AQI ke dalam object utama
     if (aqiData && aqiData.current) {
-        weatherData.aqi = aqiData.current; // Isinya: { time, us_aqi, pm2_5 }
+        weatherData.aqi = aqiData.current;
     }
 
     window.weatherDataGlobal = weatherData; 
@@ -2366,27 +2011,16 @@ async function fetchWeather() {
   }
 }
 
-// =========================================================================
-// FUNGSI RENDER BIG WEATHER (LENGKAP DENGAN CHART & SARAN)
-// =========================================================================
-
 function renderBigWeather(data) {
-    // 0. Validasi Data
     if (!data || !data.daily || !data.current) return;
 
     const current = data.current;
     const daily = data.daily;
     const hourly = data.hourly;
-    
-    // Tentukan Index Hari Ini (karena request menggunakan past_days=1)
     const todayStr = new Date().toLocaleDateString('en-CA');
-    // Cari tanggal hari ini di array daily.time. Jika tidak ketemu, fallback ke index terakhir.
     let todayIdx = daily.time.findIndex(t => t === todayStr);
     if (todayIdx === -1) todayIdx = daily.time.length - 1; 
 
-    // ==========================================
-    // 1. RENDER HERO CARD (Cuaca Saat Ini)
-    // ==========================================
     const heroCont = document.getElementById('weather-hero-card');
     if (heroCont) {
         const code = current.weather_code !== undefined ? current.weather_code : current.weathercode;
@@ -2438,14 +2072,10 @@ function renderBigWeather(data) {
         `;
     }
 
-    // ==========================================
-    // 2. RENDER TIMELINE (7 HARI)
-    // ==========================================
 const timelineCont = document.getElementById('weather-timeline-container');
     if (timelineCont) {
         timelineCont.innerHTML = ''; 
         
-        // Ambil 7 hari
         const sevenDaysIndices = [];
         for(let i=0; i<7; i++) {
             if (todayIdx + i < daily.time.length) sevenDaysIndices.push(todayIdx + i);
@@ -2458,19 +2088,13 @@ const timelineCont = document.getElementById('weather-timeline-container');
             const code = daily.weathercode[idx];
             const [svgType, _] = getWeatherInfo(code);
             const animatedSvg = getAnimatedSvg(svgType);
-            
             const dObj = new Date(dateStr);
-            // Format Hari (SEN, SEL)
             const dayName = dObj.toLocaleDateString('id-ID', { weekday: 'short' });
-            // Format Tanggal (14, 15)
             const dateNum = dObj.toLocaleDateString('id-ID', { day: 'numeric' });
-
-            // Logic Background (Tetap mempertahankan fix Dark Mode Anda)
             let bgClass = isToday 
                 ? "bg-blue-50 dark:bg-blue-900/50 ring-1 ring-blue-500/50 dark:ring-blue-400" 
                 : "bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700";
             
-            // --- PERUBAHAN UKURAN (SIZE) DI SINI ---
             const html = `
             <div class="flex flex-col items-center justify-evenly py-3 px-1 rounded-xl transition-all cursor-pointer h-full w-full ${bgClass}">
                 
@@ -2488,21 +2112,15 @@ const timelineCont = document.getElementById('weather-timeline-container');
         });
     }
 
-    // ==========================================
-    // 3. RENDER HOURLY (24 JAM)
-    // ==========================================
     const hourlyCont = document.getElementById('hourly-forecast-container');
     if (hourlyCont && hourly) {
         hourlyCont.innerHTML = '';
         const now = new Date();
         let startHourIdx = 0;
-        
-        // Cari index jam sekarang
         for(let i=0; i<hourly.time.length; i++) {
             if (new Date(hourly.time[i]) >= now) { startHourIdx = i; break; }
         }
 
-        // Loop 24 jam kedepan
         for (let i = startHourIdx; i < startHourIdx + 24 && i < hourly.time.length; i++) {
             const timeStr = hourly.time[i];
             const dateObj = new Date(timeStr);
@@ -2526,15 +2144,11 @@ const timelineCont = document.getElementById('weather-timeline-container');
         }
     }
 
-// ==========================================
-    // 4. RENDER SUN CYCLE (DIPISAH JADI 2 TILES)
-    // ==========================================
     const sunCont = document.getElementById('sun-cycle-container');
     if (sunCont && daily.sunrise) {
         const sunrise = new Date(daily.sunrise[todayIdx]).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
         const sunset = new Date(daily.sunset[todayIdx]).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
         
-        // Helper untuk membuat Kartu
         const makeSunCard = (title, time, icon, colorInfo) => `
             <div class="bg-white dark:bg-card-dark rounded-2xl border border-border-light dark:border-border-dark p-3 shadow-sm flex flex-col items-center justify-center gap-2 h-full">
                 <div class="w-10 h-10 rounded-full ${colorInfo.bg} flex items-center justify-center ${colorInfo.text} shadow-sm ring-1 ${colorInfo.ring}">
@@ -2548,27 +2162,19 @@ const timelineCont = document.getElementById('weather-timeline-container');
             </div>
         `;
 
-        // Warna & Style
         const sunStyle = { bg: 'bg-orange-50 dark:bg-orange-900/30', text: 'text-orange-500', ring: 'ring-orange-100 dark:ring-orange-800/50' };
         const moonStyle = { bg: 'bg-indigo-50 dark:bg-indigo-900/30', text: 'text-indigo-500', ring: 'ring-indigo-100 dark:ring-indigo-800/50' };
 
-        // Render HTML Gabungan
         sunCont.innerHTML = `
             ${makeSunCard('Terbit', sunrise, 'wb_sunny', sunStyle)}
             ${makeSunCard('Terbenam', sunset, 'nights_stay', moonStyle)}
         `;
         
-        // Pastikan class grid di parent tetap terjaga (safety measure)
         sunCont.className = "shrink-0 grid grid-cols-2 gap-4 min-h-[140px]";
     }
 
-    // ==========================================
-    // 5. RENDER DETAIL & HIDROLOGI (Fitur Baru)
-    // ==========================================
     const detailCont = document.getElementById('weather-details-grid');
     const hydroCont = document.getElementById('hydro-details-grid');
-    
-    // Helper function untuk membuat kartu kecil
     const makeItem = (icon, label, value, colorClass) => `
         <div class="flex flex-col justify-center px-3 py-2 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 h-[70px]">
             <div class="flex items-center gap-2 mb-1">
@@ -2579,7 +2185,6 @@ const timelineCont = document.getElementById('weather-timeline-container');
         </div>
     `;
 
-    // A. Render Kolom Tengah (Atmosfer)
     if (detailCont) {
         let atmHtml = '';
         const maxUV = daily.uv_index_max ? daily.uv_index_max[todayIdx] : 0;
@@ -2595,17 +2200,10 @@ const timelineCont = document.getElementById('weather-timeline-container');
         detailCont.className = "grid grid-cols-2 gap-3 w-full h-full content-center";
     }
 
-    // B. Render Kolom Kanan (Hidrologi - BARU)
     if (hydroCont) {
         let hydroHtml = '';
-        
-        // Data 1: Curah Hujan Hari Ini
         const rainSum = daily.precipitation_sum ? daily.precipitation_sum[todayIdx] : 0;
-        
-        // Data 2: Kelembaban Tanah (Convert 0.35 -> 35%)
         const soilMoist = current.soil_moisture_0_to_1cm ? Math.round(current.soil_moisture_0_to_1cm * 100) : 0;
-        
-        // Data 3: Peluang Hujan (Jam Ini)
         const nowHour = new Date().getHours();
         const hourIdx = hourly.time.findIndex(t => new Date(t).getHours() === nowHour);
         const rainProb = hourIdx !== -1 ? hourly.precipitation_probability[hourIdx] : 0;
@@ -2621,75 +2219,57 @@ const timelineCont = document.getElementById('weather-timeline-container');
         hydroCont.className = "grid grid-cols-2 gap-3 w-full h-full content-center";
     }
 
-// ==========================================
-    // 6. RENDER KUALITAS UDARA (AQI) - FINAL
-    // ==========================================
     const aqiBox = document.getElementById('weather-aqi-box');
     
-    // Cek apakah data AQI tersedia (dari fetchWeather tadi)
     if (aqiBox && data.aqi) {
         const aqiVal = data.aqi.us_aqi;
         const pm25Val = data.aqi.pm2_5;
-
-        // Elemen DOM
         const valueEl = document.getElementById('aqi-value');
         const statusTextEl = document.getElementById('aqi-status-text');
         const statusBgEl = document.getElementById('aqi-status-bg');
         const progressEl = document.getElementById('aqi-progress-circle');
         const pmEl = document.getElementById('pm25-value');
 
-        // 1. Tentukan Status & Warna berdasarkan US AQI Standard
         let status = "Baik";
         let colorClass = "text-green-500";
         let bgClass = "bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400";
         
         if (aqiVal <= 50) {
             status = "Baik";
-            colorClass = "text-green-500"; // Hijau
+            colorClass = "text-green-500"; 
             bgClass = "bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400";
         } else if (aqiVal <= 100) {
             status = "Sedang";
-            colorClass = "text-yellow-500"; // Kuning
+            colorClass = "text-yellow-500";
             bgClass = "bg-yellow-50 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400";
         } else if (aqiVal <= 150) {
             status = "Tdk Sehat (Sensitif)";
-            colorClass = "text-orange-500"; // Oranye
+            colorClass = "text-orange-500";
             bgClass = "bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400";
         } else if (aqiVal <= 200) {
             status = "Tidak Sehat";
-            colorClass = "text-red-500"; // Merah
+            colorClass = "text-red-500"; 
             bgClass = "bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400";
         } else {
             status = "Berbahaya";
-            colorClass = "text-purple-500"; // Ungu
+            colorClass = "text-purple-500";
             bgClass = "bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400";
         }
 
-        // 2. Render Teks
         if(valueEl) valueEl.innerText = aqiVal;
         if(pmEl) pmEl.innerText = pm25Val;
         if(statusTextEl) statusTextEl.innerText = status;
-        
-        // 3. Render Warna Background Status
         if(statusBgEl) statusBgEl.className = `px-3 py-1 rounded-full transition-colors mt-1 ${bgClass}`;
 
-        // 4. Render Progress Circle
-        // Max AQI biasanya 300 (atau 500 ekstrem). Kita pakai 300 sebagai 100% lingkaran.
         const percentage = Math.min((aqiVal / 300) * 100, 100); 
         if(progressEl) {
-            // Set Warna Stroke
             progressEl.setAttribute("class", `transition-all duration-1000 ease-out ${colorClass}`);
-            // Set Panjang Stroke (Dasharray: value, 100)
-            // Timeout kecil agar animasi jalan saat render
             setTimeout(() => {
                 progressEl.setAttribute("stroke-dasharray", `${percentage}, 100`);
             }, 100);
         }
     }
 
-    // ==========================================
-    // 7. RENDER BIG CHART (Grafik Bawah)
-    // ==========================================
     const ctx = document.getElementById('weatherBigChart');
     if (ctx && hourly) {
         const nowIdx = hourly.time.findIndex(t => new Date(t).getHours() === new Date().getHours()) || 0;
@@ -2770,7 +2350,6 @@ const timelineCont = document.getElementById('weather-timeline-container');
     }
 }
 
-// Variabel global untuk menyimpan data terakhir
 let lastDataString = ""; 
 
 function fetchData() {
@@ -2778,32 +2357,25 @@ function fetchData() {
         .then(r => r.json())
         .then(rawData => {
             
-            // 1. Sembunyikan Loader (Hanya visual)
             if (loader) {
                 loader.style.opacity = '0';
                 setTimeout(() => { loader.style.display = 'none'; }, 500);
             }
 
-            // 2. CEK PERUBAHAN DATA (Fitur Anti-Kedip)
-            // Kita ubah data jadi string untuk dibandingkan
             const currentDataString = JSON.stringify(rawData);
             
-            // Jika data SAMA PERSIS dengan sebelumnya, STOP di sini. Jangan update peta.
             if (currentDataString === lastDataString) {
-                return; // Keluar fungsi, tidak ada kedip
+                return; 
             }
 
-            // Jika data BEDA, simpan data baru dan lanjut update
             lastDataString = currentDataString;
 
-            // --- PROSES DATA (Kode Asli) ---
             const processedData = rawData.map((item, index) => {
                 item.dateObj = parseIndonesianDate(item.tanggalWaktu);
                 item.idx = index;
                 return item;
             });
 
-            // Notifikasi Data Baru (Logic Asli)
             if (allData.length > 0 && processedData.length > allData.length) {
                 const newData = processedData[processedData.length - 1];
                 map.flyTo([newData.lat, newData.lng], 15);
@@ -2814,7 +2386,6 @@ function fetchData() {
             
             allData = processedData;
             
-            // Update UI
             populateFilterOptions(); 
             applyFiltersAndProcess(false);
             adjustTableHeight();
@@ -2824,7 +2395,6 @@ function fetchData() {
         .catch(error => {
             console.error('Gagal mengambil data:', error);
             if(loader) loader.style.display = 'none';
-            // showNotification('Gagal memuat data. Cek konsol.'); // Opsional: dimatikan biar tidak ganggu kalau internet putus nyambung
         });
 }
 
@@ -2863,7 +2433,6 @@ async function handleSidebarUpload(fileType, reportIndex) {
             let uploadButton;
             let columnName;
             
-            // --- IDENTIFIKASI ELEMEN ---
             if (fileType === 'disposisi') {
                 fileInput = document.getElementById('file-disposisi-input');
                 uploadButton = document.getElementById('upload-disposisi-btn');
@@ -2898,18 +2467,14 @@ async function handleSidebarUpload(fileType, reportIndex) {
                 return;
             }
 
-            // --- UI LOADING STATE (PERBAIKAN LOKASI) ---
             let originalContent = '';
             let addPhotoBox = null;
 
             if (fileType === 'dokumentasi') {
-                // CARI KOTAK TAMBAH BERDASARKAN ID BARU
                 addPhotoBox = document.getElementById('add-photo-btn');
                 
                 if(addPhotoBox) {
                     originalContent = addPhotoBox.innerHTML;
-                    
-                    // Ganti isi kotak tersebut dengan spinner
                     addPhotoBox.innerHTML = `
                         <div class="flex flex-col items-center justify-center w-full h-full animate-pulse">
                             <span class="material-symbols-outlined animate-spin text-3xl text-primary">progress_activity</span>
@@ -2917,7 +2482,7 @@ async function handleSidebarUpload(fileType, reportIndex) {
                             <span class="text-[10px] text-gray-400 font-bold" id="upload-progress-text">0/${filesToUpload.length}</span>
                         </div>
                     `;
-                    addPhotoBox.onclick = null; // Matikan klik
+                    addPhotoBox.onclick = null;
                     addPhotoBox.classList.add('cursor-not-allowed', 'bg-gray-100', 'dark:bg-gray-800');
                 }
             } else if (uploadButton) {
@@ -2928,7 +2493,6 @@ async function handleSidebarUpload(fileType, reportIndex) {
             let filesUploaded = 0;
 
             try {
-                // --- LOOP UPLOAD ---
                 for (const file of filesToUpload) {
                     const fileBase64 = await readFileAsBase64(file);
                     filesUploaded++;
@@ -2973,7 +2537,6 @@ async function handleSidebarUpload(fileType, reportIndex) {
                 console.error('Gagal upload file:', error);
                 showNotification(`Gagal: ${error.message}`);
                 
-                // Restore UI jika gagal
                 if (fileType === 'dokumentasi' && addPhotoBox) {
                     addPhotoBox.innerHTML = originalContent;
                     addPhotoBox.onclick = function() { document.getElementById('file-dokumentasi-input').click(); };
@@ -2996,12 +2559,7 @@ async function handleSidebarUpload(fileType, reportIndex) {
     }).format(number);
 }
 
-
-/**
-         * Fungsi Pembantu untuk Merender Bagian Dokumen (Support Multi-File)
-         */
         function renderDokumenSection(judul, linkString, tipeInput, idx) {
-            // 1. Cek dan Pecah Link berdasarkan koma
             let linksHtml = '';
             if (linkString && linkString !== '-' && linkString.trim() !== '') {
                 const urls = linkString.split(',').map(u => u.trim()).filter(u => u);
@@ -3020,8 +2578,6 @@ async function handleSidebarUpload(fileType, reportIndex) {
                 }
             }
 
-            // 2. Tampilkan Form Upload (Selalu tampil agar bisa tambah file kapan saja)
-            // Tombol ini mendukung upload BANYAK file sekaligus (multiple)
             const uploadHtml = `
                 <div class="flex items-center gap-2">
                     <input type="file" id="file-${tipeInput}-input" accept=".pdf,.jpg,.jpeg,.png" multiple
@@ -3052,20 +2608,13 @@ async function handleSidebarUpload(fileType, reportIndex) {
             `;
         }
 
-	/**
- * Fungsi Mengubah Link Drive "View" menjadi Link "Thumbnail/Gambar"
- */
 function getDriveImgUrl(url) {
             if (!url) return "";
-
             let fileId = "";
-
-            // 1. Cek Pola "/d/ID" (Contoh: drive.google.com/file/d/123.../view)
             const matchSlash = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
             if (matchSlash && matchSlash[1]) {
                 fileId = matchSlash[1];
             } 
-            // 2. Cek Pola "id=ID" (Contoh: drive.google.com/open?id=123...)
             else {
                 const matchParam = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
                 if (matchParam && matchParam[1]) {
@@ -3073,48 +2622,27 @@ function getDriveImgUrl(url) {
                 }
             }
 
-            // Jika ID ditemukan, gunakan endpoint thumbnail
             if (fileId) {
-                // sz=s1000 artinya: Minta gambar ukuran 1000px (Cukup tajam & Anti-Blokir)
                 return `https://drive.google.com/thumbnail?id=${fileId}&sz=s1000`;
             }
 
-            // Jika bukan link drive, kembalikan URL asli (mungkin link direct)
             return url;
         }
 
-
-/**
-         * ==================================================================
-         * 1. FUNGSI PEMBANTU LIGHTBOX (PREVIEW GAMBAR)
-         * ==================================================================
-         */
         function openImagePreview(originalUrl) {
             const modal = document.getElementById('image-preview-modal');
             const img = document.getElementById('preview-image-element');
-            
             if (!originalUrl) return;
-
-            // Ambil URL gambar dari fungsi helper di atas
             let displaySrc = getDriveImgUrl(originalUrl);
-            
-            // Trik: Ubah ukuran jadi s3000 (sangat besar) khusus untuk preview layar penuh
             if (displaySrc.includes("google.com/thumbnail")) {
                 displaySrc = displaySrc.replace("sz=s1000", "sz=s3000");
             }
 
-            // Reset kondisi awal
             img.src = ""; 
             img.classList.remove('scale-100');
             img.classList.add('scale-95');
-
-            // Tampilkan Modal
             modal.classList.remove('hidden');
-            
-            // Set Source Gambar
             img.src = displaySrc;
-            
-            // Animasi zoom saat gambar selesai dimuat
             img.onload = () => {
                 img.classList.remove('scale-95');
                 img.classList.add('scale-100');
@@ -3124,43 +2652,29 @@ function getDriveImgUrl(url) {
         function closeImagePreview() {
             const modal = document.getElementById('image-preview-modal');
             const img = document.getElementById('preview-image-element');
-            
-            // Efek zoom out
             img.classList.remove('scale-100');
             img.classList.add('scale-95');
             
             setTimeout(() => {
                 modal.classList.add('hidden');
-                img.src = ''; // Bersihkan memori
+                img.src = ''; 
             }, 200);
         }
 
-        // Tutup dengan tombol ESC
         document.addEventListener('keydown', function(event) {
             if (event.key === "Escape") {
                 closeImagePreview();
             }
         });
 
-
-        /**
-         * ==================================================================
-         * 2. FUNGSI UTAMA: OPEN SIDEBAR (FULL CODE)
-         * ==================================================================
-         */
         function openSidebarWithData(data) {
             const content = document.getElementById('sidebar-content');
             const sidebarTitle = document.getElementById('sidebar-title');
             const routeButton = document.getElementById('route-button-link');
             const downloadButton = document.getElementById('download-laporan-btn');
-
-            // --- LOGIKA PENENTUAN DESA / KELURAHAN ---
             const kecamatanKota = ['kaliwates', 'patrang', 'sumbersari'];
             const kecRaw = (data.kec || '').toLowerCase().trim();
             const jenisWilayah = kecamatanKota.includes(kecRaw) ? 'Kelurahan' : 'Desa';
-            // ------------------------------------------
-
-            // --- BAGIAN BANTUAN ---
             let bantuanHtml = '';
             if (data.bantuan && typeof data.bantuan === 'object') {
                 let adaBantuan = false;
@@ -3178,10 +2692,7 @@ function getDriveImgUrl(url) {
                 }
             }
 
-            // --- BAGIAN GALERI FOTO (DENGAN PREVIEW & TOMBOL TAMBAH) ---
             let galleryHtml = '';
-            
-            // Ambil array foto yang valid
             const photoList = (data.photos || []).filter(url => url && url.trim() !== "");
             const photoCount = photoList.length;
             const MAX_PHOTOS = 8; 
@@ -3200,9 +2711,8 @@ function getDriveImgUrl(url) {
                 
                 <div class="sidebar-gallery grid grid-cols-3 gap-2">`;
             
-            // Loop Foto: Gunakan DIV dan ONCLICK untuk Preview
             photoList.forEach((photoUrl, index) => {
-                const displaySrc = getDriveImgUrl(photoUrl); // Thumbnail kecil untuk grid
+                const displaySrc = getDriveImgUrl(photoUrl);
                 
                 galleryHtml += `
                 <div onclick="openImagePreview('${photoUrl}')" class="group relative aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 block shadow-sm cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all">
@@ -3223,7 +2733,6 @@ function getDriveImgUrl(url) {
                 </div>`; 
             });
 
-            // Tombol "Tambah Foto" (Hanya jika < 8)
             if (photoCount < MAX_PHOTOS) {
                 galleryHtml += `
                 <div id="add-photo-btn" onclick="document.getElementById('file-dokumentasi-input').click()" 
@@ -3233,7 +2742,6 @@ function getDriveImgUrl(url) {
                 </div>`;
             }
 
-            // Input Hidden
             galleryHtml += `
                 </div>
                 <input type="file" id="file-dokumentasi-input" accept="image/*" multiple 
@@ -3241,8 +2749,6 @@ function getDriveImgUrl(url) {
                        onchange="handleSidebarUpload('dokumentasi', '${data.idx}')">
             </div>`;
 
-
-            // --- SETUP TOMBOL & HEADER ---
             const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${data.lat},${data.lng}`; 
             
 	    const toDms = (deg, isLat) => {
@@ -3255,28 +2761,21 @@ function getDriveImgUrl(url) {
         return `${degrees}° ${minutes}' ${seconds}" ${direction}`;
     };
     const koordinatDMS = `${toDms(data.lat, true)} • ${toDms(data.lng, false)}`;
-
-    // 2. Siapkan Daftar Material (Looping dari object data.bantuan)
     let listMaterial = [];
     if (data.bantuan && typeof data.bantuan === 'object') {
         for (const [material, jumlah] of Object.entries(data.bantuan)) {
-            // Hanya masukkan jika jumlahnya valid dan lebih dari 0
             if (parseFloat(jumlah) > 0) {
                 listMaterial.push(`- ${material}: ${jumlah}`);
             }
         }
     }
     const materialString = listMaterial.length > 0 ? listMaterial.join('\n') : "- Belum ada data material";
-
-    // 3. Susun Format Pesan
     const pesanWA = `*DATA PENERIMA BANTUAN BPBD*\n\n` +
         `*Nama Penerima:* ${data.nama}\n` +
         `*Alamat:* ${data.jalandusun || '-'}, Desa ${data.desakelurahan}, Kec. ${data.kec}\n` +
         `*Koordinat:* ${koordinatDMS}\n\n` +
         `*Material yang Dibantu:*\n${materialString}\n\n` +
         `_Link Maps:_\n${googleMapsUrl}`;
-
-    // 4. Update Link Tombol WhatsApp
     const btnWA = document.getElementById('share-wa-btn');
     if (btnWA) {
         btnWA.href = `https://wa.me/?text=${encodeURIComponent(pesanWA)}`;
@@ -3287,8 +2786,6 @@ function getDriveImgUrl(url) {
             const tanggalAsesmen = data.dateObj 
                 ? data.dateObj.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) 
                 : (data.tanggalWaktu || 'Tidak ada data');
-
-            // --- RENDER KONTEN UTAMA (HTML) ---
             content.innerHTML = `
                 <div class="space-y-6">
                     <div class="bg-white dark:bg-card-dark rounded-lg">
@@ -3353,12 +2850,9 @@ function getDriveImgUrl(url) {
             routeButton.href = googleMapsUrl; 
             if (data.linkDokumen) { 
                 downloadButton.href = data.linkDokumen; 
-                
-                // Gunakan class Tailwind untuk memunculkan (Flex agar icon & teks tengah)
                 downloadButton.classList.remove('hidden'); 
                 downloadButton.classList.add('flex'); 
             } else { 
-                // Sembunyikan
                 downloadButton.classList.add('hidden');
                 downloadButton.classList.remove('flex');
             }
@@ -3373,12 +2867,9 @@ function getDriveImgUrl(url) {
         }
 
 function adjustTableHeight() {
-    // 1. Definisi Elemen Utama
     const mainArea = document.querySelector('main'); 
     const header = mainArea ? mainArea.querySelector('header') : null;
     const contentScroller = mainArea ? mainArea.querySelector('div.overflow-y-auto') : null; 
-    
-    // 2. Elemen Dashboard
     const dashboardView = document.getElementById('dashboard-view');
     const summaryBox = document.getElementById('summary-box');
     const mapCard = document.getElementById('map-card');
@@ -3388,7 +2879,6 @@ function adjustTableHeight() {
 
     if (!contentScroller) return;
 
-    // 3. LOGIKA MOBILE / TABLET (< 1280px)
     if (window.innerWidth < 1280 || (dashboardView && dashboardView.classList.contains('hidden'))) {
         contentScroller.style.overflowY = 'auto'; 
         if(mapCard) mapCard.style.height = '';
@@ -3400,45 +2890,23 @@ function adjustTableHeight() {
         return; 
     }
 
-    // 4. LOGIKA DESKTOP DASHBOARD (>= 1280px)
     if (mainArea && header && summaryBox && mapCard && tableCard && tableHeader && tableScroller) {
         try {
             const mainHeight = mainArea.offsetHeight;
             const headerHeight = header.offsetHeight;
-            
-            // --- SETTING SPACING (Disesuaikan dengan class Tailwind di HTML) ---
-            // p-6 = 1.5rem = 24px.
-            // contentPaddingY = Padding Atas (24) + Padding Bawah (24) = 48.
             const contentPaddingY = 48; 
-            
             const summaryHeight = summaryBox.offsetHeight;
-            
-            // mb-6 pada summaryBox = 24px gap antar elemen
             const gridGap = 24; 
-            
-            // --- PERBAIKAN DI SINI ---
-            // Ubah buffer jadi 0 agar jarak bawah SAMA PERSIS dengan atas/kiri/kanan (24px)
             const bottomBuffer = 0; 
-
-            // Rumus: Total Layar - Header - (Padding Atas+Bawah) - Tinggi Summary - Jarak Antar Elemen
             const availableHeight = mainHeight - headerHeight - contentPaddingY - summaryHeight - gridGap - bottomBuffer;
-            
-            // Batas minimal tinggi card agar tidak error saat layar sangat pendek
             const targetGridRowHeight = Math.max(availableHeight, 300);
-
-            // Terapkan Tinggi
             mapCard.style.height = targetGridRowHeight + 'px';
             tableCard.style.height = targetGridRowHeight + 'px';
-
-            // Hitung area scroll tabel
             const tableHeaderHeight = tableHeader.offsetHeight;
-            // -2 pixel untuk kompensasi border atas/bawah card
             const scrollerMaxHeight = targetGridRowHeight - tableHeaderHeight - 2;
 
             tableScroller.style.maxHeight = scrollerMaxHeight + 'px';
             tableScroller.style.height = scrollerMaxHeight + 'px';
-
-            // Kunci scroll window utama agar rapi (seperti aplikasi native)
             contentScroller.style.overflowY = 'hidden';
 
         } catch (e) {
@@ -3454,21 +2922,13 @@ function adjustTableHeight() {
 	setInterval(fetchWeather, 600000);
 	window.addEventListener('resize', adjustTableHeight); 
 
-
-        // =============================================
-        // SKRIP DARI KODE REFERENSI (Dark Mode & UI)
-        // =============================================
-
-// --- Dark Mode Toggle (UPDATE BAGIAN INI) ---
     const themeToggle = document.getElementById('theme-toggle');
     const html = document.documentElement;
 
     themeToggle.addEventListener('click', () => {
-        // 1. Toggle Class HTML (CSS)
         html.classList.toggle('dark');
         const isDark = html.classList.contains('dark');
 
-        // 2. Update Layer Peta (Logic Lama)
         if (isDark) {
             if (map.hasLayer(osm)) map.removeLayer(osm);
             if (!map.hasLayer(dark)) dark.addTo(map);
@@ -3477,30 +2937,22 @@ function adjustTableHeight() {
             if (!map.hasLayer(osm)) osm.addTo(map);
         }
 
-        // 3. UPDATE WARNA CHART SECARA INSTAN (LOGIC BARU)
-        // Tentukan warna baru berdasarkan mode
         const newTextColor = isDark ? '#EAEAEA' : '#333';
         const newGridColor = isDark ? '#404040' : '#E5E7EB';
 
-        // Ambil semua chart yang sedang aktif dari variabel global
         Object.values(reportChartInstances).forEach(chart => {
             
-            // A. Update Warna Legend (Judul Label)
             if (chart.options.plugins && chart.options.plugins.legend) {
                 chart.options.plugins.legend.labels.color = newTextColor;
             }
 
-            // B. Update Warna Sumbu (X, Y, atau R untuk Polar)
             if (chart.options.scales) {
                 ['x', 'y', 'r'].forEach(axis => {
                     if (chart.options.scales[axis]) {
-                        // Ganti warna angka/tulisan
                         if (chart.options.scales[axis].ticks) {
                             chart.options.scales[axis].ticks.color = newTextColor;
-                            // Khusus Polar Area: background tick transparan
                             if(axis === 'r') chart.options.scales[axis].ticks.backdropColor = 'transparent';
                         }
-                        // Ganti warna garis grid
                         if (chart.options.scales[axis].grid) {
                             chart.options.scales[axis].grid.color = newGridColor;
                         }
@@ -3508,27 +2960,19 @@ function adjustTableHeight() {
                 });
             }
 
-            // C. Render ulang chart SECARA INSTAN (mode: 'none' artinya tanpa animasi)
             chart.update('none'); 
         });
     });
 
-        // --- Atur Layer Peta Awal (Opsional tapi bagus) ---
-        // Panggil ini sekali setelah peta diinisialisasi, sebelum fetchData
         function setInitialMapLayer() {
              if (html.classList.contains('dark')) {
-                 if (map.hasLayer(osm)) map.removeLayer(osm); // Hapus default OSM jika mulai dark
+                 if (map.hasLayer(osm)) map.removeLayer(osm); 
                  dark.addTo(map);
              } else {
-                 // osm sudah ditambahkan saat inisialisasi, jadi tidak perlu `osm.addTo(map);` lagi
              }
         }
-        // Panggil fungsi ini SETELAH inisialisasi peta dan SEBELUM fetchData() pertama kali
-        // Contoh:
-        // ... (kode inisialisasi map, baseMaps, dll.) ...
-        setInitialMapLayer(); // <-- PANGGIL DI SINI
+        setInitialMapLayer(); 
         fetchData();
-        // ...
 
         const hamburgerBtn = document.getElementById('hamburger-btn');
         const filterSidebar = document.getElementById('filter-sidebar');
@@ -3550,10 +2994,6 @@ function adjustTableHeight() {
         closeFilterBtn.addEventListener('click', closeFilterSidebar);
         filterOverlay.addEventListener('click', closeFilterSidebar);
 
-        // =============================================
-        // SKRIP UNTUK FITUR BARU (Filter)
-        // =============================================
-
         const timeFilterButtons = document.querySelectorAll('#time-filter-buttons .filter-btn');
         timeFilterButtons.forEach(button => {
             button.addEventListener('click', () => {
@@ -3568,7 +3008,6 @@ function adjustTableHeight() {
         });
 
 function switchView(viewName) {
-    // --- 1. DEFINISI ELEMENT ---
     const dashboardView = document.getElementById('dashboard-view');
     const reportsView = document.getElementById('reports-view');
     const navPill = document.getElementById('nav-pill');
@@ -3576,11 +3015,8 @@ function switchView(viewName) {
     const navReports = document.getElementById('nav-reports');
     const floatBtn = document.getElementById('open-form-btn'); 
     const weatherFocusView = document.getElementById('weather-focus-view');
-    
     const mainArea = document.querySelector('main'); 
     const contentScroller = mainArea ? mainArea.querySelector('div.overflow-y-auto') : null;
-
-    // Style Animasi & Teks
     const textActive = ['text-primary', 'hover:text-primary', 'dark:hover:text-primary'];
     const textInactive = ['text-gray-500', 'dark:text-gray-400', 'hover:text-gray-900', 'dark:hover:text-gray-100'];
     const animVisible = ['opacity-100', 'scale-100']; 
@@ -3588,9 +3024,8 @@ function switchView(viewName) {
     const btnVisible = ['opacity-100', 'scale-100'];
     const btnHidden = ['opacity-0', 'scale-0'];
 
-    // --- 2. LOGIKA KELUAR DARI MODE CUACA ---
     if (isWeatherMode) {
-        isWeatherMode = false; // Reset flag
+        isWeatherMode = false; 
         
         if (weatherFocusView) {
             weatherFocusView.classList.remove(...animVisible);
@@ -3598,7 +3033,7 @@ function switchView(viewName) {
             
             setTimeout(() => {
                 weatherFocusView.classList.add('hidden');
-                if (navPill) navPill.classList.remove('hidden'); // Munculkan pill segera
+                if (navPill) navPill.classList.remove('hidden');
                 
                 enterNewView(viewName); 
             }, 300);
@@ -3608,25 +3043,17 @@ function switchView(viewName) {
         return; 
     }
 
-    // --- 3. LOGIKA PERPINDAHAN NORMAL (DASHBOARD <-> REPORTS) ---
-    
     if (viewName === 'dashboard') {
-        // Cek apakah Reports sedang aktif?
         if (reportsView && !reportsView.classList.contains('hidden')) {
-            // Animasi Keluar Reports
             reportsView.classList.remove(...animVisible);
             reportsView.classList.add(...animHidden);
-            // Tunggu animasi selesai baru masuk Dashboard
             setTimeout(() => enterNewView('dashboard'), 300);
         } else {
-            // Jika tidak ada yang aktif (misal dari Weather), langsung masuk
             enterNewView('dashboard');
         }
 
     } else if (viewName === 'reports') {
-        // Cek apakah Dashboard sedang aktif?
         if (dashboardView && !dashboardView.classList.contains('hidden')) {
-            // Animasi Keluar Dashboard
             dashboardView.classList.remove(...animVisible);
             dashboardView.classList.add(...animHidden);
             
@@ -3634,22 +3061,16 @@ function switchView(viewName) {
                 floatBtn.classList.remove(...btnVisible);
                 floatBtn.classList.add(...btnHidden);
             }
-            // Tunggu animasi selesai baru masuk Reports
             setTimeout(() => enterNewView('reports'), 300);
         } else {
-            // Jika tidak ada yang aktif (misal dari Weather), langsung masuk
             enterNewView('reports');
         }
     }
 
-    // --- 4. FUNGSI INTERNAL: MASUK KE VIEW BARU ---
     function enterNewView(target) {
-        // [FIX UTAMA] Hapus 'hidden' agar Pil Putih SELALU muncul, 
-        // baik masuk ke Dashboard maupun Reports.
         if (navPill) navPill.classList.remove('hidden');
 
         if (target === 'dashboard') {
-            // -- MASUK DASHBOARD --
             if(reportsView) reportsView.classList.add('hidden');
             
             if(document.getElementById('summary-box')) document.getElementById('summary-box').classList.remove('hidden');
@@ -3662,7 +3083,6 @@ function switchView(viewName) {
                 dashboardView.classList.add(...animVisible);
             }
             
-            // Geser Pil ke Kiri (Dashboard)
             if (navPill) {
                 navPill.classList.remove('translate-x-full');
                 navPill.classList.add('translate-x-0');
@@ -3683,7 +3103,6 @@ function switchView(viewName) {
             if (map) map.invalidateSize(); 
 
         } else {
-            // -- MASUK REPORTS --
             if(dashboardView) dashboardView.classList.add('hidden');
             if(document.getElementById('summary-box')) document.getElementById('summary-box').classList.add('hidden');
             if(document.getElementById('dashboard-grid')) document.getElementById('dashboard-grid').classList.add('hidden');
@@ -3709,7 +3128,6 @@ function switchView(viewName) {
                 });
             }
 
-            // Geser Pil ke Kanan (Reports)
             if (navPill) {
                 navPill.classList.remove('translate-x-0');
                 navPill.classList.add('translate-x-full');
@@ -3721,26 +3139,16 @@ function switchView(viewName) {
         }
     }
 }
-
-    // ==========================================
-    // 2. FUNGSI RENDER CHART (ANTI-CRASH)
-    // ==========================================
     
-// --- VARIABEL GLOBAL CHART ---
     let reportChartInstances = {};
 
     function renderReportCharts(data, enableAnimation = false) {
-        // 1. CEK DATA
         const sourceData = data || allData;
-        if (!sourceData) return;
-
-        // --- 2. PERSIAPAN DATA (Sama seperti sebelumnya) ---
+        if (!sourceData) return
         let materialStats = {};
         let trendDataMap = {}; 
         let kerusakanMap = { "Rusak Ringan": 0, "Rusak Sedang": 0, "Rusak Berat": 0 };
         let konstruksiMap = {}; 
-
-        // --- LOGIKA BARU: Tentukan Mode Harian/Bulanan ---
         const startDateVal = document.getElementById('filter-start-date').value;
         const endDateVal = document.getElementById('filter-end-date').value;
         let isDaily = false;
@@ -3755,21 +3163,18 @@ function switchView(viewName) {
             }
         }
 
-        // Update Judul Chart
         const titleEl = document.getElementById('tren-chart-title');
         if(titleEl) {
             titleEl.innerText = isDaily ? "Tren Kejadian Bencana (Harian)" : "Tren Kejadian Bencana (Bulanan)";
         }
 
         sourceData.forEach(d => {
-            // A. Hitung Material
             if(d.bantuan && typeof d.bantuan === 'object') {
                 for (const [mat, jumlah] of Object.entries(d.bantuan)) {
                     const val = parseFloat(jumlah);
                     if(val > 0) materialStats[mat] = (materialStats[mat] || 0) + val;
                 }
             }
-            // B. Hitung Tren
             if(d.dateObj && d.dateObj instanceof Date && !isNaN(d.dateObj)) {
                 let sortKey, labelName;
                 if (isDaily) {
@@ -3788,7 +3193,6 @@ function switchView(viewName) {
                 if(!trendDataMap[sortKey]) trendDataMap[sortKey] = { label: labelName, count: 0 };
                 trendDataMap[sortKey].count++;
             }
-            // C. Hitung Kerusakan & Konstruksi
             let level = d.kerusakan || "Tanpa Kategori";
             if (level.toLowerCase().includes("ringan")) level = "Rusak Ringan";
             else if (level.toLowerCase().includes("sedang")) level = "Rusak Sedang";
@@ -3801,13 +3205,10 @@ function switchView(viewName) {
             else konstruksiMap[kons]["Lainnya"]++;
         });
 
-        // --- 3. RENDER TABEL MATERIAL (Sama seperti sebelumnya) ---
         const thead = document.getElementById('material-table-head');
         const tbody = document.getElementById('material-table-body');
         
         if(thead && tbody) {
-            // Cek apakah tabel perlu di-render ulang sepenuhnya (untuk performa)
-            // Kita render ulang tabel hanya untuk memastikan urutan data benar
             thead.innerHTML = '';
             tbody.innerHTML = '';
 
@@ -3831,19 +3232,15 @@ function switchView(viewName) {
             }
         }
 
-        // --- 4. FUNGSI HELPER CHART (REVISI ANTI-FLICKER) ---
         const createChart = (id, type, data, options) => {
             const canvas = document.getElementById(id);
             if (!canvas) return; 
             
-            // CEK: Apakah chart sudah ada?
             if (reportChartInstances[id]) {
-                // JIKA ADA: Cukup UPDATE datanya saja (Jangan dihancurkan!)
                 reportChartInstances[id].data = data;
                 reportChartInstances[id].options = options;
-                reportChartInstances[id].update(enableAnimation ? 'default' : 'none'); // Update dengan animasi default (smooth)
+                reportChartInstances[id].update(enableAnimation ? 'default' : 'none');
             } else {
-                // JIKA BELUM: Baru buat chart baru
                 const ctx = canvas.getContext('2d');
                 reportChartInstances[id] = new Chart(ctx, { type, data, options });
             }
@@ -3852,10 +3249,6 @@ function switchView(viewName) {
         const isDark = document.documentElement.classList.contains('dark');
         const textColor = isDark ? '#EAEAEA' : '#333';
         const gridColor = isDark ? '#404040' : '#E5E7EB';
-
-        // --- 5. EKSEKUSI CHART ---
-        
-        // A. Chart Tren
         const sortedKeys = Object.keys(trendDataMap).sort();
         createChart('chartTrenBulanan', 'line', {
             labels: sortedKeys.map(k => trendDataMap[k].label),
@@ -3866,7 +3259,6 @@ function switchView(viewName) {
             }]
         }, { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor } }, x: { grid: { display: false }, ticks: { color: textColor } } } });
 
-        // B. Chart Kerusakan
 	const rusLabels = ["Rusak Ringan", "Rusak Sedang", "Rusak Berat"];
         createChart('chartTingkatKerusakan', 'bar', {
             labels: rusLabels,
@@ -3874,24 +3266,23 @@ function switchView(viewName) {
                 label: 'Jumlah Lokasi',
                 data: rusLabels.map(l => kerusakanMap[l] || 0),
                 backgroundColor: [
-                    '#4ADE80', // Hijau
-                    '#FACC15', // Kuning
-                    '#EF4444'  // Merah
+                    '#4ADE80', 
+                    '#FACC15', 
+                    '#EF4444'  
                 ],
-                borderRadius: 0, // Sudut batang agak tumpul biar modern
-                barPercentage: 0.6 // Lebar batang
+                borderRadius: 0, 
+                barPercentage: 0.6 
             }]
         }, { 
             responsive: true, 
             maintainAspectRatio: false, 
-            plugins: { legend: { display: false } }, // Sembunyikan legend karena label sudah ada di bawah
+            plugins: { legend: { display: false } }, 
             scales: {
                 y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor } },
                 x: { grid: { display: false }, ticks: { color: textColor } }
             }
         });
 
-        // C. Chart Konstruksi
         const konsLabels = ['Permanen', 'Semi Permanen', 'Non Permanen'].filter(
              label => Object.keys(konstruksiMap).includes(label)
         );
