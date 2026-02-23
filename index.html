@@ -1521,7 +1521,10 @@ const isOnlyTerpal = checkIsOnlyTerpal(item);
 let activeDropdown = null;
 
         let isLoggedIn = false;
-        const ADMIN_PASSWORD = "penyelamatbumi0625";
+        const ADMIN_SECRET = "1IjNwkWb1JGdh1WYsVWeuVGc"; 
+        function acakPassword(str) {
+            return btoa(str).split('').reverse().join('');
+        }
 
         function checkAuth() {
             isLoggedIn = false; 
@@ -1536,7 +1539,7 @@ let activeDropdown = null;
             const pass = document.getElementById('login-password').value;
             const err = document.getElementById('login-error');
             
-            if (pass === ADMIN_PASSWORD) {
+            if (acakPassword(pass) === ADMIN_SECRET) {
                 isLoggedIn = true;
                 document.getElementById('auth-modal').classList.add('hidden');
                 err.classList.add('hidden');
@@ -2699,7 +2702,6 @@ function renderDokumenSection(judul, linkString, tipeInput, idx) {
                         }
                     });
 
-                    // Gabungkan grid gambar dan tombol file (jika ada)
                     if (imageGrid !== '') {
                         linksHtml += `<div class="grid grid-cols-3 gap-2 mb-3">${imageGrid}</div>`;
                     }
