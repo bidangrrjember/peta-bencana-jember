@@ -520,6 +520,9 @@
             <span class="material-symbols-outlined dark:hidden">dark_mode</span>
             <span class="material-symbols-outlined hidden dark:inline">light_mode</span>
         </button>
+        <button id="auth-toggle-btn" class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/40 dark:hover:text-red-400 text-text-light dark:text-text-dark transition-colors" title="Login/Logout">
+            <span id="auth-icon" class="material-symbols-outlined">login</span>
+        </button>
     </div>
 
 </header>
@@ -1516,6 +1519,80 @@ const isOnlyTerpal = checkIsOnlyTerpal(item);
         }
 
 let activeDropdown = null;
+
+        let isLoggedIn = false;
+        const ADMIN_PASSWORD = "penyelamatbumi0625";
+
+        function checkAuth() {
+            isLoggedIn = false; 
+            const authModal = document.getElementById('auth-modal');
+            if (authModal) {
+                authModal.classList.remove('hidden');
+            }
+            updateAuthUI();
+        }
+
+        function handleLogin() {
+            const pass = document.getElementById('login-password').value;
+            const err = document.getElementById('login-error');
+            
+            if (pass === ADMIN_PASSWORD) {
+                isLoggedIn = true;
+                document.getElementById('auth-modal').classList.add('hidden');
+                err.classList.add('hidden');
+                document.getElementById('login-password').value = '';
+                
+                updateAuthUI();
+                applyFiltersAndProcess(false); 
+            } else {
+                err.classList.remove('hidden');
+            }
+        }
+
+        function handleGuestMode() {
+            isLoggedIn = false;
+            document.getElementById('auth-modal').classList.add('hidden');
+            document.getElementById('login-error').classList.add('hidden');
+            
+            updateAuthUI();
+            applyFiltersAndProcess(false);
+        }
+
+        function updateAuthUI() {
+            const authIcon = document.getElementById('auth-icon');
+            const authBtn = document.getElementById('auth-toggle-btn');
+            
+            if (!authIcon || !authBtn) return;
+
+            if (isLoggedIn) {
+                authIcon.innerText = 'logout';
+                authBtn.title = 'Logout Admin';
+                authBtn.onclick = function() {
+                    handleGuestMode(); 
+                };
+            } else {
+                authIcon.innerText = 'login';
+                authBtn.title = 'Login Admin';
+                authBtn.onclick = function() {
+                    const authModal = document.getElementById('auth-modal');
+                    if (authModal) authModal.classList.remove('hidden');
+                    setTimeout(() => document.getElementById('login-password').focus(), 100);
+                };
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth(); 
+            
+            const passwordInput = document.getElementById('login-password');
+            if(passwordInput) {
+                passwordInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        handleLogin();
+                    }
+                });
+            }
+        });
 
 function populateFilterOptions() {
     if (!allData || allData.length === 0) return;
@@ -2632,7 +2709,7 @@ function renderDokumenSection(judul, linkString, tipeInput, idx) {
                 }
             }
 
-            const uploadHtml = `
+            const uploadHtml = isLoggedIn ? `
                 <div class="flex items-center gap-2">
                     <input type="file" id="file-${tipeInput}-input" accept=".pdf,.jpg,.jpeg,.png" multiple
                            class="block w-full flex-1 text-xs text-gray-500 dark:text-gray-400
@@ -2651,7 +2728,7 @@ function renderDokumenSection(judul, linkString, tipeInput, idx) {
                         Upload
                     </button>
                 </div>
-            `;
+            ` : '';
 
             return `
                 <div class="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-700">
@@ -2737,7 +2814,7 @@ function openImagePreview(originalUrl) {
             const kecRaw = (data.kec || '').toLowerCase().trim();
             const jenisWilayah = kecamatanKota.includes(kecRaw) ? 'Kelurahan' : 'Desa';
             let bantuanHtml = '';
-            if (data.bantuan && typeof data.bantuan === 'object') {
+            if (isLoggedIn && data.bantuan && typeof data.bantuan === 'object') {
                 let adaBantuan = false;
                 let bantuanContent = '<div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">';
                 for (const item in data.bantuan) {
@@ -2794,7 +2871,7 @@ function openImagePreview(originalUrl) {
                 </div>`; 
             });
 
-            if (photoCount < MAX_PHOTOS) {
+            if (isLoggedIn && photoCount < MAX_PHOTOS) {
                 galleryHtml += `
                 <div id="add-photo-btn" onclick="document.getElementById('file-dokumentasi-input').click()" 
                      class="aspect-square bg-gray-50 dark:bg-gray-800/50 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group">
@@ -3377,6 +3454,36 @@ function switchView(viewName) {
         </a>
 </div>
 
+<div id="auth-modal" class="fixed inset-0 z-[99999] bg-black/80 flex items-center justify-center p-4 backdrop-blur-md transition-opacity duration-300">
+        <div class="bg-white dark:bg-card-dark rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden transform transition-all border border-gray-100 dark:border-gray-800">
+            <div class="p-8 text-center">
+                <img src="https://bidangrrjember.github.io/peta-bencana-jember/logo-bpbd.png" alt="Logo BPBD" class="h-20 w-20 mx-auto mb-4 drop-shadow-md">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-1">DASHBOARD JITUPASNA</h2>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-8">BPBD Kabupaten Jember</p>
+                
+                <div class="space-y-4">
+                    <div>
+                        <input type="password" id="login-password" placeholder="Masukkan Password" 
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all mb-3 text-center tracking-widest font-medium placeholder:tracking-normal">
+                        <button onclick="handleLogin()" class="w-full py-3 bg-primary hover:bg-blue-600 text-white rounded-xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-lg">login</span> Login
+                        </button>
+                        <p id="login-error" class="hidden text-xs text-red-500 mt-2 font-bold animate-pulse">Password yang Anda masukkan salah!</p>
+                    </div>
+                    
+                    <div class="relative flex py-2 items-center">
+                        <div class="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
+                        <span class="flex-shrink-0 mx-4 text-gray-400 text-[10px] font-bold uppercase tracking-wider">ATAU AKSES PUBLIK</span>
+                        <div class="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
+                    </div>
+
+                    <button onclick="handleGuestMode()" class="w-full py-3 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-95 border border-gray-200 dark:border-gray-700 flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-lg">person</span> Guest Mode
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
-
