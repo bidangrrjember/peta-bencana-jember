@@ -2580,22 +2580,55 @@ async function handleSidebarUpload(fileType, reportIndex) {
     }).format(number);
 }
 
-        function renderDokumenSection(judul, linkString, tipeInput, idx) {
+function renderDokumenSection(judul, linkString, tipeInput, idx) {
             let linksHtml = '';
             if (linkString && linkString !== '-' && linkString.trim() !== '') {
                 const urls = linkString.split(',').map(u => u.trim()).filter(u => u);
                 
                 if (urls.length > 0) {
-                    linksHtml += '<div class="flex flex-wrap gap-2 mb-3">';
+                    let fileButtons = '';
+                    let imageGrid = '';
+
                     urls.forEach((url, i) => {
-                        linksHtml += `
-                            <a href="${url}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-200 border border-blue-200 dark:border-blue-800 rounded-lg text-xs font-semibold hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors" title="Buka File ke-${i+1}">
-                                <span class="material-symbols-outlined text-sm">description</span>
-                                File ${i + 1}
-                            </a>
-                        `;
+                        // Deteksi jika link eksplisit merupakan file dokumen (PDF, Word, Excel)
+                        const isFile = url.toLowerCase().match(/\.(pdf|doc|docx|xls|xlsx)$/i) || url.toLowerCase().includes('format=pdf');
+                        
+                        if (isFile) {
+                            // Tampilan Toggle/Button untuk file dokumen
+                            fileButtons += `
+                                <a href="${url}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-200 border border-blue-200 dark:border-blue-800 rounded-lg text-xs font-semibold hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors" title="Buka File ke-${i+1}">
+                                    <span class="material-symbols-outlined text-sm">description</span>
+                                    File ${i + 1}
+                                </a>
+                            `;
+                        } else {
+                            // Tampilan Grid Gambar (Thumbnail) seperti Dokumentasi Lapangan
+                            const displaySrc = getDriveImgUrl(url);
+                            imageGrid += `
+                                <div onclick="openImagePreview('${url}')" class="group relative aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 block shadow-sm cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all" title="Lihat Dokumen ${i+1}">
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-300 dark:text-gray-600 z-0">
+                                        <span class="material-symbols-outlined text-3xl">image</span>
+                                    </div>
+                                    <img src="${displaySrc}" class="relative z-10 w-full h-full object-cover transition-all duration-500 ease-in-out group-hover:scale-110 opacity-0" 
+                                         alt="Dokumen ${i + 1}" loading="lazy" 
+                                         onload="this.classList.remove('opacity-0')" 
+                                         onerror="this.parentElement.style.display='none'">
+                                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors z-20 pointer-events-none"></div>
+                                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-30 pointer-events-none">
+                                        <span class="material-symbols-outlined text-white drop-shadow-md text-3xl">visibility</span>
+                                    </div>
+                                </div>
+                            `;
+                        }
                     });
-                    linksHtml += '</div>';
+
+                    // Gabungkan grid gambar dan tombol file (jika ada)
+                    if (imageGrid !== '') {
+                        linksHtml += `<div class="grid grid-cols-3 gap-2 mb-3">${imageGrid}</div>`;
+                    }
+                    if (fileButtons !== '') {
+                        linksHtml += `<div class="flex flex-wrap gap-2 mb-3">${fileButtons}</div>`;
+                    }
                 }
             }
 
@@ -2650,9 +2683,11 @@ function getDriveImgUrl(url) {
             return url;
         }
 
-        function openImagePreview(originalUrl) {
+function openImagePreview(originalUrl) {
             const modal = document.getElementById('image-preview-modal');
             const img = document.getElementById('preview-image-element');
+            const driveLink = document.getElementById('preview-drive-link'); // Tangkap elemen tombol
+            
             if (!originalUrl) return;
             let displaySrc = getDriveImgUrl(originalUrl);
             if (displaySrc.includes("google.com/thumbnail")) {
@@ -2668,6 +2703,11 @@ function getDriveImgUrl(url) {
                 img.classList.remove('scale-95');
                 img.classList.add('scale-100');
             };
+            
+            // Set href tombol mengarah ke link original Google Drive
+            if (driveLink) {
+                driveLink.href = originalUrl;
+            }
         }
 
         function closeImagePreview() {
@@ -3320,15 +3360,22 @@ function switchView(viewName) {
     </script>
 
 <div id="image-preview-modal" onclick="closeImagePreview()" 
-         class="hidden fixed inset-0 z-[10000] bg-black/90 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300">
+         class="hidden fixed inset-0 z-[10000] bg-black/90 flex flex-col items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300">
         
-        <button class="absolute top-6 right-6 text-white/70 hover:text-white transition-colors">
+        <button class="absolute top-6 right-6 text-white/70 hover:text-white transition-colors z-50">
             <span class="material-symbols-outlined text-4xl">close</span>
         </button>
 
         <img id="preview-image-element" src="" 
-             class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl scale-95 transition-transform duration-300"
-             onclick="event.stopPropagation()"> </div>
+             class="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl scale-95 transition-transform duration-300"
+             onclick="event.stopPropagation()"> 
+             
+        <a id="preview-drive-link" href="#" target="_blank" onclick="event.stopPropagation()"
+           class="absolute bottom-8 flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white px-5 py-2.5 rounded-full backdrop-blur-md transition-all font-medium text-sm shadow-xl z-50 hover:scale-105 active:scale-95">
+            <span class="material-symbols-outlined text-lg">open_in_new</span>
+            Buka Asli di Drive
+        </a>
+</div>
 
 </body>
 </html>
