@@ -1547,6 +1547,7 @@ let activeDropdown = null;
                 
                 updateAuthUI();
                 applyFiltersAndProcess(false); 
+		setTimeout(registerBiometric, 1000);
             } else {
                 err.classList.remove('hidden');
             }
@@ -1559,6 +1560,106 @@ let activeDropdown = null;
             
             updateAuthUI();
             applyFiltersAndProcess(false);
+        }
+
+	function checkBiometricAvailability() {
+            const savedCredentialId = localStorage.getItem('biometric_cred_id');
+            const btnBio = document.getElementById('btn-biometric-login');
+            
+            if (window.PublicKeyCredential && savedCredentialId) {
+                btnBio.classList.remove('hidden');
+            }
+        }
+
+        async function loginWithBiometric() {
+            const savedId = localStorage.getItem('biometric_cred_id');
+            if (!savedId) return;
+
+            try {
+                const binaryId = Uint8Array.from(atob(savedId), c => c.charCodeAt(0));
+
+                const publicKeyCredentialRequestOptions = {
+                    challenge: new Uint8Array(32), 
+                    allowCredentials: [{
+                        id: binaryId,
+                        type: 'public-key',
+                        transports: ['internal'], 
+                    }],
+                    userVerification: 'required', 
+                    timeout: 60000,
+                };
+
+                const assertion = await navigator.credentials.get({
+                    publicKey: publicKeyCredentialRequestOptions
+                });
+
+                if (assertion) {
+                    isLoggedIn = true;
+                    document.getElementById('auth-modal').classList.add('hidden');
+                    document.getElementById('login-error').classList.add('hidden');
+                    updateAuthUI();
+                    applyFiltersAndProcess(false);
+                    showNotification("Login Biometrik Berhasil!");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Gagal memverifikasi biometrik. Silakan gunakan password manual.");
+            }
+        }
+
+async function registerBiometric() {
+            if (!window.PublicKeyCredential) {
+                alert("Browser ini tidak mendukung fitur Biometrik/Passkeys.");
+                return;
+            }
+
+            if (localStorage.getItem('biometric_cred_id')) return;
+
+            await new Promise(r => setTimeout(r, 500));
+
+            const confirmBio = confirm("Mau aktifkan Login Cepat (Sidik Jari / PIN / Wajah)?\n\nKlik OK untuk mendaftar.");
+            if (!confirmBio) return;
+
+            try {
+                const publicKeyCredentialCreationOptions = {
+                    challenge: new Uint8Array(32).map(() => Math.floor(Math.random() * 256)),
+                    rp: { 
+                        name: "Dashboard BPBD Jember", 
+                         // Otomatis deteksi localhost
+                    },
+                    user: {
+                        id: Uint8Array.from("ADMIN_ID", c => c.charCodeAt(0)),
+                        name: "admin@bpbd",
+                        displayName: "Admin BPBD"
+                    },
+                    pubKeyCredParams: [
+                        { alg: -7, type: "public-key" }, // ES256
+                        { alg: -257, type: "public-key" } // RS256
+                    ],
+                    authenticatorSelection: {
+                        userVerification: "preferred", 
+                        requireResidentKey: false
+                    },
+                    timeout: 60000,
+                    attestation: "none"
+                };
+
+                const credential = await navigator.credentials.create({
+                    publicKey: publicKeyCredentialCreationOptions
+                });
+
+                const rawId = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
+                localStorage.setItem('biometric_cred_id', rawId);
+                
+                alert("BERHASIL! Perangkat ini sudah terdaftar.\nSilakan Logout dan coba Login kembali tanpa password.");
+                
+                const btnBio = document.getElementById('btn-biometric-login');
+                if(btnBio) btnBio.classList.remove('hidden');
+                
+            } catch (err) {
+                console.error("Gagal Biometrik:", err);
+                alert("Gagal mendaftarkan biometrik: " + err.message + "\n\nCek Console (F12) untuk detailnya.");
+            }
         }
 
         function updateAuthUI() {
@@ -1586,6 +1687,7 @@ let activeDropdown = null;
 
         document.addEventListener('DOMContentLoaded', () => {
             checkAuth(); 
+	    checkBiometricAvailability();
             
             const passwordInput = document.getElementById('login-password');
             if(passwordInput) {
@@ -3467,9 +3569,10 @@ function switchView(viewName) {
                     <div>
                         <input type="password" id="login-password" placeholder="Masukkan Password" 
                             class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all mb-3 text-center tracking-widest font-medium placeholder:tracking-normal">
-                        <button onclick="handleLogin()" class="w-full py-3 bg-primary hover:bg-blue-600 text-white rounded-xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2">
-                            <span class="material-symbols-outlined text-lg">login</span> Login
-                        </button>
+                        <button id="btn-biometric-login" onclick="loginWithBiometric()" class="hidden w-full mt-3 py-3 bg-white dark:bg-card-dark border-2 border-primary text-primary hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2">
+    <span class="material-symbols-outlined text-2xl">fingerprint</span> 
+    Login dengan Biometrik
+</button>
                         <p id="login-error" class="hidden text-xs text-red-500 mt-2 font-bold animate-pulse">Password yang Anda masukkan salah!</p>
                     </div>
                     
