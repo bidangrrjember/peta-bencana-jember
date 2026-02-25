@@ -1617,7 +1617,7 @@ async function registerBiometric() {
 
             await new Promise(r => setTimeout(r, 500));
 
-            const confirmBio = confirm("Mau aktifkan Login Cepat (Sidik Jari / PIN / Wajah)?\n\nKlik OK untuk mendaftar.");
+            const confirmBio = confirm("Aktifkan Login Cepat (Sidik Jari / PIN / Wajah)?");
             if (!confirmBio) return;
 
             try {
@@ -1651,7 +1651,7 @@ async function registerBiometric() {
                 const rawId = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
                 localStorage.setItem('biometric_cred_id', rawId);
                 
-                alert("BERHASIL! Perangkat ini sudah terdaftar.\nSilakan Logout dan coba Login kembali tanpa password.");
+                alert("BERHASIL! Perangkat ini sudah terdaftar.");
                 
                 const btnBio = document.getElementById('btn-biometric-login');
                 if(btnBio) btnBio.classList.remove('hidden');
@@ -3592,3 +3592,4 @@ function switchView(viewName) {
 
 </body>
 </html>
+
