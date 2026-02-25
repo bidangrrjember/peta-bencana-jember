@@ -1483,9 +1483,14 @@ const isOnlyTerpal = checkIsOnlyTerpal(item);
 
                 const row = `
                 <tr class="hover:bg-background-light dark:hover:bg-background-dark transition-colors cursor-pointer" onclick='openMarkerByIdx("${item.idx}")'>
-                    <td class="px-4 py-4 whitespace-nowrap font-medium">
-                        ${item.nama || 'N/A'} <br> 
-                        <span class="text-xs text-gray-500">${item.jalandusun || ''}</span>
+                    <td class="px-4 py-4 font-medium">
+                        <div class="w-32 sm:w-40 lg:w-48 truncate text-gray-800 dark:text-gray-200" title="${item.nama || 'N/A'}">
+                            ${item.nama || 'N/A'}
+                        </div>
+                        
+                        <div class="w-32 sm:w-40 lg:w-48 text-xs text-gray-500 dark:text-gray-400 truncate" title="${item.jalandusun || ''}">
+                            ${item.jalandusun || '-'}
+                        </div>
                     </td>
                     <td class="px-4 py-4 whitespace-nowrap">
                         <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">${statusText}</span>
@@ -1617,7 +1622,7 @@ async function registerBiometric() {
 
             await new Promise(r => setTimeout(r, 500));
 
-            const confirmBio = confirm("Aktifkan Login Cepat (Sidik Jari / PIN / Wajah)?");
+            const confirmBio = confirm("Mau aktifkan Login Cepat (Sidik Jari / PIN / Wajah)?\n\nKlik OK untuk mendaftar.");
             if (!confirmBio) return;
 
             try {
@@ -1651,7 +1656,7 @@ async function registerBiometric() {
                 const rawId = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
                 localStorage.setItem('biometric_cred_id', rawId);
                 
-                alert("BERHASIL! Perangkat ini sudah terdaftar.");
+                alert("BERHASIL! Perangkat ini sudah terdaftar.\nSilakan Logout dan coba Login kembali tanpa password.");
                 
                 const btnBio = document.getElementById('btn-biometric-login');
                 if(btnBio) btnBio.classList.remove('hidden');
@@ -3592,4 +3597,3 @@ function switchView(viewName) {
 
 </body>
 </html>
-
