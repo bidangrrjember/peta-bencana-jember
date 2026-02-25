@@ -1,0 +1,3599 @@
+<!DOCTYPE html>
+<html lang="id" class="light">
+<head>
+    <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> <title>Dashboard Peta Bencana</title> <link rel="icon" href="https://bidangrrjember.github.io/peta-bencana-jember/logo-bpbd.png" type="image/png"> <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/> <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script> <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.css" /> <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.js" charset="utf-8"></script> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script> <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script> <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script> <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" /> <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/> <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#007BFF",
+              "background-light": "#F6F7F9",
+              "background-dark": "#121212",
+              "card-light": "#FFFFFF",
+              "card-dark": "#1E1E1E",
+              "text-light": "#333333",
+              "text-dark": "#EAEAEA",
+              "border-light": "#E0E0E0",
+              "border-dark": "#333333"
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"]
+            },
+            borderRadius: {
+              "DEFAULT": "0.75rem",
+              "lg": "1rem",
+              "xl": "1.5rem"
+            },
+          },
+        },
+      }
+    </script>
+
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+        overflow-y: hidden;
+
+      }
+      .leaflet-pane[style*="z-index: 650"] {
+        pointer-events: none;
+      }
+
+      .dot {
+        width: 12px;
+        height: 12px;
+        background-color: #007BFF;
+        border-radius: 50%;
+      }
+		
+      @keyframes loader-dot-pulse {
+        0%, 80%, 100% {
+          transform: scale(0);
+          opacity: 0.5;
+        }
+        40% {
+          transform: scale(1.0);
+          opacity: 1;
+        }
+      }
+
+      .animate-loader-dot {
+        animation: loader-dot-pulse 1.4s infinite ease-in-out both;
+      }
+
+      .animation-delay-200 {
+        animation-delay: 0.16s;
+      }
+      .animation-delay-400 {
+        animation-delay: 0.32s;
+      }
+
+      .no-scrollbar::-webkit-scrollbar {
+    	display: none;
+      }
+      .no-scrollbar {
+    	-ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+     
+      @keyframes pulse-glow {
+        0% { 
+          filter: drop-shadow(0 0 2px rgba(23, 162, 184, 0.7)); 
+
+        } 
+        70% { 
+          filter: drop-shadow(0 0 10px rgba(23, 162, 184, 0));
+
+        }
+        100% { 
+          filter: drop-shadow(0 0 2px rgba(23, 162, 184, 0)); 
+
+        }
+      }
+
+      .marker-new img {
+        animation: pulse-glow 2s infinite;
+      }
+
+      .leaflet-control-container {
+        z-index: 10 !important;
+      }
+
+
+    @media (max-width: 1024px) {
+        .fixed.inset-0 {
+            height: 100dvh !important; 
+        }
+        
+
+        #main-scroller {
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
+    }
+
+.flatpickr-month {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        height: 40px !important;
+        padding: 0 !important;
+        margin-bottom: 10px !important;
+        position: relative !important;
+        overflow: visible !important;
+    }
+
+    .flatpickr-prev-month, .flatpickr-next-month { display: none !important; }
+
+    .flatpickr-current-month {
+        position: static !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important; 
+        padding: 0 !important;
+    }
+
+    .flatpickr-current-month .flatpickr-monthDropdown-months,
+    .flatpickr-current-month input.cur-year {
+        font-family: 'Inter', sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 0.95rem !important;
+        color: inherit !important;
+        appearance: none !important;
+        background: transparent !important;
+        border: none !important;
+        padding: 2px 4px !important;
+        margin: 0 !important;
+        outline: none !important;
+    }
+    .flatpickr-current-month .numInputWrapper span { display: none !important; }
+    
+    .flatpickr-current-month .flatpickr-monthDropdown-months:hover,
+    .flatpickr-current-month input.cur-year:hover {
+        background-color: rgba(0,0,0,0.05) !important;
+        border-radius: 4px !important;
+    }
+    html.dark .flatpickr-current-month .flatpickr-monthDropdown-months:hover,
+    html.dark .flatpickr-current-month input.cur-year:hover {
+        background-color: rgba(255,255,255,0.1) !important;
+    }
+    .flatpickr-monthDropdown-months option {
+        background-color: #FFFFFF !important;
+        color: #333333 !important;
+    }
+    html.dark .flatpickr-monthDropdown-months option {
+        background-color: #1E1E1E !important;
+        color: #EAEAEA !important;
+    }
+
+    .flatpickr-calendar {
+        font-family: 'Inter', sans-serif !important;
+        border-radius: 0.75rem !important;
+        border: none !important;
+        width: 340px !important;
+        padding: 15px !important;
+        margin-top: 8px !important;
+    }
+    .flatpickr-calendar:before, .flatpickr-calendar:after { display: none !important; }
+    .flatpickr-innerContainer, .flatpickr-rContainer, .dayContainer {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .flatpickr-weekdays { 
+        display: flex !important;
+        align-items: center !important;
+        width: 100% !important;
+        height: 30px !important;
+        margin-bottom: 5px !important; 
+        overflow: hidden !important;
+    }
+    
+    .flatpickr-weekdaycontainer {
+        display: flex !important;
+        width: 100% !important;
+        padding: 0 !important;
+    }
+
+    span.flatpickr-weekday {
+        font-size: 0.8rem !important;
+        font-weight: 600 !important;
+        color: #9CA3AF !important;
+        text-align: center !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        flex: 0 0 14.2857% !important; 
+        max-width: 14.2857% !important;
+        margin: 0 !important;
+    }
+
+    .flatpickr-day {
+        border-radius: 0.5rem !important;
+        font-weight: 500 !important;
+        font-size: 0.9rem !important;
+        height: 38px !important;
+        line-height: 38px !important;
+        margin: 2px 0 !important;
+        border: 1px solid transparent !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-basis: 14.2857% !important;
+        max-width: 14.2857% !important;
+    }
+
+    html.light .flatpickr-calendar {
+        background: #FFFFFF !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.01) !important;
+        border: 1px solid #E5E7EB !important;
+    }
+    html.light .flatpickr-day { color: #374151 !important; } 
+    html.light .flatpickr-month { color: #111827 !important; fill: #6B7280 !important; }
+    html.light .flatpickr-day:hover { background: #EFF6FF !important; color: #007BFF !important; }
+
+    html.dark .flatpickr-calendar {
+        background: #1E1E1E !important; 
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2) !important;
+        border: 1px solid #333333 !important; 
+    }
+    html.dark .flatpickr-month { color: #EAEAEA !important; fill: #9CA3AF !important; }
+    html.dark .flatpickr-day { color: #D1D5DB !important; }
+    html.dark .flatpickr-day:hover { background: rgba(0, 123, 255, 0.15) !important; color: #007BFF !important; }
+		
+    .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange, 
+    .flatpickr-day.selected:focus, .flatpickr-day.selected:hover {
+        background: #007BFF !important;
+        border-color: #007BFF !important;
+        color: #FFFFFF !important;
+        box-shadow: none !important;
+    }
+    .flatpickr-day.today { border-color: #E5E7EB !important; }
+    html.dark .flatpickr-day.today { border-color: #4B5563 !important; }
+
+      .leaflet-control-layers {
+        background-color: white;
+        box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+        border-radius: 5px;
+      }
+      .leaflet-control-layers a {
+         color: #333;
+      }
+      .leaflet-control-layers-separator {
+          border-top: 1px solid #ddd;
+      }
+      .leaflet-control-layers-selector {
+        vertical-align: middle;
+      }
+      .leaflet-control-layers label {
+        color: #333;
+        display: inline-block;
+        padding: 4px 6px;
+      }
+
+      .dark .leaflet-control-layers {
+        background-color: #1E1E1E;
+        box-shadow: 0 1px 5px rgba(255, 255, 255, 0.2);
+        border: 1px solid #333333;
+      }
+      .dark .leaflet-control-layers a {
+         color: #EAEAEA;
+      }
+       .dark .leaflet-control-layers-separator {
+          border-top: 1px solid #333333;
+      }
+       .dark .leaflet-control-layers label {
+        color: #EAEAEA;
+      }
+
+      .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #c4c4c4; border-radius: 4px; }
+      .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+
+      
+
+      #loader {
+        opacity: 1;
+ 	transition: opacity 0.5s ease-out;
+  	z-index: 2147483647;
+        transition: opacity 0.5s ease-out;
+      }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark font-display select-none">
+    
+<div id="loader" class="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-background-light dark:bg-background-dark z-[9999]">
+    <div class="flex space-x-2">
+        <div class="dot animate-loader-dot"></div>
+        <div class="dot animate-loader-dot animation-delay-200"></div>
+        <div class="dot animate-loader-dot animation-delay-400"></div>
+    </div>
+</div>
+
+    <div id="notification" class="hidden fixed top-24 left-1/2 -translate-x-1/2 bg-green-500 text-white py-3 px-6 rounded-lg shadow-lg z-[9998] transition-all duration-500 ease-in-out"></div>
+
+<audio id="notification-sound" preload="auto">
+        <source src="https://bidangrrjember.github.io/peta-bencana-jember/notification-sound.mp3" type="audio/mpeg">
+        Browser Anda tidak mendukung elemen audio.
+    </audio>
+    
+    <div class="flex fixed inset-0 w-full h-full overflow-hidden" style="height: 100dvh;">
+        <aside id="filter-sidebar" class="fixed lg:static w-64 bg-card-light dark:bg-card-dark flex flex-col p-6 border-r border-border-light dark:border-border-dark h-full z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+            
+            <div class="flex items-center justify-between gap-3 mb-8">
+                <div class="flex items-center gap-3">
+                    <img src="https://bidangrrjember.github.io/peta-bencana-jember/logo-bpbd.png" alt="Logo" class="h-8 w-8"> <h1 class="text-xl font-bold text-text-light dark:text-text-dark">BPBD Jember</h1>
+                </div>
+                <button id="close-filter-btn" class="lg:hidden text-gray-500 dark:text-gray-400">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="flex-grow overflow-y-auto no-scrollbar flex flex-col">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-semibold uppercase text-gray-500 dark:text-gray-400">Filter Data</h2>
+        <button onclick="resetAllFilters()" class="text-xs text-primary hover:text-blue-600 font-medium transition-colors">
+            Reset Filter
+        </button>
+    </div>
+    
+    <div class="space-y-6 pb-20"> <div class="relative z-30">
+    <h3 class="text-sm font-medium mb-3 flex items-center gap-2">
+        <span class="material-symbols-outlined text-base text-gray-400">date_range</span> Rentang Waktu
+    </h3>
+    <div class="flex flex-col space-y-3">
+        
+        <div class="relative">
+            <label class="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Dari Tanggal</label>
+            <div class="relative group">
+                <input type="text" id="filter-start-date" placeholder="Pilih Tanggal..." readonly="readonly"
+                    class="w-full text-sm pl-4 pr-10 py-3 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-text-light dark:text-text-dark cursor-pointer group-hover:border-primary">
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <span class="material-symbols-outlined text-gray-400 text-lg group-hover:text-primary transition-colors">calendar_today</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="relative">
+            <label class="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Sampai Tanggal</label>
+            <div class="relative group">
+                <input type="text" id="filter-end-date" placeholder="Pilih Tanggal..." readonly="readonly"
+                    class="w-full text-sm pl-4 pr-10 py-3 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-text-light dark:text-text-dark cursor-pointer group-hover:border-primary">
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <span class="material-symbols-outlined text-gray-400 text-lg group-hover:text-primary transition-colors">event</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+        <div class="mb-4 relative z-20"> 
+            <h3 class="text-sm font-medium mb-3 flex items-center gap-2">
+                <span class="material-symbols-outlined text-base text-gray-400">flood</span> Jenis Bencana
+            </h3>
+            
+            <input type="hidden" id="filter-bencana" value="all">
+
+            <button id="btn-dropdown-bencana" onclick="toggleDropdown('bencana')" 
+                class="w-full flex items-center justify-between text-sm px-4 py-3 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-xl hover:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-text-light dark:text-text-dark group text-left">
+                <span id="label-dropdown-bencana" class="truncate">Semua Jenis Bencana</span>
+                <span id="arrow-bencana" class="material-symbols-outlined text-gray-400 transition-transform duration-300 group-hover:text-primary">expand_more</span>
+            </button>
+
+            <div id="menu-dropdown-bencana" 
+                class="hidden absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#1E1E1E] border border-gray-100 dark:border-gray-700 rounded-xl shadow-xl overflow-hidden z-50 transform origin-top transition-all duration-200">
+                <div class="max-h-60 overflow-y-auto no-scrollbar p-1 space-y-1" id="list-bencana"></div>
+            </div>
+        </div>
+
+        <div class="mb-4 relative z-10">
+            <h3 class="text-sm font-medium mb-3 flex items-center gap-2">
+                <span class="material-symbols-outlined text-base text-gray-400">map</span> Kecamatan
+            </h3>
+            
+            <input type="hidden" id="filter-kecamatan" value="all">
+
+            <button id="btn-dropdown-kecamatan" onclick="toggleDropdown('kecamatan')" 
+                class="w-full flex items-center justify-between text-sm px-4 py-3 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-xl hover:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-text-light dark:text-text-dark group text-left">
+                <span id="label-dropdown-kecamatan" class="truncate">Semua Kecamatan</span>
+                <span id="arrow-kecamatan" class="material-symbols-outlined text-gray-400 transition-transform duration-300 group-hover:text-primary">expand_more</span>
+            </button>
+
+            <div id="menu-dropdown-kecamatan" 
+                class="hidden absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#1E1E1E] border border-gray-100 dark:border-gray-700 rounded-xl shadow-xl overflow-hidden z-50 transform origin-top transition-all duration-200">
+                <div class="p-2 border-b border-gray-100 dark:border-gray-700 sticky top-0 bg-white dark:bg-[#1E1E1E] z-10">
+                    <input type="text" id="search-kecamatan-input" placeholder="Cari kecamatan..." 
+                           class="w-full text-xs px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border-none focus:ring-1 focus:ring-primary text-text-light dark:text-text-dark placeholder-gray-400">
+                </div>
+                <div class="max-h-60 overflow-y-auto no-scrollbar p-1 space-y-1" id="list-kecamatan"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="weather-forecast-container" onclick="toggleWeatherMode()" class="mt-auto w-full pb-0 pt-4 cursor-pointer transition-transform hover:scale-[1.02] active:scale-95">
+    
+    <div class="w-full mb-5 border-t border-dashed border-gray-300 dark:border-gray-700"></div>
+
+    <h3 class="text-xs font-bold mb-3 flex items-center gap-2 text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">
+        <span class="material-symbols-outlined text-sm">device_thermostat</span> 
+        Cuaca Terkini
+    </h3>
+
+    <div class="relative w-full rounded-xl bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark p-4 transition-all hover:border-primary group shadow-sm hover:shadow-md">
+        
+        <div class="flex items-start justify-between gap-2 mb-3">
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5 mb-1">
+                    <span class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400 truncate">Jember</span>
+                </div>
+                
+                <div class="flex items-start">
+                    <span id="weather-temp" class="text-4xl font-extrabold text-text-light dark:text-text-dark tracking-tighter leading-none">--</span>
+                    
+                    <span class="text-2xl font-extrabold text-text-light dark:text-text-dark ml-0.5 mt-1 leading-none">°C</span>
+                </div>
+            </div>
+
+            <div class="shrink-0 flex flex-col items-center justify-center pl-3">
+    <div id="weather-icon" class="w-16 h-16 flex items-center justify-center transition-transform group-hover:scale-110 duration-300 drop-shadow-sm">
+        </div>
+    <p id="weather-desc" class="text-[10px] font-medium text-gray-500 dark:text-gray-400 mt-1 capitalize text-center leading-tight whitespace-nowrap">
+        Memuat...
+    </p>
+</div>
+        </div>
+
+        <div class="h-px w-full bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-700 to-transparent mb-3"></div>
+
+        <div class="flex items-center justify-between">
+            <div class="flex flex-col">
+                <span class="text-[9px] text-gray-400 uppercase font-semibold tracking-wide">Harian</span>
+                <div class="flex items-center gap-1 text-xs font-bold text-gray-600 dark:text-gray-300">
+                    <span id="weather-range">--° / --°</span>
+                </div>
+            </div>
+
+            <a href="https://open-meteo.com/" target="_blank" class="flex items-center gap-1 text-[9px] text-gray-400 hover:text-primary transition-colors py-1 px-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800">
+                Open-Meteo <span class="material-symbols-outlined text-[10px]">open_in_new</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+
+        </aside>
+
+        <div id="filter-overlay" class="fixed inset-0 bg-black/30 z-40 lg:hidden hidden"></div>
+
+
+        <main class="flex-1 flex flex-col overflow-hidden h-full relative">
+            
+            <header class="flex items-center justify-between p-4 lg:p-6 border-b border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark">
+            
+    <div class="flex items-center gap-4">
+        <button id="hamburger-btn" class="lg:hidden text-text-light dark:text-text-dark flex size-10 shrink-0 items-center justify-center">
+            <span class="material-symbols-outlined text-2xl">menu</span>
+        </button>
+        <h1 class="text-xl lg:text-2xl font-bold text-text-light dark:text-text-dark hidden sm:block">
+            Peta Monitoring Pengkajian Kebutuhan Pasca Bencana
+        </h1>
+    </div>
+
+<div class="flex items-center justify-end gap-4">
+        
+        <div class="hidden lg:grid relative grid-cols-2 items-center p-1 w-64 bg-background-light dark:bg-background-dark rounded-lg border border-border-light dark:border-border-dark">
+    
+    <div id="nav-pill" class="absolute top-1 bottom-1 left-1 w-[calc(50%-0.25rem)] bg-card-light dark:bg-card-dark rounded shadow-sm transition-transform duration-300 ease-in-out z-0 translate-x-0"></div>
+
+    <button id="nav-dashboard" onclick="switchView('dashboard')" 
+       class="relative z-10 flex items-center justify-center gap-2 py-1.5 rounded text-sm font-medium transition-colors duration-300 text-primary hover:text-primary dark:hover:text-primary">
+        <span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+        <span>Dashboard</span>
+    </button>
+    
+    <button id="nav-reports" onclick="switchView('reports')" 
+       class="relative z-10 flex items-center justify-center gap-2 py-1.5 rounded text-sm font-medium transition-colors duration-300 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
+        <span class="material-symbols-outlined text-lg">bar_chart</span>
+        <span>Reports</span>
+            </a>
+
+        </div>
+        <button id="fullscreen-btn" title="Mode Layar Penuh" class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 text-text-light dark:text-text-dark">
+            <span class="material-symbols-outlined">fullscreen</span>
+        </button>
+        <button id="theme-toggle" class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 text-text-light dark:text-text-dark">
+            <span class="material-symbols-outlined dark:hidden">dark_mode</span>
+            <span class="material-symbols-outlined hidden dark:inline">light_mode</span>
+        </button>
+        <button id="auth-toggle-btn" class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/40 dark:hover:text-red-400 text-text-light dark:text-text-dark transition-colors" title="Login/Logout">
+            <span id="auth-icon" class="material-symbols-outlined">login</span>
+        </button>
+    </div>
+
+</header>
+
+            <div class="flex-1 p-4 lg:p-6 overflow-y-auto custom-scrollbar bg-background-light dark:bg-background-dark">
+
+	<div id="weather-focus-view" class="hidden w-full min-h-full flex flex-col gap-6 pb-0 transition-all duration-300 ease-in-out opacity-0 scale-95 origin-center">
+    
+    <div class="flex flex-col gap-6 p-1">
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-stretch"> 
+            
+            <div class="lg:col-span-1">
+                <div id="weather-hero-card" class="w-full h-full min-h-[220px] rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-md p-5 flex flex-col items-center justify-between relative overflow-hidden group">
+                    </div>
+            </div>
+
+            <div class="lg:col-span-3 flex flex-col md:flex-row gap-6 h-full">
+                
+                <div class="flex-1 bg-white dark:bg-card-dark rounded-2xl border border-border-light dark:border-border-dark p-5 shadow-sm flex flex-col">
+                    <div class="flex items-center justify-between shrink-0 mb-3">
+                        <h3 class="font-bold text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-lg">calendar_month</span> 7 Hari Kedepan
+                        </h3>
+                    </div>
+                    <div id="weather-timeline-container" class="grid grid-cols-7 gap-2 h-full items-center min-h-[100px]">
+                        </div>
+                </div>
+
+                <div id="weather-aqi-box" class="w-full md:w-[240px] shrink-0 bg-white dark:bg-card-dark rounded-2xl border border-border-light dark:border-border-dark p-5 flex flex-col shadow-sm h-full min-h-[150px] relative overflow-hidden group">
+    
+    <div class="flex items-center justify-between shrink-0 mb-3 relative z-10">
+        <h3 class="font-bold text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
+            <span class="material-symbols-outlined text-teal-500 text-lg">grain</span>
+            Kualitas Udara
+        </h3>
+    </div>
+
+    <div class="flex-1 flex flex-col justify-center items-center relative z-10 w-full">
+        
+        <div class="relative w-20 h-20 flex items-center justify-center mb-1">
+            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                <path class="text-gray-100 dark:text-gray-700" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3" />
+                <path id="aqi-progress-circle" class="text-green-500 transition-all duration-1000 ease-out" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3" />
+            </svg>
+            
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span id="aqi-value" class="text-2xl font-extrabold text-gray-800 dark:text-gray-100 leading-none">--</span>
+                <span class="text-[8px] font-bold text-gray-400 uppercase mt-0.5">US AQI</span>
+            </div>
+        </div>
+
+        <div id="aqi-status-bg" class="px-3 py-1 rounded-full bg-green-50 dark:bg-green-900/30 transition-colors mt-1">
+            <span id="aqi-status-text" class="text-[10px] font-extrabold uppercase tracking-wider text-green-600 dark:text-green-400">
+                Memuat...
+            </span>
+        </div>
+        
+        <p class="text-[9px] text-gray-400 mt-2 font-medium">
+            PM2.5: <span id="pm25-value" class="text-gray-600 dark:text-gray-300 font-bold">--</span> µg/m³
+        </p>
+    </div>
+</div>
+
+            </div>
+        </div>
+
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+            
+            <div class="lg:col-span-1 flex flex-col gap-6 h-full">
+                <div id="sun-cycle-container" class="shrink-0 grid grid-cols-2 gap-4 min-h-[140px]">
+    </div>
+
+                <div class="flex-1 bg-white dark:bg-card-dark rounded-2xl border border-border-light dark:border-border-dark p-5 shadow-sm flex flex-col justify-center min-h-[140px]">
+                    <h3 class="font-bold text-sm text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-orange-500 text-lg">schedule</span> 24 Jam
+                    </h3>
+                    <div class="overflow-x-auto no-scrollbar flex items-center w-full h-full">
+                        <div id="hourly-forecast-container" class="flex gap-4 min-w-max items-center">
+                            </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-1 bg-white dark:bg-card-dark rounded-2xl border border-border-light dark:border-border-dark p-5 shadow-sm h-full flex flex-col">
+                 <h3 class="font-bold text-sm text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-teal-500 text-lg">air</span> Atmosfer
+                </h3>
+                <div id="weather-details-grid" class="grid grid-cols-2 gap-3 w-full h-full content-center">
+                    </div>
+            </div>
+
+            <div class="lg:col-span-1 bg-white dark:bg-card-dark rounded-2xl border border-border-light dark:border-border-dark p-5 shadow-sm h-full flex flex-col">
+                 <h3 class="font-bold text-sm text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-blue-500 text-lg">water_drop</span> Hidrologi & Tanah
+                </h3>
+                <div id="hydro-details-grid" class="grid grid-cols-2 gap-3 w-full h-full content-center">
+                    </div>
+            </div>
+
+        </div>
+
+        <div class="bg-white dark:bg-card-dark rounded-2xl border border-border-light dark:border-border-dark p-5 shadow-sm min-h-[350px] flex flex-col">
+            <div class="flex items-center justify-between mb-4 shrink-0">
+                <h3 class="font-bold text-base text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-purple-500 text-lg">monitoring</span> Tren Suhu & Hujan
+                </h3>
+                <div class="flex gap-3 text-xs font-bold">
+                    <div class="flex items-center gap-1 text-blue-500 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded">
+                        <span class="w-2 h-2 rounded-full bg-blue-500"></span> Hujan (%)
+                    </div>
+                    <div class="flex items-center gap-1 text-orange-500 bg-orange-50 dark:bg-orange-900/30 px-2 py-1 rounded">
+                        <span class="w-2 h-2 rounded-full bg-orange-500"></span> Suhu (°C)
+                    </div>
+                </div>
+            </div>
+            <div class="relative w-full flex-1 min-h-0">
+                <canvas id="weatherBigChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+</div>
+    
+    <div id="dashboard-view" class="transition-all duration-300 ease-in-out opacity-100 scale-100 origin-top">
+        
+<div id="summary-box" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4 mb-6">
+            
+            <div id="tile-terkaji" onclick="filterByStatus('terkaji')" 
+                 class="group cursor-pointer flex flex-col justify-between rounded-lg p-5 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.02] active:scale-95 h-full">
+                <div class="flex items-center gap-3 mb-2 min-h-[40px]">
+                    <div class="w-8 h-8 flex items-center justify-center shrink-0 rounded-full bg-red-50 dark:bg-red-900/20 group-hover:bg-red-100 dark:group-hover:bg-red-900/40 transition-colors">
+                        <div class="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]"></div>
+                    </div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 leading-tight">Menunggu Penyaluran</p>
+                </div>
+                <p id="stat-terkaji" class="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">0</p>
+            </div>
+        
+            <div id="tile-bantuan" onclick="filterByStatus('bantuan')"
+                 class="group cursor-pointer flex flex-col justify-between rounded-lg p-5 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.02] active:scale-95 h-full">
+                <div class="flex items-center gap-3 mb-2 min-h-[40px]">
+                    <div class="w-8 h-8 flex items-center justify-center shrink-0 rounded-full bg-yellow-50 dark:bg-yellow-900/20 group-hover:bg-yellow-100 dark:group-hover:bg-yellow-900/40 transition-colors">
+                        <div class="w-2.5 h-2.5 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.6)]"></div>
+                    </div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 leading-tight">Menunggu Monitoring</p>
+                </div>
+                <p id="stat-bantuan" class="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">0</p>
+            </div>
+        
+            <div id="tile-tuntas" onclick="filterByStatus('tuntas')"
+                 class="group cursor-pointer flex flex-col justify-between rounded-lg p-5 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.02] active:scale-95 h-full">
+                <div class="flex items-center gap-3 mb-2 min-h-[40px]">
+                    <div class="w-8 h-8 flex items-center justify-center shrink-0 rounded-full bg-green-50 dark:bg-green-900/20 group-hover:bg-green-100 dark:group-hover:bg-green-900/40 transition-colors">
+                        <div class="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></div>
+                    </div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 leading-tight">Penanganan Tuntas</p>
+                </div>
+                <p id="stat-monitoring" class="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">0</p>
+            </div>
+
+            <div id="tile-dibantu" onclick="filterByStatus('dibantu')"
+                 class="group cursor-pointer flex flex-col justify-between rounded-lg p-5 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.02] active:scale-95 h-full">
+                <div class="flex items-center gap-3 mb-2 min-h-[40px]">
+                    <div class="w-8 h-8 flex items-center justify-center shrink-0 rounded-full bg-blue-100 dark:bg-blue-800/30">
+                        <span class="material-symbols-outlined text-lg text-blue-600 dark:text-blue-400">check_circle</span>
+                    </div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-300 leading-tight">Menerima Bantuan</p>
+                </div>
+                <p id="stat-dibantu" class="text-3xl font-display font-bold text-blue-700 dark:text-blue-100">0</p>
+            </div>
+
+            <div id="tile-tidak-dibantu" onclick="filterByStatus('tidak-dibantu')"
+                 class="group cursor-pointer flex flex-col justify-between rounded-lg p-5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.02] active:scale-95 h-full">
+                <div class="flex items-center gap-3 mb-2 min-h-[40px]">
+                    <div class="w-8 h-8 flex items-center justify-center shrink-0 rounded-full bg-gray-200 dark:bg-gray-700">
+                        <span class="material-symbols-outlined text-lg text-gray-500 dark:text-gray-400">cancel</span>
+                    </div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 leading-tight">Tidak Menerima</p>
+                </div>
+                <p id="stat-tidak-dibantu" class="text-3xl font-display font-bold text-gray-600 dark:text-gray-300">0</p>
+            </div>
+
+        </div>
+
+        <div id="dashboard-grid" class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <div class="xl:col-span-2">
+                 
+<div id="map-card" class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm border border-border-light dark:border-border-dark p-2 h-96 xl:h-auto">
+    <div class="relative w-full h-full">
+        <div id="map" class="w-full h-full rounded-[0.5rem] z-10"></div>
+        
+        <div class="absolute top-4 left-4 right-4 z-30 flex flex-col">
+            <label class="relative flex w-full items-stretch rounded-lg shadow-md bg-card-light dark:bg-card-dark transition-all duration-300">
+                <div class="text-gray-500 dark:text-gray-400 flex border-none items-center justify-center pl-4 rounded-l-lg">
+                    <span class="material-symbols-outlined">search</span>
+                </div>
+                
+                <input id="search-input" autocomplete="off" 
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-0 border-none bg-transparent h-12 placeholder:text-gray-500 dark:placeholder:text-gray-400 pl-2 text-base font-normal" 
+                    placeholder="Cari nama korban, desa, atau kecamatan..."/>
+
+                <button id="clear-search-btn" class="hidden text-gray-400 hover:text-red-500 pr-4 items-center justify-center">
+                    <span class="material-symbols-outlined text-xl">close</span>
+                </button>
+            </label>
+
+            <div id="search-results" class="hidden mt-2 w-full bg-white dark:bg-[#1E1E1E] rounded-lg shadow-xl border border-gray-100 dark:border-gray-700 max-h-80 overflow-y-auto custom-scrollbar"></div>
+        </div>
+    </div>
+</div>
+            </div>
+
+            <div class="xl:col-span-1">
+                 <div id="table-card" class="overflow-hidden rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark shadow-sm">
+                    <div id="table-header" class="flex justify-between items-center p-4 border-b border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark">
+                        <h3 class="text-lg font-bold text-[#0c141d] dark:text-white">Laporan Terbaru</h3>
+                        
+                        <div class="flex items-center gap-2">
+                            <button id="prev-page-btn" onclick="changePage(-1)" disabled class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-primary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+                                <span class="material-symbols-outlined text-sm">chevron_left</span>
+                            </button>
+                            <span id="page-indicator" class="text-xs font-semibold text-gray-500 dark:text-gray-400 min-w-[30px] text-center">1</span>
+                            <button id="next-page-btn" onclick="changePage(1)" disabled class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-primary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+                                <span class="material-symbols-outlined text-sm">chevron_right</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="table-scroll-container" class="overflow-x-auto overflow-y-scroll no-scrollbar"> 
+                        <table class="w-full text-sm text-left table-fixed"> 
+                            <thead class="bg-background-light dark:bg-background-dark sticky top-0 z-10">
+                                <tr>
+                                    <th class="w-6/12 px-4 py-3 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">Lokasi (Korban)</th>
+                                    <th class="w-3/12 px-4 py-3 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">Status</th>
+                                    <th class="w-3/12 px-4 py-3 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-left">Tanggal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="data-table-body" class="divide-y divide-border-light dark:divide-border-dark">
+                                <tr><td colspan="3" class="px-6 py-4 text-center text-gray-500">Memuat data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div> 
+    
+
+<div id="reports-view" class="hidden w-full flex flex-col gap-6 p-1 transition-all duration-300 ease-in-out opacity-0 scale-95 origin-top">
+    
+    <div class="h-[400px] shrink-0 flex flex-col bg-white dark:bg-card-dark p-6 rounded-lg border border-border-light dark:border-border-dark shadow-sm">
+    <h4 class="font-bold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2 text-base shrink-0">
+        <span class="material-symbols-outlined text-primary">ssid_chart</span> <span id="tren-chart-title">Tren Kejadian Bencana (Bulanan)</span>
+    </h4>
+    <div class="relative flex-1 w-full min-h-0">
+        <canvas id="chartTrenBulanan"></canvas>
+    </div>
+</div>
+
+    <div class="h-[400px] shrink-0 grid grid-cols-1 lg:grid-cols-3 gap-6">
+    
+    <div class="flex flex-col bg-white dark:bg-card-dark p-6 rounded-lg border border-border-light dark:border-border-dark shadow-sm">
+        <h4 class="font-bold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2 text-base shrink-0">
+            <span class="material-symbols-outlined text-red-500">pie_chart</span> Statistik Tingkat Kerusakan
+        </h4>
+        <div class="relative flex-1 flex justify-center items-center min-h-0">
+            <canvas id="chartTingkatKerusakan"></canvas>
+        </div>
+    </div>
+
+    <div class="lg:col-span-2 flex flex-col bg-white dark:bg-card-dark p-6 rounded-lg border border-border-light dark:border-border-dark shadow-sm">
+        <h4 class="font-bold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2 text-base shrink-0">
+            <span class="material-symbols-outlined text-orange-500">foundation</span> Kerentanan Bangunan (Konstruksi)
+        </h4>
+        <div class="relative flex-1 w-full min-h-0">
+            <canvas id="chartKonstruksi"></canvas>
+        </div>
+    </div>
+</div>
+
+    <div class="shrink-0 bg-white dark:bg-card-dark rounded-lg border border-border-light dark:border-border-dark shadow-sm overflow-hidden mb-1">
+        
+        <div class="p-4 border-b border-border-light dark:border-border-dark bg-gray-50/50 dark:bg-gray-800/20 flex justify-between items-center">
+             <h4 class="font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2 text-base">
+                <span class="material-symbols-outlined text-green-600">inventory_2</span> Distribusi Logistik
+             </h4>
+        </div>
+        
+        <div class="overflow-x-auto no-scrollbar">
+            <table class="w-full text-sm text-center border-collapse whitespace-nowrap">
+                <thead id="material-table-head" class="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-bold text-xs uppercase tracking-wider">
+                    </thead>
+                <tbody id="material-table-body" class="bg-white dark:bg-card-dark text-gray-800 dark:text-gray-200">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+</div>
+
+
+<a href="https://bidangrrjember.github.io/jitupasna/" id="open-form-btn"
+   class="fixed bottom-6 right-6 lg:bottom-10 lg:right-10 flex items-center justify-center
+          w-14 h-14 bg-primary text-white rounded-full shadow-2xl shadow-blue-500/50
+          transition-all duration-300 ease-in-out z-[30]
+          hover:scale-110 active:scale-95 
+          opacity-100 scale-100"
+   title="E-Form JITUPASNA">
+    <span class="material-symbols-outlined text-3xl">add</span>
+</a>	
+
+        </main>
+
+        <div id="sidebar" class="fixed top-0 right-0 w-full max-w-md h-full bg-card-light dark:bg-card-dark shadow-2xl z-40
+                                flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out">
+            <div id="sidebar-header" class="p-5 flex justify-between items-center border-b border-border-light dark:border-border-dark flex-shrink-0">
+                <h3 id="sidebar-title" class="text-lg font-bold">Detail Laporan</h3>
+                <button class="close-btn text-3xl font-light text-gray-500 hover:text-red-500" onclick="closeSidebar()">×</button>
+            </div>
+            <div id="sidebar-content" class="p-5 overflow-y-auto flex-1 no-scrollbar space-y-4">
+                </div>
+            <div id="sidebar-footer" class="p-4 border-t border-border-light dark:border-border-dark bg-white dark:bg-card-dark flex flex-col gap-3 z-20">
+    
+    <a href="#" id="download-laporan-btn" target="_blank" 
+       class="hidden w-full items-center justify-center gap-2 px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm shadow-md shadow-emerald-600/20 transition-all duration-200 hover:scale-[1.02] active:scale-95">
+        <span class="material-symbols-outlined text-lg">description</span>
+        <span>Unduh Laporan</span>
+    </a>
+
+    <div class="flex gap-3 h-14">
+        
+        <a href="#" id="route-button-link" target="_blank" 
+           class="flex-1 h-full flex items-center justify-center gap-2 px-4 bg-primary hover:bg-blue-600 text-white rounded-xl font-bold text-sm shadow-md shadow-blue-500/30 transition-all duration-200 hover:scale-[1.02] active:scale-95">
+            <span class="material-symbols-outlined text-xl">directions</span>
+            <span>Buka Rute Lokasi</span>
+        </a>
+
+        <a href="#" id="share-wa-btn" target="_blank" 
+           class="flex-none w-14 h-full flex items-center justify-center bg-[#25D366] hover:bg-[#128C7E] text-white rounded-xl shadow-md shadow-green-500/30 transition-all duration-200 hover:scale-105 active:scale-95"
+           title="Kirim Laporan via WhatsApp">
+            <svg class="w-8 h-8 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+            </svg>
+        </a>
+
+    </div>
+
+</div>
+
+    </div>
+
+
+    <div id="dashboard-modal" class="hidden fixed z-50 inset-0 bg-black/60 flex items-start justify-center p-4 sm:p-8">
+        <div class="modal-content bg-card-light dark:bg-card-dark w-full mx-auto my-4 sm:my-8 p-6 rounded-lg shadow-xl relative flex flex-col max-h-[90vh]">
+            <div class="modal-header flex justify-between items-center border-b border-border-light dark:border-border-dark pb-3 mb-5">
+                <h2 class="text-2xl font-bold">Analisis Data Bencana</h2>
+                <button class="modal-close-btn text-3xl font-light text-gray-500 hover:text-red-500">×</button>
+            </div>
+            
+            <div class="chart-grid grid grid-cols-1 lg:grid-cols-3 gap-6 overflow-y-auto custom-scrollbar flex-1 min-h-0">
+                <div class="chart-container p-4 rounded-lg border border-border-light dark:border-border-dark shadow-sm">
+                    <h5 class="text-center font-semibold mb-3">Total Bencana per Kecamatan</h5>
+                    <canvas id="chartKecamatan"></canvas>
+                </div>
+                <div class="chart-container p-4 rounded-lg border border-border-light dark:border-border-dark shadow-sm">
+                    <h5 class="text-center font-semibold mb-3">Total Bencana per Tingkat Kerusakan</h5>
+                    <canvas id="chartKerusakan"></canvas>
+                </div>
+                <div class="chart-container p-4 rounded-lg border border-border-light dark:border-border-dark shadow-sm">
+                    <h5 class="text-center font-semibold mb-3">Kerusakan per Jenis Konstruksi</h5>
+                    <canvas id="chartKonstruksi"></canvas>
+                </div>
+                <div class="chart-container p-4 rounded-lg border border-border-light dark:border-border-dark shadow-sm lg:col-span-3 force-bantuan-layout" id="bantuan-table-container">
+    <h5 class="text-center font-semibold mb-3">Total Bantuan Stimulan Diberikan</h5>
+    <style>
+		
+        .force-bantuan-layout .bantuan-table-wrapper {
+            overflow-x: auto !important;
+            width: 100% !important;
+            -webkit-overflow-scrolling: touch;
+        }
+        .force-bantuan-layout .bantuan-table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            margin-top: 10px !important;
+            table-layout: auto !important;
+        }
+        .force-bantuan-layout .bantuan-table th,
+        .force-bantuan-layout .bantuan-table td {
+            border: 1px solid #E0E0E0 !important;
+            padding: 6px 8px !important;
+            text-align: center !important;
+            font-size: 0.9em !important;
+            white-space: nowrap !important;
+        }
+        .force-bantuan-layout .bantuan-table th {
+            background-color: #F6F7F9 !important;
+            font-weight: 500 !important;
+            position: sticky !important;
+            top: 0;
+            z-index: 1;
+        }
+        .dark .force-bantuan-layout .bantuan-table th,
+        .dark .force-bantuan-layout .bantuan-table td {
+            border-color: #333333 !important;
+        }
+        .dark .force-bantuan-layout .bantuan-table th {
+            background-color: #1E1E1E !important;
+        }
+    </style>
+    <div class="bantuan-table-wrapper">
+        <table class="bantuan-table">
+            </table>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const DATA_URL = 'https://script.google.com/macros/s/AKfycbxN3RQML63nSmK5gODBEYB8eG66JygbLr-3wab9UEzS9e0N29SEK288dFTFRuWL0bE/exec';
+        let allData = [];
+	let weatherChartInstance = null;
+        let layerGroups = {};
+        let mainLayerControl;
+        let chartKecamatanInstance, chartKerusakanInstance, chartKonstruksiInstance;
+        let heatLayer; //
+        let currentTimeFilter = 'all';
+	let currentPage = 1;
+	const rowsPerPage = 50;
+	let isAudioUnlocked = false;
+	let fetchInterval;
+	let currentStatusFilter = 'all';
+	 
+	function filterByStatus(statusType) {
+            if (currentStatusFilter === statusType) {
+                currentStatusFilter = 'all';
+            } else {
+                currentStatusFilter = statusType;
+            }
+            updateTileStyles();
+            currentPage = 1;
+            applyFiltersAndProcess(true);
+        }
+
+        function updateTileStyles() {
+    const tiles = ['terkaji', 'bantuan', 'tuntas', 'dibantu', 'tidak-dibantu'];
+    
+    tiles.forEach(type => {
+        const el = document.getElementById(`tile-${type}`);
+        if (!el) return;
+
+        el.classList.remove('ring-2', 'ring-primary', 'ring-offset-2', 'dark:ring-offset-card-dark', 'opacity-50');
+        
+        if (currentStatusFilter !== 'all') {
+            if (currentStatusFilter === type) {
+            } else {
+                el.classList.add('opacity-50');
+            }
+        }
+    });
+}
+        
+	const checkIsDibantu = (item) => {
+    if (!item.bantuan || typeof item.bantuan !== 'object') return false;
+    return Object.values(item.bantuan).some(val => parseFloat(val) > 0);
+};
+
+const checkIsOnlyTerpal = (item) => {
+    if (!item.bantuan || typeof item.bantuan !== 'object') return false;
+    let hasTerpal = false;
+    let hasOther = false;
+    for (const [key, val] of Object.entries(item.bantuan)) {
+        if (parseFloat(val) > 0) {
+            if (key.toLowerCase().includes('terpal')) {
+                hasTerpal = true;
+            } else {
+                hasOther = true;
+            }
+        }
+    }
+    return hasTerpal && !hasOther;
+};
+
+        const map = L.map('map', { center: [-8.17, 113.70], zoom: 12, attributionControl: false, zoomControl: false }); //
+        const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map); //
+        const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: '© Esri' }); //
+        const dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '© CARTO' }); //
+        const terrain = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { attribution: '© OpenTopoMap' }); //
+        const labels = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', { attribution: '© CARTO', pane: 'labels' }); //
+        const hybrid = L.layerGroup([satellite, labels]); //
+        const baseMaps = { "Peta Jalan": osm, "Satelit Hybrid": hybrid, "Mode Gelap": dark, "Topografi": terrain }; //
+        map.createPane('labels'); map.getPane('labels').style.zIndex = 650; //
+        const iconTerkaji = L.divIcon({
+            html: `<span style="background-color: #DC2626; width: 1.25rem; height: 1.25rem; border-radius: 50%; display: block; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.4);"></span>`,
+            className: '',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+        });
+
+        const iconSerahTerima = L.divIcon({
+            html: `<span style="background-color: #F59E0B; width: 1.25rem; height: 1.25rem; border-radius: 50%; display: block; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.4);"></span>`,
+            className: '',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+        });
+
+        const iconMonitoring = L.divIcon({
+            html: `<span style="background-color: #16A34A; width: 1.25rem; height: 1.25rem; border-radius: 50%; display: block; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.4);"></span>`,
+            className: '',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+        });
+
+        const dashboardModal = document.getElementById('dashboard-modal');
+        const loader = document.getElementById('loader');
+        const notification = document.getElementById('notification');
+        const statTerkajiEl = document.getElementById('stat-terkaji');
+        const statBantuanEl = document.getElementById('stat-bantuan');
+        const statMonitoringEl = document.getElementById('stat-monitoring');
+	const statDibantuEl = document.getElementById('stat-dibantu');
+        const statTidakDibantuEl = document.getElementById('stat-tidak-dibantu');
+        const dataTableBody = document.getElementById('data-table-body');
+        const sidebar = document.getElementById('sidebar');
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('search-results');
+        const clearSearchBtn = document.getElementById('clear-search-btn');
+
+        searchInput.addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            if(query.length > 0) {
+                clearSearchBtn.classList.remove('hidden');
+                clearSearchBtn.classList.add('flex');
+            } else {
+                clearSearchBtn.classList.add('hidden');
+                clearSearchBtn.classList.remove('flex');
+                searchResults.classList.add('hidden');
+                return;
+            }
+            const matches = allData.filter(item => {
+                const nama = (item.nama || '').toLowerCase();
+                const desa = (item.desakelurahan || '').toLowerCase();
+                const kec = (item.kec || '').toLowerCase();
+                const dusun = (item.jalandusun || '').toLowerCase();
+                
+                return nama.includes(query) || desa.includes(query) || kec.includes(query) || dusun.includes(query);
+            });
+
+            displayMatches(matches, query);
+        });
+        function displayMatches(matches, query) {
+            if (matches.length === 0) {
+                searchResults.innerHTML = `
+                    <div class="p-4 text-sm text-gray-500 dark:text-gray-400 text-center">
+                        Tidak ditemukan data untuk "${query}"
+                    </div>`;
+                searchResults.classList.remove('hidden');
+                return;
+            }
+            const limitedMatches = matches.slice(0, 50);
+
+            const html = limitedMatches.map(item => {
+const lokasi = `${item.desakelurahan}, Kec. ${item.kec}`;
+            let statusColor = "text-red-500"; 
+            const isDibantu = checkIsDibantu(item);
+            const isOnlyTerpal = checkIsOnlyTerpal(item);
+            
+            if(item.linkMonitoring || !isDibantu || isOnlyTerpal) statusColor = "text-green-500";
+            else if(item.linkSerahTerima) statusColor = "text-yellow-500";
+
+                return `
+                <div onclick="selectSearchResult(${item.idx})" 
+                     class="flex items-center gap-3 p-3 border-b border-gray-100 dark:border-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer transition-colors last:border-none">
+                    
+                    <div class="flex-shrink-0">
+                        <span class="material-symbols-outlined ${statusColor}">location_on</span>
+                    </div>
+                    
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">
+                            ${item.nama}
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                            ${item.jalandusun ? item.jalandusun + ', ' : ''} ${lokasi}
+                        </p>
+                    </div>
+
+                    <div class="text-xs text-gray-400">
+                        <span class="material-symbols-outlined text-lg">chevron_right</span>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            searchResults.innerHTML = html;
+            searchResults.classList.remove('hidden');
+        }
+        function selectSearchResult(idx) {
+            const item = allData.find(d => d.idx == idx);
+            if (item) {
+                map.flyTo([item.lat, item.lng], 18);
+                openSidebarWithData(item);
+                searchResults.classList.add('hidden');
+            }
+        }
+        clearSearchBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            searchResults.classList.add('hidden');
+            clearSearchBtn.classList.add('hidden');
+            clearSearchBtn.classList.remove('flex');
+            searchInput.focus();
+        });
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.classList.add('hidden');
+            }
+        });
+        document.getElementById('fullscreen-btn').addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        });
+
+function applyFiltersAndProcess(enableAnimation = false) {
+    const dataForStats = getFilteredData(true); 
+    const dataForView = getFilteredData(false);
+    updateSummaryStats(dataForStats); 
+    renderReportCharts(dataForStats, enableAnimation);
+    processMapData(dataForView);      
+    updateDataTable(dataForView);     
+    if (dashboardModal && dashboardModal.style.display === 'flex') {
+        updateDashboardCharts(dataForView, enableAnimation);
+    }
+}
+
+	function zoomToFilteredKecamatan(kecName) {
+    if (kecName === 'all') {
+        map.flyTo([-8.17, 113.70], 12, { duration: 1.5 });
+        return;
+    }
+    const relevantData = allData.filter(item => item.kec === kecName);
+    if (relevantData.length > 0) {
+        const latLngs = relevantData.map(d => [d.lat, d.lng]);
+        const bounds = L.latLngBounds(latLngs);
+        
+        map.flyToBounds(bounds, { 
+            padding: [50, 50],
+            maxZoom: 15,      
+            duration: 1.5     
+        });
+    } else {
+        showNotification(`Belum ada data bencana di Kec. ${kecName}`);
+    }
+}
+	
+	function unlockAudio() {
+            if (!isAudioUnlocked) { 
+                const audio = document.getElementById('notification-sound');
+                if (audio) {
+                    audio.muted = true;
+                    audio.play().then(() => {
+                        isAudioUnlocked = true;
+                        console.log("Audio context unlocked.");
+                        audio.pause();
+                        audio.currentTime = 0;
+                        audio.muted = false;
+                        document.removeEventListener('click', unlockAudio);
+                        document.removeEventListener('touchstart', unlockAudio);
+                    }).catch(error => {
+                        console.error("Gagal membuka kunci audio:", error);
+                    });
+                }
+            }
+        }
+
+        document.addEventListener('click', unlockAudio);
+        document.addEventListener('touchstart', unlockAudio);
+
+function getFilteredData(ignoreTileFilter = false) {
+    const startDateVal = document.getElementById('filter-start-date').value;
+    const endDateVal = document.getElementById('filter-end-date').value;
+    const selectedBencana = document.getElementById('filter-bencana').value;
+    const selectedKecamatan = document.getElementById('filter-kecamatan').value;
+
+    let startDate = startDateVal ? new Date(startDateVal) : null;
+    if(startDate) startDate.setHours(0,0,0,0);
+
+    let endDate = endDateVal ? new Date(endDateVal) : null;
+    if(endDate) endDate.setHours(23,59,59,999); 
+
+    return allData.filter(item => {
+        if (!item.dateObj) return false;
+        if (startDate && item.dateObj < startDate) return false;
+        if (endDate && item.dateObj > endDate) return false;
+        if (selectedBencana !== 'all' && item.bencana !== selectedBencana) return false;
+        if (selectedKecamatan !== 'all' && item.kec !== selectedKecamatan) return false;
+        if (!ignoreTileFilter && currentStatusFilter !== 'all') {
+            const isDibantu = checkIsDibantu(item); 
+            const isOnlyTerpal = checkIsOnlyTerpal(item);
+            
+            if (currentStatusFilter === 'terkaji') {
+                if (!(isDibantu && !item.linkSerahTerima && !item.linkMonitoring && !isOnlyTerpal)) return false;
+            } else if (currentStatusFilter === 'bantuan') {
+                if (!(isDibantu && item.linkSerahTerima && !item.linkMonitoring && !isOnlyTerpal)) return false;
+            } else if (currentStatusFilter === 'tuntas') {
+                if (!((isDibantu && item.linkMonitoring) || !isDibantu || isOnlyTerpal)) return false;
+            } else if (currentStatusFilter === 'dibantu') {
+            } else if (currentStatusFilter === 'tidak-dibantu') {
+                if (isDibantu) return false;
+            }
+        }
+
+        return true;
+    });
+}
+
+function updateSummaryStats(data) {
+    const totalTerkaji = data.filter(item => 
+        checkIsDibantu(item) && !item.linkSerahTerima && !item.linkMonitoring && !checkIsOnlyTerpal(item)
+    ).length;
+
+    const totalBantuan = data.filter(item => 
+        checkIsDibantu(item) && item.linkSerahTerima && !item.linkMonitoring && !checkIsOnlyTerpal(item)
+    ).length;
+
+    const totalMonitoring = data.filter(item => 
+        (checkIsDibantu(item) && item.linkMonitoring) || (!checkIsDibantu(item)) || checkIsOnlyTerpal(item)
+    ).length;
+
+    const totalDibantuCount = data.filter(item => checkIsDibantu(item)).length;
+    const totalTidakDibantuCount = data.length - totalDibantuCount;
+
+    if (statTerkajiEl) statTerkajiEl.innerText = totalTerkaji.toLocaleString('id-ID');
+    if (statBantuanEl) statBantuanEl.innerText = totalBantuan.toLocaleString('id-ID');
+    if (statMonitoringEl) statMonitoringEl.innerText = totalMonitoring.toLocaleString('id-ID');
+    if (statDibantuEl) statDibantuEl.innerText = totalDibantuCount.toLocaleString('id-ID');
+    if (statTidakDibantuEl) statTidakDibantuEl.innerText = totalTidakDibantuCount.toLocaleString('id-ID');
+}
+
+function resetAllFilters() {
+    currentStatusFilter = 'all';
+    updateTileStyles();
+    currentPage = 1;
+    applyFiltersAndProcess(true);
+    populateFilterOptions();
+
+    map.flyTo([-8.17, 113.70], 12, { duration: 1.5 });
+}
+
+function processMapData(data) {
+    if (mainLayerControl) mainLayerControl.remove();
+    Object.values(layerGroups).forEach(lg => lg.clearLayers());
+
+data.forEach(item => {
+        const bencana = item.bencana || "Tidak Terkategori";
+        let chosenIcon; 
+        const isDibantu = checkIsDibantu(item);
+        const isOnlyTerpal = checkIsOnlyTerpal(item);
+
+        if (item.linkMonitoring || !isDibantu || isOnlyTerpal) {
+            chosenIcon = iconMonitoring; 
+        } else if (item.linkSerahTerima) {
+            chosenIcon = iconSerahTerima; 
+        } else {
+            chosenIcon = iconTerkaji; 
+        }
+        const now = new Date();
+        const itemDate = item.dateObj;
+        let isNew = false;
+        if (itemDate) {
+            const diffHours = (now - itemDate) / (1000 * 60 * 60);
+            isNew = diffHours <= 24;
+        }
+        const marker = L.marker([item.lat, item.lng], { icon: chosenIcon });
+
+        if (isNew) {
+            marker.on('add', function() {
+                const markerElement = this.getElement();
+                if (markerElement) markerElement.classList.add('marker-new');
+            });
+        }
+
+        marker.on('click', () => {
+            openSidebarWithData(item);
+        });
+        if (!layerGroups[bencana]) {
+            layerGroups[bencana] = L.markerClusterGroup({
+                showCoverageOnHover: false,
+                zoomToBoundsOnClick: true,
+                spiderfyOnMaxZoom: true,
+                disableClusteringAtZoom: 17,
+                maxClusterRadius: 50,
+                removeOutsideVisibleBounds: false,
+                animate: true,
+                animateAddingMarkers: true
+            }).addTo(map);
+        }
+
+        layerGroups[bencana].addLayer(marker);
+    }); 
+}
+            
+	function changePage(direction) {
+        currentPage += direction;
+        const filteredData = getFilteredData(); 
+        updateDataTable(filteredData); 
+    }
+
+let isWeatherMode = false;
+let lastActiveView = 'dashboard'; 
+
+function toggleWeatherMode() {
+    isWeatherMode = !isWeatherMode; 
+    const dashboardView = document.getElementById('dashboard-view');
+    const reportsView = document.getElementById('reports-view');
+    const weatherFocusView = document.getElementById('weather-focus-view');
+    const navPill = document.getElementById('nav-pill');
+    const navDashboard = document.getElementById('nav-dashboard');
+    const navReports = document.getElementById('nav-reports');
+    const floatBtn = document.getElementById('open-form-btn'); 
+    const mainArea = document.querySelector('main'); 
+    const contentScroller = mainArea ? mainArea.querySelector('div.overflow-y-auto') : null;
+    const animVisible = ['opacity-100', 'scale-100'];
+    const animHidden = ['opacity-0', 'scale-95'];
+    
+    const textActive = ['text-primary', 'hover:text-primary', 'dark:hover:text-primary'];
+    const textInactive = ['text-gray-500', 'dark:text-gray-400', 'hover:text-gray-900', 'dark:hover:text-gray-100'];
+
+    if (isWeatherMode) {
+        if (reportsView && !reportsView.classList.contains('hidden')) {
+            lastActiveView = 'reports';
+        } else {
+            lastActiveView = 'dashboard';
+        }
+        if (dashboardView && !dashboardView.classList.contains('hidden')) {
+            dashboardView.classList.remove(...animVisible);
+            dashboardView.classList.add(...animHidden);
+        }
+        if (reportsView && !reportsView.classList.contains('hidden')) {
+            reportsView.classList.remove(...animVisible);
+            reportsView.classList.add(...animHidden);
+        }
+        if (floatBtn) {
+            floatBtn.classList.remove('opacity-100', 'scale-100');
+            floatBtn.classList.add('opacity-0', 'scale-0'); 
+        }
+        if (navPill) navPill.classList.add('hidden');
+        if (navDashboard) {
+            navDashboard.classList.remove(...textActive);
+            navDashboard.classList.add(...textInactive);
+        }
+        if (navReports) {
+            navReports.classList.remove(...textActive);
+            navReports.classList.add(...textInactive);
+        }
+        setTimeout(() => {
+            if(dashboardView) dashboardView.classList.add('hidden');
+            if(reportsView) reportsView.classList.add('hidden');
+            if(floatBtn) floatBtn.classList.add('hidden');
+            if (contentScroller) {
+                contentScroller.style.overflowY = 'auto'; 
+                contentScroller.style.height = '';        
+                contentScroller.style.maxHeight = '';     
+            }
+
+            if (weatherFocusView) {
+                weatherFocusView.classList.remove('hidden');
+                void weatherFocusView.offsetWidth; 
+                
+                weatherFocusView.classList.remove(...animHidden);
+                weatherFocusView.classList.add(...animVisible);
+                
+                if (window.weatherDataGlobal) {
+                    renderBigWeather(window.weatherDataGlobal);
+                } else {
+                    fetchWeather().then(() => renderBigWeather(window.weatherDataGlobal));
+                }
+            }
+        }, 300);
+        
+    } else {
+        if (weatherFocusView) {
+            weatherFocusView.classList.remove(...animVisible);
+            weatherFocusView.classList.add(...animHidden);
+        }
+
+        setTimeout(() => {
+            if (weatherFocusView) {
+                weatherFocusView.classList.add('hidden');
+            }
+            switchView(lastActiveView);
+            
+            setTimeout(() => {
+                if (map) map.invalidateSize();
+                if (lastActiveView === 'dashboard') {
+                    adjustTableHeight();
+                }
+            }, 100);
+        }, 300);
+    }
+}
+
+function updateDataTable(data) {
+            const tbody = document.getElementById('data-table-body');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="px-6 py-4 text-center text-gray-500">Tidak ada data untuk filter ini.</td></tr>`;
+                document.getElementById('page-indicator').innerText = '0';
+                document.getElementById('prev-page-btn').disabled = true;
+                document.getElementById('next-page-btn').disabled = true;
+                return;
+            }
+
+            const sortedData = [...data].sort((a, b) => {
+                if (a.dateObj && b.dateObj) return b.dateObj - a.dateObj;
+                else if (a.dateObj) return -1;
+                else if (b.dateObj) return 1;
+                return 0;
+            });
+
+            const totalPages = Math.ceil(sortedData.length / rowsPerPage);
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+            const paginatedData = sortedData.slice(startIndex, endIndex);
+            paginatedData.forEach(item => {
+                let statusText = '', statusClass = '';
+
+const isDibantu = checkIsDibantu(item);
+const isOnlyTerpal = checkIsOnlyTerpal(item);
+
+                if (item.linkMonitoring || !isDibantu || isOnlyTerpal) {
+                    statusText = 'Tuntas';
+                    statusClass = 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+                               
+                } else if (item.linkSerahTerima) {
+                    statusText = 'Tersalurkan';
+                    statusClass = 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+                
+                } else {
+                    statusText = 'Terkaji';
+                    statusClass = 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+                }
+
+                const tanggal = item.dateObj ? item.dateObj.toLocaleDateString('id-ID') : (item.tanggalWaktu || 'N/A');
+
+                const row = `
+                <tr class="hover:bg-background-light dark:hover:bg-background-dark transition-colors cursor-pointer" onclick='openMarkerByIdx("${item.idx}")'>
+                    <td class="px-4 py-4 font-medium">
+                        <div class="w-32 sm:w-40 lg:w-48 truncate text-gray-800 dark:text-gray-200" title="${item.nama || 'N/A'}">
+                            ${item.nama || 'N/A'}
+                        </div>
+                        
+                        <div class="w-32 sm:w-40 lg:w-48 text-xs text-gray-500 dark:text-gray-400 truncate" title="${item.jalandusun || ''}">
+                            ${item.jalandusun || '-'}
+                        </div>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">${statusText}</span>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap text-gray-500 dark:text-gray-400">${tanggal}</td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+
+            document.getElementById('page-indicator').innerText = `${currentPage} / ${totalPages}`;
+            document.getElementById('prev-page-btn').disabled = currentPage === 1;
+            document.getElementById('next-page-btn').disabled = currentPage === totalPages;
+        }
+        
+        function openMarkerByIdx(idx) {
+	const item = allData.find(d => d.idx == idx);
+	    if (item) {
+	    map.flyTo([item.lat, item.lng], 16);
+	    openSidebarWithData(item);
+	    } else {
+	    console.warn("Item dengan idx tidak ditemukan:", idx); 
+	    }
+	}
+
+        function updateKecamatanFilter() {
+            const select = document.getElementById('kecamatan-filter');
+            const sortedKecamatan = Array.from(allKecamatan).sort();
+            sortedKecamatan.forEach(kec => {
+                select.innerHTML += `<option value="${kec}">${kec}</option>`;
+            });
+        }
+
+let activeDropdown = null;
+
+        let isLoggedIn = false;
+        const ADMIN_SECRET = "1IjNwkWb1JGdh1WYsVWeuVGc"; 
+        function acakPassword(str) {
+            return btoa(str).split('').reverse().join('');
+        }
+
+        function checkAuth() {
+            isLoggedIn = false; 
+            const authModal = document.getElementById('auth-modal');
+            if (authModal) {
+                authModal.classList.remove('hidden');
+            }
+            updateAuthUI();
+        }
+
+        function handleLogin() {
+            const pass = document.getElementById('login-password').value;
+            const err = document.getElementById('login-error');
+            
+            if (acakPassword(pass) === ADMIN_SECRET) {
+                isLoggedIn = true;
+                document.getElementById('auth-modal').classList.add('hidden');
+                err.classList.add('hidden');
+                document.getElementById('login-password').value = '';
+                
+                updateAuthUI();
+                applyFiltersAndProcess(false); 
+		setTimeout(registerBiometric, 1000);
+            } else {
+                err.classList.remove('hidden');
+            }
+        }
+
+        function handleGuestMode() {
+            isLoggedIn = false;
+            document.getElementById('auth-modal').classList.add('hidden');
+            document.getElementById('login-error').classList.add('hidden');
+            
+            updateAuthUI();
+            applyFiltersAndProcess(false);
+        }
+
+	function checkBiometricAvailability() {
+            const savedCredentialId = localStorage.getItem('biometric_cred_id');
+            const btnBio = document.getElementById('btn-biometric-login');
+            
+            if (window.PublicKeyCredential && savedCredentialId) {
+                btnBio.classList.remove('hidden');
+            }
+        }
+
+        async function loginWithBiometric() {
+            const savedId = localStorage.getItem('biometric_cred_id');
+            if (!savedId) return;
+
+            try {
+                const binaryId = Uint8Array.from(atob(savedId), c => c.charCodeAt(0));
+
+                const publicKeyCredentialRequestOptions = {
+                    challenge: new Uint8Array(32), 
+                    allowCredentials: [{
+                        id: binaryId,
+                        type: 'public-key',
+                        transports: ['internal'], 
+                    }],
+                    userVerification: 'required', 
+                    timeout: 60000,
+                };
+
+                const assertion = await navigator.credentials.get({
+                    publicKey: publicKeyCredentialRequestOptions
+                });
+
+                if (assertion) {
+                    isLoggedIn = true;
+                    document.getElementById('auth-modal').classList.add('hidden');
+                    document.getElementById('login-error').classList.add('hidden');
+                    updateAuthUI();
+                    applyFiltersAndProcess(false);
+                    showNotification("Login Biometrik Berhasil!");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Gagal memverifikasi biometrik. Silakan gunakan password manual.");
+            }
+        }
+
+async function registerBiometric() {
+            if (!window.PublicKeyCredential) {
+                alert("Browser ini tidak mendukung fitur Biometrik/Passkeys.");
+                return;
+            }
+
+            if (localStorage.getItem('biometric_cred_id')) return;
+
+            await new Promise(r => setTimeout(r, 500));
+
+            const confirmBio = confirm("Mau aktifkan Login Cepat (Sidik Jari / PIN / Wajah)?\n\nKlik OK untuk mendaftar.");
+            if (!confirmBio) return;
+
+            try {
+                const publicKeyCredentialCreationOptions = {
+                    challenge: new Uint8Array(32).map(() => Math.floor(Math.random() * 256)),
+                    rp: { 
+                        name: "Dashboard BPBD Jember", 
+                         // Otomatis deteksi localhost
+                    },
+                    user: {
+                        id: Uint8Array.from("ADMIN_ID", c => c.charCodeAt(0)),
+                        name: "admin@bpbd",
+                        displayName: "Admin BPBD"
+                    },
+                    pubKeyCredParams: [
+                        { alg: -7, type: "public-key" }, // ES256
+                        { alg: -257, type: "public-key" } // RS256
+                    ],
+                    authenticatorSelection: {
+                        userVerification: "preferred", 
+                        requireResidentKey: false
+                    },
+                    timeout: 60000,
+                    attestation: "none"
+                };
+
+                const credential = await navigator.credentials.create({
+                    publicKey: publicKeyCredentialCreationOptions
+                });
+
+                const rawId = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
+                localStorage.setItem('biometric_cred_id', rawId);
+                
+                alert("BERHASIL! Perangkat ini sudah terdaftar.\nSilakan Logout dan coba Login kembali tanpa password.");
+                
+                const btnBio = document.getElementById('btn-biometric-login');
+                if(btnBio) btnBio.classList.remove('hidden');
+                
+            } catch (err) {
+                console.error("Gagal Biometrik:", err);
+                alert("Gagal mendaftarkan biometrik: " + err.message + "\n\nCek Console (F12) untuk detailnya.");
+            }
+        }
+
+        function updateAuthUI() {
+            const authIcon = document.getElementById('auth-icon');
+            const authBtn = document.getElementById('auth-toggle-btn');
+            
+            if (!authIcon || !authBtn) return;
+
+            if (isLoggedIn) {
+                authIcon.innerText = 'logout';
+                authBtn.title = 'Logout Admin';
+                authBtn.onclick = function() {
+                    handleGuestMode(); 
+                };
+            } else {
+                authIcon.innerText = 'login';
+                authBtn.title = 'Login Admin';
+                authBtn.onclick = function() {
+                    const authModal = document.getElementById('auth-modal');
+                    if (authModal) authModal.classList.remove('hidden');
+                    setTimeout(() => document.getElementById('login-password').focus(), 100);
+                };
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth(); 
+	    checkBiometricAvailability();
+            
+            const passwordInput = document.getElementById('login-password');
+            if(passwordInput) {
+                passwordInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        handleLogin();
+                    }
+                });
+            }
+        });
+
+function populateFilterOptions() {
+    if (!allData || allData.length === 0) return;
+    const uniqueBencana = [...new Set(allData.map(d => d.bencana).filter(x => x))].sort();
+    const uniqueKecamatan = [...new Set(allData.map(d => d.kec).filter(x => x))].sort();
+    renderCustomOptions('bencana', uniqueBencana, 'Semua Jenis Bencana');
+    renderCustomOptions('kecamatan', uniqueKecamatan, 'Semua Kecamatan');
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    const configDate = {
+        dateFormat: "Y-m-d",     
+        altInput: true,          
+        altFormat: "j F Y",      
+        locale: "id",            
+        disableMobile: "true",   
+        onChange: function(selectedDates, dateStr, instance) {
+            currentPage = 1;
+            applyFiltersAndProcess(true);
+        }
+    };
+
+    const fpStart = flatpickr("#filter-start-date", configDate);
+    const fpEnd = flatpickr("#filter-end-date", configDate);
+});
+
+function resetAllFilters() {
+    const startDateElem = document.querySelector("#filter-start-date");
+    const endDateElem = document.querySelector("#filter-end-date");
+    
+    if(startDateElem && startDateElem._flatpickr) startDateElem._flatpickr.clear();
+    if(endDateElem && endDateElem._flatpickr) endDateElem._flatpickr.clear();
+
+    document.getElementById('filter-bencana').value = 'all';
+    document.getElementById('filter-kecamatan').value = 'all';
+    document.getElementById('label-dropdown-bencana').innerText = 'Semua Jenis Bencana';
+    document.getElementById('label-dropdown-kecamatan').innerText = 'Semua Kecamatan';
+    
+    const searchKecInput = document.getElementById('search-kecamatan-input');
+    if(searchKecInput) searchKecInput.value = '';
+
+    currentPage = 1;
+    applyFiltersAndProcess(true);
+    populateFilterOptions();
+
+    map.flyTo([-8.17, 113.70], 12, { duration: 1.5 });
+}
+
+function renderCustomOptions(type, dataArray, defaultLabel) {
+    const listContainer = document.getElementById(`list-${type}`);
+    const currentVal = document.getElementById(`filter-${type}`).value;
+    
+    let html = '';
+
+    const isAllActive = currentVal === 'all' ? 'bg-primary/10 text-primary font-semibold' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800';
+    
+    html += `
+    <div onclick="selectCustomOption('${type}', 'all', '${defaultLabel}')" 
+         class="cursor-pointer px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-between ${isAllActive}">
+        <span>${defaultLabel}</span>
+        ${currentVal === 'all' ? '<span class="material-symbols-outlined text-sm">check</span>' : ''}
+    </div>`;
+
+    dataArray.forEach(item => {
+        const isActive = currentVal === item ? 'bg-primary/10 text-primary font-semibold' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800';
+        
+        html += `
+        <div onclick="selectCustomOption('${type}', '${item}', '${item}')" 
+             class="cursor-pointer px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-between ${isActive} item-option">
+            <span>${item}</span>
+            ${currentVal === item ? '<span class="material-symbols-outlined text-sm">check</span>' : ''}
+        </div>`;
+    });
+
+    listContainer.innerHTML = html;
+}
+
+function toggleDropdown(type) {
+    const menu = document.getElementById(`menu-dropdown-${type}`);
+    const arrow = document.getElementById(`arrow-${type}`);
+    const btn = document.getElementById(`btn-dropdown-${type}`);
+
+    if (activeDropdown === type) {
+        closeAllDropdowns();
+    } else {
+        closeAllDropdowns(); 
+        menu.classList.remove('hidden');
+        arrow.style.transform = 'rotate(180deg)';
+        btn.classList.add('border-primary', 'ring-2', 'ring-primary/20');
+        activeDropdown = type;
+        
+        if(type === 'kecamatan') {
+            const searchInput = document.getElementById('search-kecamatan-input');
+            if(searchInput) {
+                searchInput.value = '';
+                filterKecamatanList(''); 
+                searchInput.focus();
+            }
+        }
+    }
+}
+
+function closeAllDropdowns() {
+    ['bencana', 'kecamatan'].forEach(type => {
+        const menu = document.getElementById(`menu-dropdown-${type}`);
+        const arrow = document.getElementById(`arrow-${type}`);
+        const btn = document.getElementById(`btn-dropdown-${type}`);
+        
+        if (menu) menu.classList.add('hidden');
+        if (arrow) arrow.style.transform = 'rotate(0deg)';
+        if (btn) btn.classList.remove('border-primary', 'ring-2', 'ring-primary/20');
+    });
+    activeDropdown = null;
+}
+
+function selectCustomOption(type, value, label) {
+    document.getElementById(`filter-${type}`).value = value;    
+    document.getElementById(`label-dropdown-${type}`).innerText = label;
+    closeAllDropdowns();
+    currentPage = 1;
+    applyFiltersAndProcess(true);
+	
+    if (type === 'kecamatan') {
+        zoomToFilteredKecamatan(value);
+    }
+
+	populateFilterOptions();
+}
+
+document.addEventListener('click', function(e) {
+    const isClickInside = e.target.closest('.relative.z-10') || e.target.closest('.relative.z-20');
+    if (!isClickInside) {
+        closeAllDropdowns();
+    }
+});
+
+const searchKecInput = document.getElementById('search-kecamatan-input');
+if(searchKecInput) {
+    searchKecInput.addEventListener('input', (e) => {
+        filterKecamatanList(e.target.value.toLowerCase());
+    });
+}
+
+function filterKecamatanList(query) {
+    const items = document.querySelectorAll('#list-kecamatan .item-option');
+    items.forEach(item => {
+        const text = item.innerText.toLowerCase();
+        if(text.includes(query)) {
+            item.classList.remove('hidden');
+        } else {
+            item.classList.add('hidden');
+        }
+    });
+}
+
+const filterInputs = ['filter-start-date', 'filter-end-date', 'filter-bencana', 'filter-kecamatan'];
+filterInputs.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) {
+        el.addEventListener('change', () => {
+            currentPage = 1;
+            applyFiltersAndProcess(true);
+        });
+    }
+});
+
+function updateDashboardCharts(data, enableAnimation = false) {    
+    const kecamatanCounts = data.reduce((acc, item) => { const kecamatan = item.kecamatan || "N/A"; acc[kecamatan] = (acc[kecamatan] || 0) + 1; return acc; }, {});
+    const kecLabels = Object.keys(kecamatanCounts);
+    const kecData = Object.values(kecamatanCounts);
+    const kerusakanCounts = data.reduce((acc, item) => { const kerusakan = item.kerusakan || "N/A"; acc[kerusakan] = (acc[kerusakan] || 0) + 1; return acc; }, {});
+    const colorMap = {
+        'Rusak Ringan': 'rgba(75, 192, 192, 0.6)', 
+        'Rusak Sedang': 'rgba(255, 206, 86, 0.6)', 
+        'Rusak Berat': 'rgba(255, 99, 132, 0.6)', 
+        'N/A': 'rgba(201, 203, 207, 0.6)' 
+    };
+    const desiredOrder = ['Rusak Ringan', 'Rusak Sedang', 'Rusak Berat', 'N/A'];
+    const sortedLabels = [];
+    const sortedData = [];
+    const sortedColors = [];
+    desiredOrder.forEach(label => {
+        if (kerusakanCounts.hasOwnProperty(label)) {
+            sortedLabels.push(label);
+            sortedData.push(kerusakanCounts[label]);
+            sortedColors.push(colorMap[label] || colorMap['N/A']);
+        }
+    });
+
+    const konstruksiData = { 'Permanen': {}, 'Semi Permanen': {}, 'Non Permanen': {} };
+    const kerusakanTypes = ['Rusak Ringan', 'Rusak Sedang', 'Rusak Berat'];
+    for(const k in konstruksiData) { kerusakanTypes.forEach(t => konstruksiData[k][t] = 0); }
+    data.forEach(item => { if (konstruksiData[item.konstruksi] && item.kerusakan) { konstruksiData[item.konstruksi][item.kerusakan]++; } });
+    const konsLabels = ['Permanen', 'Semi Permanen', 'Non Permanen'];
+    const konsDataRingan = [konstruksiData['Permanen']['Rusak Ringan'], konstruksiData['Semi Permanen']['Rusak Ringan'], konstruksiData['Non Permanen']['Rusak Ringan']];
+    const konsDataSedang = [konstruksiData['Permanen']['Rusak Sedang'], konstruksiData['Semi Permanen']['Rusak Sedang'], konstruksiData['Non Permanen']['Rusak Sedang']];
+    const konsDataBerat = [konstruksiData['Permanen']['Rusak Berat'], konstruksiData['Semi Permanen']['Rusak Berat'], konstruksiData['Non Permanen']['Rusak Berat']];
+
+    if (chartKecamatanInstance) {
+        chartKecamatanInstance.data.labels = kecLabels;
+        chartKecamatanInstance.data.datasets[0].data = kecData;
+        chartKecamatanInstance.update(enableAnimation ? 'default' : 'none');
+    } else {
+        chartKecamatanInstance = new Chart(document.getElementById('chartKecamatan'), {
+            type: 'bar',
+            data: { labels: kecLabels, datasets: [{ label: 'Jumlah Kejadian', data: kecData, backgroundColor: 'rgba(54, 162, 235, 0.6)' }] },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+    }
+
+    if (chartKerusakanInstance) {
+        chartKerusakanInstance.data.labels = sortedLabels;
+        chartKerusakanInstance.data.datasets[0].data = sortedData;
+        chartKerusakanInstance.data.datasets[0].backgroundColor = sortedColors;
+        chartKerusakanInstance.update(enableAnimation ? 'default' : 'none');
+    } else {
+        chartKerusakanInstance = new Chart(document.getElementById('chartKerusakan'), {
+            type: 'doughnut',
+            data: { labels: sortedLabels, datasets: [{ data: sortedData, backgroundColor: sortedColors }] },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+    }
+
+    if (chartKonstruksiInstance) {
+        chartKonstruksiInstance.data.labels = konsLabels;
+        chartKonstruksiInstance.data.datasets[0].data = konsDataRingan;
+        chartKonstruksiInstance.data.datasets[1].data = konsDataSedang;
+        chartKonstruksiInstance.data.datasets[2].data = konsDataBerat;
+        chartKonstruksiInstance.update(enableAnimation ? 'default' : 'none');
+    } else {
+        chartKonstruksiInstance = new Chart(document.getElementById('chartKonstruksi'), {
+            type: 'bar',
+            data: {
+                labels: konsLabels,
+                datasets: [
+                    { label: 'Rusak Ringan', data: konsDataRingan, backgroundColor: 'rgba(75, 192, 192, 0.6)' },
+                    { label: 'Rusak Sedang', data: konsDataSedang, backgroundColor: 'rgba(255, 206, 86, 0.6)' },
+                    { label: 'Rusak Berat', data: konsDataBerat, backgroundColor: 'rgba(255, 99, 132, 0.6)' }
+                ]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { x: { stacked: true }, y: { stacked: true } } }
+        });
+    }
+
+    const bantuanLabels = [ "Semen", "Batu Bata", "Genteng", "Kalsiboard", "Kayu Balok", "Kayu Usuk", "Kayu Reng", "Besi ø 6 mm", "Besi ø 10 mm", "Terpal 3x4m", "Terpal 5x6m" ];
+    const totalBantuan = {};
+    bantuanLabels.forEach(label => totalBantuan[label] = 0);
+    data.forEach(item => { if (item.bantuan && typeof item.bantuan === 'object') { for (const material in item.bantuan) { if(totalBantuan.hasOwnProperty(material)) { totalBantuan[material] += parseFloat(item.bantuan[material]) || 0; } } } });
+    
+    const tableContainer = document.getElementById('bantuan-table-container');
+    const tableWrapper = tableContainer.querySelector('.bantuan-table-wrapper');
+    const tableElement = tableWrapper ? tableWrapper.querySelector('.bantuan-table') : null;
+    if (tableElement) {
+        let tableContentHTML = '<thead><tr>';
+        for (const material in totalBantuan) { tableContentHTML += `<th>${material}</th>`; }
+        tableContentHTML += `</tr></thead><tbody><tr>`;
+        for (const material in totalBantuan) { tableContentHTML += `<td>${totalBantuan[material]}</td>`; }
+        tableContentHTML += `</tr></tbody>`;
+        tableElement.innerHTML = tableContentHTML;
+    } else {
+        console.error("Elemen tabel '.bantuan-table' di dalam '.bantuan-table-wrapper' tidak ditemukan!");
+    }
+}
+
+        function parseIndonesianDate(dateString) {
+            if (!dateString || typeof dateString !== 'string') {
+                console.warn('Data tanggal kosong atau bukan string:', dateString);
+                return null;
+            }
+
+            const bulanMap = {
+                "januari": 0, "februari": 1, "maret": 2, "april": 3, "mei": 4, "juni": 5,
+                "juli": 6, "agustus": 7, "september": 8, "oktober": 9, "november": 10, "desember": 11
+            };
+
+            const trimmedDateString = dateString.trim();
+            const parts = trimmedDateString.split(' '); 
+            
+            if (parts.length < 3) {
+                console.warn('Format tanggal salah (bukan "DD NamaBulan YYYY"):', trimmedDateString);
+                return null; 
+            }
+
+            const day = parseInt(parts[0], 10);
+            const monthName = parts[1].toLowerCase();
+            const year = parseInt(parts[2], 10);
+			
+            const month = bulanMap[monthName];
+
+            if (month === undefined) {
+                console.warn('Nama bulan tidak dikenali:', parts[1]);
+                return null;
+            }
+
+            const timeString = parts[3] || '00:00:00';
+            const timeParts = timeString.split(':'); 
+            const hour = parseInt(timeParts[0] || 0, 10);
+            const minute = parseInt(timeParts[1] || 0, 10);
+            const second = parseInt(timeParts[2] || 0, 10);
+
+            if (isNaN(day) || isNaN(year) || isNaN(hour) || isNaN(minute) || isNaN(second)) {
+                 console.warn('Gagal parse angka tanggal:', trimmedDateString);
+                 return null;
+            }
+
+            const newDate = new Date(year, month, day, hour, minute, second);
+
+            if (isNaN(newDate.getTime()) || newDate.getFullYear() !== year || newDate.getMonth() !== month || newDate.getDate() !== day) {
+                 console.warn('Gagal parse tanggal (angka tidak valid):', trimmedDateString);
+                 return null;
+            }
+            
+            return newDate;
+        }
+
+function getAnimatedSvg(type) {
+    const colors = {
+        sun: '#FACC15',    
+        cloud: '#94A3B8',  
+        cloudBack: '#CBD5E1',
+        rain: '#3B82F6',   
+        bolt: '#F59E0B'    
+    };
+
+    const cloudPath = `d="M48,44 H16 c-4.4,0-8-3.6-8-8 s3.6-8,8-8 c0.4,0,0.7,0,1.1,0.1 c1.2-4.8,5.5-8.1,10.9-8.1 c6.6,0,12,5.4,12,12 c0,0.3,0,0.7-0.1,1 c3.6,0.6,6.1,3.7,6.1,7.3 C56,40.4,52.4,44,48,44z"`;
+
+    const icons = {
+        clear: `
+            <svg viewBox="0 0 64 64" class="w-full h-full overflow-visible">
+                <defs>
+                    <filter id="blur-glow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur"/>
+                        <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+                    </filter>
+                </defs>
+                <g filter="url(#blur-glow)">
+                    <g>
+                        <animateTransform attributeName="transform" type="rotate" from="0 32 32" to="360 32 32" dur="12s" repeatCount="indefinite"/>
+                        <path d="M32 10 L32 6 M32 58 L32 54 M10 32 L6 32 M58 32 L54 32 M16.44 16.44 L13.61 13.61 M47.56 47.56 L50.39 50.39 M16.44 47.56 L13.61 50.39 M47.56 16.44 L50.39 13.61" 
+                              stroke="${colors.sun}" stroke-width="3" stroke-linecap="round" />
+                    </g>
+                    <circle cx="32" cy="32" r="10" fill="${colors.sun}">
+                        <animate attributeName="r" values="10;11;10" dur="2s" repeatCount="indefinite"/>
+                    </circle>
+                </g>
+            </svg>`,
+
+        partly_cloudy: `
+            <svg viewBox="0 0 64 64" class="w-full h-full overflow-visible">
+                <g transform="translate(8,-8)">
+                    <g>
+                         <animateTransform attributeName="transform" type="rotate" from="0 32 32" to="360 32 32" dur="12s" repeatCount="indefinite"/>
+                         <path d="M32 10 L32 6 M32 58 L32 54 M10 32 L6 32 M58 32 L54 32 M16.44 16.44 L13.61 13.61 M47.56 47.56 L50.39 50.39 M16.44 47.56 L13.61 50.39 M47.56 16.44 L50.39 13.61" 
+                              stroke="${colors.sun}" stroke-width="2.5" stroke-linecap="round" />
+                    </g>
+                    <circle cx="32" cy="32" r="9" fill="${colors.sun}" />
+                </g>
+                <path ${cloudPath} fill="${colors.cloud}" stroke="white" stroke-width="1.5" stroke-linejoin="round">
+                    <animateTransform attributeName="transform" type="translate" values="0 0; 2 0; 0 0" dur="4s" repeatCount="indefinite" />
+                </path>
+            </svg>`,
+
+        cloudy: `
+            <svg viewBox="0 0 64 64" class="w-full h-full overflow-visible">
+                <path ${cloudPath} fill="${colors.cloudBack}" transform="translate(10, -8) scale(0.9)">
+                     <animateTransform attributeName="transform" type="translate" values="10 -8; 6 -8; 10 -8" dur="6s" repeatCount="indefinite" />
+                </path>
+                <path ${cloudPath} fill="${colors.cloud}" stroke="white" stroke-width="1.5" stroke-linejoin="round">
+                    <animateTransform attributeName="transform" type="translate" values="0 0; 0 -2; 0 0" dur="3s" repeatCount="indefinite" />
+                </path>
+            </svg>`,
+
+        rain: `
+            <svg viewBox="0 0 64 64" class="w-full h-full overflow-visible">
+                <path ${cloudPath} fill="${colors.cloud}" stroke="white" stroke-width="1.5">
+                    <animateTransform attributeName="transform" type="translate" values="0 0; 0 -1; 0 0" dur="3s" repeatCount="indefinite" />
+                </path>
+                <g transform="translate(0, 10)">
+                    <line x1="24" y1="38" x2="24" y2="44" stroke="${colors.rain}" stroke-width="2" stroke-linecap="round">
+                        <animate attributeName="y1" values="38; 50" dur="0.8s" repeatCount="indefinite" />
+                        <animate attributeName="y2" values="44; 56" dur="0.8s" repeatCount="indefinite" />
+                        <animate attributeName="opacity" values="1; 0" dur="0.8s" repeatCount="indefinite" />
+                    </line>
+                    <line x1="32" y1="42" x2="32" y2="48" stroke="${colors.rain}" stroke-width="2" stroke-linecap="round">
+                        <animate attributeName="y1" values="42; 54" dur="0.8s" begin="0.3s" repeatCount="indefinite" />
+                        <animate attributeName="y2" values="48; 60" dur="0.8s" begin="0.3s" repeatCount="indefinite" />
+                        <animate attributeName="opacity" values="1; 0" dur="0.8s" begin="0.3s" repeatCount="indefinite" />
+                    </line>
+                    <line x1="40" y1="38" x2="40" y2="44" stroke="${colors.rain}" stroke-width="2" stroke-linecap="round">
+                        <animate attributeName="y1" values="38; 50" dur="0.8s" begin="0.1s" repeatCount="indefinite" />
+                        <animate attributeName="y2" values="44; 56" dur="0.8s" begin="0.1s" repeatCount="indefinite" />
+                        <animate attributeName="opacity" values="1; 0" dur="0.8s" begin="0.1s" repeatCount="indefinite" />
+                    </line>
+                </g>
+            </svg>`,
+
+        storm: `
+            <svg viewBox="0 0 64 64" class="w-full h-full overflow-visible">
+                <path ${cloudPath} fill="#64748B" stroke="white" stroke-width="1.5">
+                    <animateTransform attributeName="transform" type="translate" values="0 0; 1 0; 0 0" dur="0.2s" repeatCount="indefinite" />
+                </path>
+                <path d="M30 40 L24 52 H30 L26 64" stroke="${colors.bolt}" stroke-width="2" fill="none" stroke-linejoin="round">
+                    <animate attributeName="opacity" values="0; 1; 0; 0; 1; 0" dur="2s" repeatCount="indefinite" />
+                    <animate attributeName="stroke" values="${colors.bolt}; white; ${colors.bolt}" dur="0.5s" repeatCount="indefinite" />
+                </path>
+                <line x1="38" y1="42" x2="36" y2="50" stroke="${colors.rain}" stroke-width="2">
+                     <animate attributeName="y1" values="42; 52" dur="0.5s" repeatCount="indefinite" />
+                     <animate attributeName="opacity" values="1; 0" dur="0.5s" repeatCount="indefinite" />
+                </line>
+            </svg>`,
+
+        fog: `
+            <svg viewBox="0 0 64 64" class="w-full h-full overflow-visible">
+                <path d="M16 26 H48" stroke="${colors.cloud}" stroke-width="3" stroke-linecap="round" opacity="0.5">
+                    <animate attributeName="d" values="M16 26 H48; M14 26 H50; M16 26" dur="4s" repeatCount="indefinite"/>
+                </path>
+                <path d="M12 36 H52" stroke="${colors.cloud}" stroke-width="3" stroke-linecap="round">
+                    <animate attributeName="d" values="M12 36 H52; M16 36 H48; M12 36" dur="5s" repeatCount="indefinite"/>
+                </path>
+                <path d="M18 46 H46" stroke="${colors.cloud}" stroke-width="3" stroke-linecap="round" opacity="0.5">
+                    <animate attributeName="d" values="M18 46 H46; M14 46 H50; M18 46" dur="4s" repeatCount="indefinite"/>
+                </path>
+            </svg>`
+    };
+
+    return icons[type] || icons.clear;
+}
+
+function getWeatherInfo(code) {
+  const weatherMap = {
+    0: ["clear", "Cerah"],
+    1: ["partly_cloudy", "Cerah Berawan"],
+    2: ["partly_cloudy", "Berawan"],
+    3: ["cloudy", "Mendung"],
+    45: ["fog", "Kabut"],
+    48: ["fog", "Kabut Tebal"],
+    51: ["rain", "Gerimis Ringan"],
+    53: ["rain", "Gerimis"],
+    55: ["rain", "Gerimis Lebat"],
+    61: ["rain", "Hujan Ringan"],
+    63: ["rain", "Hujan Sedang"],
+    65: ["rain", "Hujan Lebat"],
+    80: ["rain", "Hujan Lokal"],
+    81: ["rain", "Hujan Deras"],
+    82: ["storm", "Hujan Badai"],
+    95: ["storm", "Badai Petir"],
+    96: ["storm", "Badai Petir Ringan"],
+    99: ["storm", "Badai Petir Kuat"],
+  };
+  return weatherMap[code] || ["clear", "N/A"];
+}
+
+function updateWeatherUI(data) {
+  try {
+    const current = data.current || data.current_weather; 
+    const daily = data.daily;
+    
+    if (!current) return;
+
+    const code = current.weather_code !== undefined ? current.weather_code : current.weathercode;
+    const temp = current.temperature_2m !== undefined ? current.temperature_2m : current.temperature;
+    const [svgType, description] = getWeatherInfo(code);
+    const svgHtml = getAnimatedSvg(svgType);
+    const iconContainer = document.getElementById('weather-icon');
+    
+    if (iconContainer) iconContainer.innerHTML = svgHtml;
+    
+    document.getElementById('weather-temp').innerText = Math.round(temp);
+    document.getElementById('weather-desc').innerText = description;
+    
+    const todayStr = new Date().toLocaleDateString('en-CA'); 
+    let todayIndex = daily.time.findIndex(t => t === todayStr);
+    if (todayIndex === -1) todayIndex = 3; 
+
+    document.getElementById('weather-range').innerText = 
+      `${Math.round(daily.temperature_2m_max[todayIndex])}° / ${Math.round(daily.temperature_2m_min[todayIndex])}°`;
+
+  } catch (e) {
+    console.error("Gagal update UI kecil:", e);
+  }
+}
+
+async function fetchWeather() {
+  const lat = -8.17;
+  const lon = 113.70;
+  const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m,surface_pressure,visibility,is_day,soil_moisture_0_to_1cm,cloud_cover,dew_point_2m&hourly=temperature_2m,weathercode,precipitation_probability,uv_index&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,precipitation_sum&timezone=Asia/Jakarta&past_days=1`;
+  const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi,pm2_5&timezone=Asia/Jakarta`;
+
+  try {
+    const [weatherRes, aqiRes] = await Promise.all([
+        fetch(weatherUrl),
+        fetch(aqiUrl)
+    ]);
+
+    if (!weatherRes.ok) throw new Error(`Weather API error! status: ${weatherRes.status}`);
+    
+    const weatherData = await weatherRes.json();
+    const aqiData = await aqiRes.ok ? await aqiRes.json() : null;
+    
+    if (aqiData && aqiData.current) {
+        weatherData.aqi = aqiData.current;
+    }
+
+    window.weatherDataGlobal = weatherData; 
+    
+    updateWeatherUI(weatherData); 
+
+    if (document.getElementById('weather-focus-view') && !document.getElementById('weather-focus-view').classList.contains('hidden')) {
+        renderBigWeather(weatherData);
+    }
+
+  } catch (error) {
+    console.error("Gagal mengambil data cuaca/aqi:", error);
+  }
+}
+
+function renderBigWeather(data) {
+    if (!data || !data.daily || !data.current) return;
+
+    const current = data.current;
+    const daily = data.daily;
+    const hourly = data.hourly;
+    const todayStr = new Date().toLocaleDateString('en-CA');
+    let todayIdx = daily.time.findIndex(t => t === todayStr);
+    if (todayIdx === -1) todayIdx = daily.time.length - 1; 
+
+    const heroCont = document.getElementById('weather-hero-card');
+    if (heroCont) {
+        const code = current.weather_code !== undefined ? current.weather_code : current.weathercode;
+        const temp = Math.round(current.temperature_2m !== undefined ? current.temperature_2m : current.temperature);
+        const [svgType, desc] = getWeatherInfo(code);
+        const animatedSvg = getAnimatedSvg(svgType);
+        
+        const dateObj = new Date();
+        const dateNice = dateObj.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' });
+        const timeNice = dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+        const maxT = Math.round(daily.temperature_2m_max[todayIdx]);
+        const minT = Math.round(daily.temperature_2m_min[todayIdx]);
+
+        heroCont.innerHTML = `
+            <div class="w-full flex justify-between items-start z-10 relative">
+                <div>
+                    <h2 class="text-base font-bold tracking-tight leading-tight">Jember</h2>
+                    <p class="text-blue-100 text-[10px] font-medium">${dateNice}</p>
+                </div>
+                <div class="px-2 py-0.5 bg-white/20 rounded-full backdrop-blur-sm text-[9px] font-bold shadow-sm">
+                    ${timeNice} WIB
+                </div>
+            </div>
+
+            <div class="flex-1 w-full flex flex-col items-center justify-center relative z-10">
+                <div class="w-16 h-16 drop-shadow-2xl filter brightness-110 contrast-125 transform scale-100">
+                    ${animatedSvg}
+                </div>
+            </div>
+
+            <div class="w-full text-center z-10 relative">
+                <div class="text-5xl font-extrabold tracking-tighter drop-shadow-sm leading-none mb-1">${temp}°</div>
+                <div class="text-[10px] font-medium capitalize text-blue-50 mb-2 truncate px-2">${desc}</div>
+                
+                <div class="grid grid-cols-2 pt-2 border-t border-white/20">
+                    <div class="flex flex-col items-center border-r border-white/10">
+                        <span class="text-[8px] text-blue-200 uppercase font-bold tracking-wider">Tertinggi</span>
+                        <span class="text-xs font-bold leading-tight">${maxT}°</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <span class="text-[8px] text-blue-200 uppercase font-bold tracking-wider">Terendah</span>
+                        <span class="text-xs font-bold leading-tight">${minT}°</span>
+                    </div>
+                </div>
+            </div>
+            <div class="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -mr-8 -mt-8 pointer-events-none"></div>
+            <div class="absolute bottom-0 left-0 w-16 h-16 bg-black/10 rounded-full blur-2xl -ml-8 -mb-8 pointer-events-none"></div>
+        `;
+    }
+
+const timelineCont = document.getElementById('weather-timeline-container');
+    if (timelineCont) {
+        timelineCont.innerHTML = ''; 
+        
+        const sevenDaysIndices = [];
+        for(let i=0; i<7; i++) {
+            if (todayIdx + i < daily.time.length) sevenDaysIndices.push(todayIdx + i);
+        }
+        
+        sevenDaysIndices.forEach((idx) => {
+            const dateStr = daily.time[idx];
+            const isToday = dateStr === todayStr;
+            const maxTemp = Math.round(daily.temperature_2m_max[idx]);
+            const code = daily.weathercode[idx];
+            const [svgType, _] = getWeatherInfo(code);
+            const animatedSvg = getAnimatedSvg(svgType);
+            const dObj = new Date(dateStr);
+            const dayName = dObj.toLocaleDateString('id-ID', { weekday: 'short' });
+            const dateNum = dObj.toLocaleDateString('id-ID', { day: 'numeric' });
+            let bgClass = isToday 
+                ? "bg-blue-50 dark:bg-blue-900/50 ring-1 ring-blue-500/50 dark:ring-blue-400" 
+                : "bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700";
+            
+            const html = `
+            <div class="flex flex-col items-center justify-evenly py-3 px-1 rounded-xl transition-all cursor-pointer h-full w-full ${bgClass}">
+                
+                <div class="text-center leading-tight">
+                    <span class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 block tracking-wider mb-0.5">${dayName}</span>
+                    <span class="text-base font-extrabold text-gray-700 dark:text-gray-200 block">${dateNum}</span>
+                </div>
+
+                <div class="w-12 h-12 my-1 drop-shadow-sm transform scale-110">${animatedSvg}</div>
+
+                <span class="text-lg font-extrabold text-gray-800 dark:text-gray-100">${maxTemp}°</span>
+                
+            </div>`;
+            timelineCont.innerHTML += html;
+        });
+    }
+
+    const hourlyCont = document.getElementById('hourly-forecast-container');
+    if (hourlyCont && hourly) {
+        hourlyCont.innerHTML = '';
+        const now = new Date();
+        let startHourIdx = 0;
+        for(let i=0; i<hourly.time.length; i++) {
+            if (new Date(hourly.time[i]) >= now) { startHourIdx = i; break; }
+        }
+
+        for (let i = startHourIdx; i < startHourIdx + 24 && i < hourly.time.length; i++) {
+            const timeStr = hourly.time[i];
+            const dateObj = new Date(timeStr);
+            const hourNice = dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            
+            const temp = Math.round(hourly.temperature_2m[i]);
+            const code = hourly.weathercode[i];
+            const [svgType, _] = getWeatherInfo(code);
+            const svgIcon = getAnimatedSvg(svgType); 
+            const prob = hourly.precipitation_probability[i];
+
+            hourlyCont.innerHTML += `
+            <div class="flex flex-col items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-800 min-w-[60px] h-[100px] border border-gray-100 dark:border-gray-700 shrink-0">
+                <span class="text-[10px] text-gray-500">${hourNice}</span>
+                <div class="w-6 h-6">${svgIcon}</div>
+                <div class="text-center leading-none">
+                    <span class="text-sm font-bold text-gray-800 dark:text-gray-200">${temp}°</span>
+                    ${prob > 0 ? `<span class="text-[8px] text-blue-500 block mt-1">${prob}%</span>` : ''}
+                </div>
+            </div>`;
+        }
+    }
+
+    const sunCont = document.getElementById('sun-cycle-container');
+    if (sunCont && daily.sunrise) {
+        const sunrise = new Date(daily.sunrise[todayIdx]).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
+        const sunset = new Date(daily.sunset[todayIdx]).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
+        
+        const makeSunCard = (title, time, icon, colorInfo) => `
+            <div class="bg-white dark:bg-card-dark rounded-2xl border border-border-light dark:border-border-dark p-3 shadow-sm flex flex-col items-center justify-center gap-2 h-full">
+                <div class="w-10 h-10 rounded-full ${colorInfo.bg} flex items-center justify-center ${colorInfo.text} shadow-sm ring-1 ${colorInfo.ring}">
+                    <span class="material-symbols-outlined text-xl">${icon}</span>
+                </div>
+                
+                <div class="text-center">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">${title}</span>
+                    <span class="text-xl font-extrabold text-gray-800 dark:text-gray-100">${time}</span>
+                </div>
+            </div>
+        `;
+
+        const sunStyle = { bg: 'bg-orange-50 dark:bg-orange-900/30', text: 'text-orange-500', ring: 'ring-orange-100 dark:ring-orange-800/50' };
+        const moonStyle = { bg: 'bg-indigo-50 dark:bg-indigo-900/30', text: 'text-indigo-500', ring: 'ring-indigo-100 dark:ring-indigo-800/50' };
+
+        sunCont.innerHTML = `
+            ${makeSunCard('Terbit', sunrise, 'wb_sunny', sunStyle)}
+            ${makeSunCard('Terbenam', sunset, 'nights_stay', moonStyle)}
+        `;
+        
+        sunCont.className = "shrink-0 grid grid-cols-2 gap-4 min-h-[140px]";
+    }
+
+    const detailCont = document.getElementById('weather-details-grid');
+    const hydroCont = document.getElementById('hydro-details-grid');
+    const makeItem = (icon, label, value, colorClass) => `
+        <div class="flex flex-col justify-center px-3 py-2 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 h-[70px]">
+            <div class="flex items-center gap-2 mb-1">
+                <span class="material-symbols-outlined text-lg ${colorClass}">${icon}</span>
+                <span class="text-[9px] uppercase font-bold text-gray-400 tracking-wider leading-none">${label}</span>
+            </div>
+            <span class="text-sm font-bold text-gray-800 dark:text-gray-100 leading-none ml-0.5">${value}</span>
+        </div>
+    `;
+
+    if (detailCont) {
+        let atmHtml = '';
+        const maxUV = daily.uv_index_max ? daily.uv_index_max[todayIdx] : 0;
+        
+        atmHtml += makeItem('air', 'Angin', `${current.wind_speed_10m} <span class="text-[10px] text-gray-500">km/h</span>`, 'text-blue-500');
+        atmHtml += makeItem('explore', 'Arah', `${current.wind_direction_10m}°`, 'text-gray-500');
+        atmHtml += makeItem('compress', 'Tekanan', `${current.surface_pressure} <span class="text-[10px] text-gray-500">hPa</span>`, 'text-purple-500');
+        atmHtml += makeItem('visibility', 'Pandangan', `${(current.visibility/1000).toFixed(1)} <span class="text-[10px] text-gray-500">km</span>`, 'text-teal-500');
+        atmHtml += makeItem('light_mode', 'UV Index', `${maxUV.toFixed(1)}`, maxUV > 6 ? 'text-red-500' : 'text-yellow-500');
+        atmHtml += makeItem('thermostat', 'Terasa', `${Math.round(current.apparent_temperature)}°`, 'text-orange-500');
+        
+        detailCont.innerHTML = atmHtml;
+        detailCont.className = "grid grid-cols-2 gap-3 w-full h-full content-center";
+    }
+
+    if (hydroCont) {
+        let hydroHtml = '';
+        const rainSum = daily.precipitation_sum ? daily.precipitation_sum[todayIdx] : 0;
+        const soilMoist = current.soil_moisture_0_to_1cm ? Math.round(current.soil_moisture_0_to_1cm * 100) : 0;
+        const nowHour = new Date().getHours();
+        const hourIdx = hourly.time.findIndex(t => new Date(t).getHours() === nowHour);
+        const rainProb = hourIdx !== -1 ? hourly.precipitation_probability[hourIdx] : 0;
+
+        hydroHtml += makeItem('rainy', 'Hujan 24 Jam', `${rainSum} <span class="text-[10px] text-gray-500">mm</span>`, 'text-blue-600');
+        hydroHtml += makeItem('humidity_percentage', 'Kelembaban', `${current.relative_humidity_2m}<span class="text-[10px] text-gray-500">%</span>`, 'text-cyan-500');
+        hydroHtml += makeItem('grass', 'Air Tanah', `${soilMoist}<span class="text-[10px] text-gray-500">%</span>`, 'text-green-600');
+        hydroHtml += makeItem('cloud', 'Awan', `${current.cloud_cover}<span class="text-[10px] text-gray-500">%</span>`, 'text-gray-400');
+        hydroHtml += makeItem('water_drop', 'Embun', `${Math.round(current.dew_point_2m)}°`, 'text-indigo-400');
+        hydroHtml += makeItem('umbrella', 'Peluang Hujan', `${rainProb}<span class="text-[10px] text-gray-500">%</span>`, 'text-blue-400');
+
+        hydroCont.innerHTML = hydroHtml;
+        hydroCont.className = "grid grid-cols-2 gap-3 w-full h-full content-center";
+    }
+
+    const aqiBox = document.getElementById('weather-aqi-box');
+    
+    if (aqiBox && data.aqi) {
+        const aqiVal = data.aqi.us_aqi;
+        const pm25Val = data.aqi.pm2_5;
+        const valueEl = document.getElementById('aqi-value');
+        const statusTextEl = document.getElementById('aqi-status-text');
+        const statusBgEl = document.getElementById('aqi-status-bg');
+        const progressEl = document.getElementById('aqi-progress-circle');
+        const pmEl = document.getElementById('pm25-value');
+
+        let status = "Baik";
+        let colorClass = "text-green-500";
+        let bgClass = "bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400";
+        
+        if (aqiVal <= 50) {
+            status = "Baik";
+            colorClass = "text-green-500"; 
+            bgClass = "bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400";
+        } else if (aqiVal <= 100) {
+            status = "Sedang";
+            colorClass = "text-yellow-500";
+            bgClass = "bg-yellow-50 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400";
+        } else if (aqiVal <= 150) {
+            status = "Tdk Sehat (Sensitif)";
+            colorClass = "text-orange-500";
+            bgClass = "bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400";
+        } else if (aqiVal <= 200) {
+            status = "Tidak Sehat";
+            colorClass = "text-red-500"; 
+            bgClass = "bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400";
+        } else {
+            status = "Berbahaya";
+            colorClass = "text-purple-500";
+            bgClass = "bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400";
+        }
+
+        if(valueEl) valueEl.innerText = aqiVal;
+        if(pmEl) pmEl.innerText = pm25Val;
+        if(statusTextEl) statusTextEl.innerText = status;
+        if(statusBgEl) statusBgEl.className = `px-3 py-1 rounded-full transition-colors mt-1 ${bgClass}`;
+
+        const percentage = Math.min((aqiVal / 300) * 100, 100); 
+        if(progressEl) {
+            progressEl.setAttribute("class", `transition-all duration-1000 ease-out ${colorClass}`);
+            setTimeout(() => {
+                progressEl.setAttribute("stroke-dasharray", `${percentage}, 100`);
+            }, 100);
+        }
+    }
+
+    const ctx = document.getElementById('weatherBigChart');
+    if (ctx && hourly) {
+        const nowIdx = hourly.time.findIndex(t => new Date(t).getHours() === new Date().getHours()) || 0;
+        
+        const labels = [];
+        const dataTemp = [];
+        const dataRain = [];
+
+        for(let i = 0; i < 24; i++) {
+            const idx = nowIdx + i;
+            if(idx < hourly.time.length) {
+                const date = new Date(hourly.time[idx]);
+                labels.push(date.getHours() + '.00');
+                dataTemp.push(hourly.temperature_2m[idx]);
+                dataRain.push(hourly.precipitation_probability[idx]);
+            }
+        }
+
+        if (window.weatherChartInstance) {
+            window.weatherChartInstance.destroy();
+        }
+
+        window.weatherChartInstance = new Chart(ctx, {
+            type: 'bar', 
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        type: 'line',
+                        label: 'Suhu (°C)',
+                        data: dataTemp,
+                        borderColor: '#f97316',
+                        backgroundColor: '#f97316',
+                        borderWidth: 3,
+                        pointRadius: 0, 
+                        pointHoverRadius: 4,
+                        tension: 0.4,
+                        yAxisID: 'y'
+                    },
+                    {
+                        type: 'bar',
+                        label: 'Peluang Hujan (%)',
+                        data: dataRain,
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        borderRadius: 4,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: { legend: { display: false } }, 
+                scales: {
+                    x: { 
+                        grid: { display: false },
+                        ticks: { font: { size: 10 }, maxTicksLimit: 8 }
+                    },
+                    y: { 
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        grid: { display: false },
+                        ticks: { color: '#f97316' } 
+                    },
+                    y1: { 
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        min: 0, max: 100,
+                        grid: { borderDash: [4, 4], color: '#e5e7eb' },
+                        ticks: { stepSize: 25 }
+                    }
+                }
+            }
+        });
+    }
+}
+
+let lastDataString = ""; 
+
+function fetchData() {
+    fetch(DATA_URL)
+        .then(r => r.json())
+        .then(rawData => {
+            
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => { loader.style.display = 'none'; }, 500);
+            }
+
+            const currentDataString = JSON.stringify(rawData);
+            
+            if (currentDataString === lastDataString) {
+                return; 
+            }
+
+            lastDataString = currentDataString;
+
+            const processedData = rawData.map((item, index) => {
+                item.dateObj = parseIndonesianDate(item.tanggalWaktu);
+                item.idx = index;
+                return item;
+            });
+
+            if (allData.length > 0 && processedData.length > allData.length) {
+                const newData = processedData[processedData.length - 1];
+                map.flyTo([newData.lat, newData.lng], 15);
+                showNotification(`Laporan baru masuk: ${newData.nama}`);
+                const audio = document.getElementById('notification-sound');
+                if (audio) audio.play().catch(e => console.warn(e));
+            }
+            
+            allData = processedData;
+            
+            populateFilterOptions(); 
+            applyFiltersAndProcess(false);
+            adjustTableHeight();
+            map.invalidateSize(); 
+
+        })
+        .catch(error => {
+            console.error('Gagal mengambil data:', error);
+            if(loader) loader.style.display = 'none';
+        });
+}
+
+        function showNotification(message) {
+            notification.innerText = message;
+            notification.style.display = 'block';
+            notification.style.opacity = '1';
+            notification.style.top = '6rem'; 
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.top = '4rem';
+                setTimeout(() => { notification.style.display = 'none'; }, 500);
+            }, 5000);
+        }
+
+	function readFileAsBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const base64Data = reader.result.split(',')[1];
+                    resolve({
+                        fileName: file.name,
+                        fileType: file.type,
+                        fileData: base64Data 
+                    });
+                };
+                reader.onerror = (error) => reject(error);
+                reader.readAsDataURL(file);
+            });
+        }
+
+async function handleSidebarUpload(fileType, reportIndex) {
+            
+            const UPLOAD_URL = DATA_URL;
+            let fileInput;
+            let uploadButton;
+            let columnName;
+            
+            if (fileType === 'disposisi') {
+                fileInput = document.getElementById('file-disposisi-input');
+                uploadButton = document.getElementById('upload-disposisi-btn');
+                columnName = 'Link Disposisi'; 
+            } else if (fileType === 'serahTerima') {
+                fileInput = document.getElementById('file-serahTerima-input'); 
+                uploadButton = document.getElementById('upload-serahTerima-btn');
+                columnName = 'Link Serah Terima'; 
+            } else if (fileType === 'monitoring') {
+                fileInput = document.getElementById('file-monitoring-input');
+                uploadButton = document.getElementById('upload-monitoring-btn');
+                columnName = 'Link Monitoring'; 
+            } else if (fileType === 'dokumentasi') {
+                fileInput = document.getElementById('file-dokumentasi-input');
+                uploadButton = null; 
+                columnName = 'Link Dokumentasi'; 
+            } else {
+                showNotification('Tipe file upload tidak dikenal.');
+                return;
+            }
+
+            if (!fileInput || fileInput.files.length === 0) {
+                showNotification('Gagal: Silakan pilih setidaknya satu file terlebih dahulu.');
+                return;
+            }
+
+            const filesToUpload = fileInput.files;
+            const reportData = allData.find(item => item.idx == reportIndex);
+
+            if (!reportData) {
+                showNotification('Gagal: Data laporan tidak ditemukan.');
+                return;
+            }
+
+            let originalContent = '';
+            let addPhotoBox = null;
+
+            if (fileType === 'dokumentasi') {
+                addPhotoBox = document.getElementById('add-photo-btn');
+                
+                if(addPhotoBox) {
+                    originalContent = addPhotoBox.innerHTML;
+                    addPhotoBox.innerHTML = `
+                        <div class="flex flex-col items-center justify-center w-full h-full animate-pulse">
+                            <span class="material-symbols-outlined animate-spin text-3xl text-primary">progress_activity</span>
+                            <span class="text-[10px] text-gray-500 font-medium mt-2">Uploading...</span>
+                            <span class="text-[10px] text-gray-400 font-bold" id="upload-progress-text">0/${filesToUpload.length}</span>
+                        </div>
+                    `;
+                    addPhotoBox.onclick = null;
+                    addPhotoBox.classList.add('cursor-not-allowed', 'bg-gray-100', 'dark:bg-gray-800');
+                }
+            } else if (uploadButton) {
+                uploadButton.disabled = true;
+                uploadButton.innerHTML = '<span class="material-symbols-outlined animate-spin">progress_activity</span> Mengupload...';
+            }
+            
+            let filesUploaded = 0;
+
+            try {
+                for (const file of filesToUpload) {
+                    const fileBase64 = await readFileAsBase64(file);
+                    filesUploaded++;
+                    
+                    if (fileType === 'dokumentasi' && document.getElementById('upload-progress-text')) {
+                        document.getElementById('upload-progress-text').innerText = `${filesUploaded}/${filesToUpload.length}`;
+                    } else if (uploadButton) {
+                         uploadButton.innerHTML = `<span class="material-symbols-outlined animate-spin">progress_activity</span> (${filesUploaded}/${filesToUpload.length})...`;
+                    }
+                    
+                    const payload = {
+                        mode: 'update', 
+                        file: fileBase64,
+                        laporanId: reportData.timestamp,
+                        columnName: columnName,
+                        folderData: {
+                            jenisBencana: reportData.bencana,
+                            alamatDesa: reportData.desakelurahan,
+                            alamatKecamatan: reportData.kec,
+                            namaKK: reportData.nama
+                        },
+                        fileIndex: filesUploaded, 
+                        tanggalLaporan: reportData.tanggalWaktu ? reportData.tanggalWaktu.split(' ').slice(0, 3).join(' ') : ""
+                    };
+
+                    await fetch(UPLOAD_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: JSON.stringify(payload),
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    });
+                }
+
+                showNotification(`Sukses! ${filesToUpload.length} file berhasil diupload.`);
+                
+                closeSidebar(); 
+                if(fetchInterval) clearInterval(fetchInterval);
+                fetchData(); 
+                fetchInterval = setInterval(fetchData, 5000);
+
+            } catch (error) {
+                console.error('Gagal upload file:', error);
+                showNotification(`Gagal: ${error.message}`);
+                
+                if (fileType === 'dokumentasi' && addPhotoBox) {
+                    addPhotoBox.innerHTML = originalContent;
+                    addPhotoBox.onclick = function() { document.getElementById('file-dokumentasi-input').click(); };
+                    addPhotoBox.classList.remove('cursor-not-allowed', 'bg-gray-100', 'dark:bg-gray-800');
+                } else if (uploadButton) {
+                    uploadButton.disabled = false;
+                    uploadButton.innerHTML = '<span class="material-symbols-outlined">upload_file</span> Upload';
+                }
+            }
+        }
+
+	function formatRupiah(angka) {
+    if (!angka || isNaN(parseFloat(angka)) || parseFloat(angka) === 0) {
+        return "Rp 0";
+    }
+    let number = parseFloat(String(angka).replace(/[^0-9]/g, ''));
+    return "Rp " + new Intl.NumberFormat('id-ID', { 
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0 
+    }).format(number);
+}
+
+function renderDokumenSection(judul, linkString, tipeInput, idx) {
+            let linksHtml = '';
+            if (linkString && linkString !== '-' && linkString.trim() !== '') {
+                const urls = linkString.split(',').map(u => u.trim()).filter(u => u);
+                
+                if (urls.length > 0) {
+                    let fileButtons = '';
+                    let imageGrid = '';
+
+                    urls.forEach((url, i) => {
+                        // Deteksi jika link eksplisit merupakan file dokumen (PDF, Word, Excel)
+                        const isFile = url.toLowerCase().match(/\.(pdf|doc|docx|xls|xlsx)$/i) || url.toLowerCase().includes('format=pdf');
+                        
+                        if (isFile) {
+                            // Tampilan Toggle/Button untuk file dokumen
+                            fileButtons += `
+                                <a href="${url}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-200 border border-blue-200 dark:border-blue-800 rounded-lg text-xs font-semibold hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors" title="Buka File ke-${i+1}">
+                                    <span class="material-symbols-outlined text-sm">description</span>
+                                    File ${i + 1}
+                                </a>
+                            `;
+                        } else {
+                            // Tampilan Grid Gambar (Thumbnail) seperti Dokumentasi Lapangan
+                            const displaySrc = getDriveImgUrl(url);
+                            imageGrid += `
+                                <div onclick="openImagePreview('${url}')" class="group relative aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 block shadow-sm cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all" title="Lihat Dokumen ${i+1}">
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-300 dark:text-gray-600 z-0">
+                                        <span class="material-symbols-outlined text-3xl">image</span>
+                                    </div>
+                                    <img src="${displaySrc}" class="relative z-10 w-full h-full object-cover transition-all duration-500 ease-in-out group-hover:scale-110 opacity-0" 
+                                         alt="Dokumen ${i + 1}" loading="lazy" 
+                                         onload="this.classList.remove('opacity-0')" 
+                                         onerror="this.parentElement.style.display='none'">
+                                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors z-20 pointer-events-none"></div>
+                                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-30 pointer-events-none">
+                                        <span class="material-symbols-outlined text-white drop-shadow-md text-3xl">visibility</span>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    });
+
+                    if (imageGrid !== '') {
+                        linksHtml += `<div class="grid grid-cols-3 gap-2 mb-3">${imageGrid}</div>`;
+                    }
+                    if (fileButtons !== '') {
+                        linksHtml += `<div class="flex flex-wrap gap-2 mb-3">${fileButtons}</div>`;
+                    }
+                }
+            }
+
+            const uploadHtml = isLoggedIn ? `
+                <div class="flex items-center gap-2">
+                    <input type="file" id="file-${tipeInput}-input" accept=".pdf,.jpg,.jpeg,.png" multiple
+                           class="block w-full flex-1 text-xs text-gray-500 dark:text-gray-400
+                                  file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 
+                                  file:text-xs file:font-medium
+                                  file:bg-gray-100 file:text-gray-700 
+                                  dark:file:bg-gray-700 dark:file:text-gray-300
+                                  hover:file:bg-gray-200 dark:hover:file:bg-gray-600
+                                  cursor-pointer">
+                    <button id="upload-${tipeInput}-btn" 
+                            onclick="handleSidebarUpload('${tipeInput}', '${idx}')"
+                            class="flex-shrink-0 flex items-center justify-center gap-1 bg-primary hover:bg-blue-600 text-white 
+                                   text-xs font-medium py-1.5 px-3 rounded-md transition-colors h-8
+                                   disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span class="material-symbols-outlined text-sm">cloud_upload</span>
+                        Upload
+                    </button>
+                </div>
+            ` : '';
+
+            return `
+                <div class="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                    <p class="text-xs font-bold uppercase text-gray-500 dark:text-gray-400 mb-2 tracking-wide">${judul}</p>
+                    ${linksHtml}
+                    ${uploadHtml}
+                </div>
+            `;
+        }
+
+function getDriveImgUrl(url) {
+            if (!url) return "";
+            let fileId = "";
+            const matchSlash = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+            if (matchSlash && matchSlash[1]) {
+                fileId = matchSlash[1];
+            } 
+            else {
+                const matchParam = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                if (matchParam && matchParam[1]) {
+                    fileId = matchParam[1];
+                }
+            }
+
+            if (fileId) {
+                return `https://drive.google.com/thumbnail?id=${fileId}&sz=s1000`;
+            }
+
+            return url;
+        }
+
+function openImagePreview(originalUrl) {
+            const modal = document.getElementById('image-preview-modal');
+            const img = document.getElementById('preview-image-element');
+            const driveLink = document.getElementById('preview-drive-link'); // Tangkap elemen tombol
+            
+            if (!originalUrl) return;
+            let displaySrc = getDriveImgUrl(originalUrl);
+            if (displaySrc.includes("google.com/thumbnail")) {
+                displaySrc = displaySrc.replace("sz=s1000", "sz=s3000");
+            }
+
+            img.src = ""; 
+            img.classList.remove('scale-100');
+            img.classList.add('scale-95');
+            modal.classList.remove('hidden');
+            img.src = displaySrc;
+            img.onload = () => {
+                img.classList.remove('scale-95');
+                img.classList.add('scale-100');
+            };
+            
+            // Set href tombol mengarah ke link original Google Drive
+            if (driveLink) {
+                driveLink.href = originalUrl;
+            }
+        }
+
+        function closeImagePreview() {
+            const modal = document.getElementById('image-preview-modal');
+            const img = document.getElementById('preview-image-element');
+            img.classList.remove('scale-100');
+            img.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                img.src = ''; 
+            }, 200);
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                closeImagePreview();
+            }
+        });
+
+        function openSidebarWithData(data) {
+            const content = document.getElementById('sidebar-content');
+            const sidebarTitle = document.getElementById('sidebar-title');
+            const routeButton = document.getElementById('route-button-link');
+            const downloadButton = document.getElementById('download-laporan-btn');
+            const kecamatanKota = ['kaliwates', 'patrang', 'sumbersari'];
+            const kecRaw = (data.kec || '').toLowerCase().trim();
+            const jenisWilayah = kecamatanKota.includes(kecRaw) ? 'Kelurahan' : 'Desa';
+            let bantuanHtml = '';
+            if (isLoggedIn && data.bantuan && typeof data.bantuan === 'object') {
+                let adaBantuan = false;
+                let bantuanContent = '<div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">';
+                for (const item in data.bantuan) {
+                    const jumlah = parseFloat(data.bantuan[item]) || 0;
+                    if (jumlah > 0) {
+                        adaBantuan = true;
+                        bantuanContent += `<div class="flex justify-between border-b border-dashed border-gray-200 dark:border-gray-700 pb-1"><span>${item}</span> <span class="font-semibold">${jumlah}</span></div>`;
+                    }
+                }
+                bantuanContent += '</div>';
+                if (adaBantuan) {
+                    bantuanHtml = `<div class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-100 dark:border-yellow-800/30 mb-4"><h4 class="text-sm font-bold text-yellow-800 dark:text-yellow-500 mb-3 flex items-center gap-2"><span class="material-symbols-outlined text-base">inventory_2</span> Bantuan Stimulan</h4>${bantuanContent}</div>`;
+                }
+            }
+
+            let galleryHtml = '';
+            const photoList = (data.photos || []).filter(url => url && url.trim() !== "");
+            const photoCount = photoList.length;
+            const MAX_PHOTOS = 8; 
+
+            galleryHtml += `
+            <div class="mt-6">
+                <div class="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-2 mb-4">
+                    <h4 class="text-base font-bold flex items-center gap-2">
+                        <span class="material-symbols-outlined">photo_library</span> 
+                        Dokumentasi Lapangan
+                    </h4>
+                    <span class="text-xs font-medium px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
+                        ${photoCount} / ${MAX_PHOTOS}
+                    </span>
+                </div>
+                
+                <div class="sidebar-gallery grid grid-cols-3 gap-2">`;
+            
+            photoList.forEach((photoUrl, index) => {
+                const displaySrc = getDriveImgUrl(photoUrl);
+                
+                galleryHtml += `
+                <div onclick="openImagePreview('${photoUrl}')" class="group relative aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 block shadow-sm cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all">
+                    <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-300 dark:text-gray-600 z-0">
+                        <span class="material-symbols-outlined text-3xl">image</span>
+                    </div>
+                    
+                    <img src="${displaySrc}" class="relative z-10 w-full h-full object-cover transition-all duration-500 ease-in-out group-hover:scale-110 opacity-0" 
+                         alt="Foto ${index + 1}" loading="lazy" 
+                         onload="this.classList.remove('opacity-0')" 
+                         onerror="this.style.display='none'">
+                    
+                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors z-20 pointer-events-none"></div>
+                    
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-30 pointer-events-none">
+                        <span class="material-symbols-outlined text-white drop-shadow-md text-3xl">visibility</span>
+                    </div>
+                </div>`; 
+            });
+
+            if (isLoggedIn && photoCount < MAX_PHOTOS) {
+                galleryHtml += `
+                <div id="add-photo-btn" onclick="document.getElementById('file-dokumentasi-input').click()" 
+                     class="aspect-square bg-gray-50 dark:bg-gray-800/50 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group">
+                    <span class="material-symbols-outlined text-gray-400 group-hover:text-primary transition-colors text-3xl">add_a_photo</span>
+                    <span class="text-[10px] text-gray-500 group-hover:text-primary font-medium mt-1">Tambah</span>
+                </div>`;
+            }
+
+            galleryHtml += `
+                </div>
+                <input type="file" id="file-dokumentasi-input" accept="image/*" multiple 
+                       class="hidden" 
+                       onchange="handleSidebarUpload('dokumentasi', '${data.idx}')">
+            </div>`;
+
+            const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${data.lat},${data.lng}`; 
+            
+	    const toDms = (deg, isLat) => {
+        const absolute = Math.abs(deg);
+        const degrees = Math.floor(absolute);
+        const minutesNotTruncated = (absolute - degrees) * 60;
+        const minutes = Math.floor(minutesNotTruncated);
+        const seconds = ((minutesNotTruncated - minutes) * 60).toFixed(1);
+        const direction = isLat ? (deg >= 0 ? "N" : "S") : (deg >= 0 ? "E" : "W");
+        return `${degrees}° ${minutes}' ${seconds}" ${direction}`;
+    };
+    const koordinatDMS = `${toDms(data.lat, true)} • ${toDms(data.lng, false)}`;
+    let listMaterial = [];
+    if (data.bantuan && typeof data.bantuan === 'object') {
+        for (const [material, jumlah] of Object.entries(data.bantuan)) {
+            if (parseFloat(jumlah) > 0) {
+                listMaterial.push(`- ${material}: ${jumlah}`);
+            }
+        }
+    }
+    const materialString = listMaterial.length > 0 ? listMaterial.join('\n') : "- Belum ada data material";
+    const pesanWA = `*DATA PENERIMA BANTUAN BPBD*\n\n` +
+        `*Nama Penerima:* ${data.nama}\n` +
+        `*Alamat:* ${data.jalandusun || '-'}, Desa ${data.desakelurahan}, Kec. ${data.kec}\n` +
+        `*Koordinat:* ${koordinatDMS}\n\n` +
+        `*Material yang Dibantu:*\n${materialString}\n\n` +
+        `_Link Maps:_\n${googleMapsUrl}`;
+    const btnWA = document.getElementById('share-wa-btn');
+    if (btnWA) {
+        btnWA.href = `https://wa.me/?text=${encodeURIComponent(pesanWA)}`;
+    }
+
+	    sidebarTitle.innerText = data.nama || 'Detail Laporan';
+            
+            const tanggalAsesmen = data.dateObj 
+                ? data.dateObj.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) 
+                : (data.tanggalWaktu || 'Tidak ada data');
+            content.innerHTML = `
+                <div class="space-y-6">
+                    <div class="bg-white dark:bg-card-dark rounded-lg">
+                        <div class="flex items-start gap-3 mb-4">
+                            <div class="bg-primary/10 text-primary p-2 rounded-full">
+                                <span class="material-symbols-outlined text-xl">location_on</span>
+                            </div>
+                            <div>
+                                <h4 class="text-base font-bold">${data.jalandusun || 'Dusun Tidak Diketahui'}</h4>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    ${jenisWilayah} ${data.desakelurahan}, Kec. ${data.kec}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <p class="text-xs text-gray-400">Jenis Bencana</p>
+                                <p class="font-medium">${data.bencana||'-'}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400">Tanggal Asesmen</p>
+                                <p class="font-medium">${tanggalAsesmen}</p>
+                            </div>
+                            <div class="col-span-2">
+                                <p class="text-xs text-gray-400">Hasil Pengkajian</p>
+                                <p class="font-medium leading-relaxed">${data.pengkajian||'-'}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-red-50 dark:bg-red-900/10 p-4 rounded-lg border border-red-100 dark:border-red-900/30">
+                         <h4 class="text-sm font-bold text-red-700 dark:text-red-400 mb-3 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-base">house_siding</span> Kerusakan & Kerugian
+                         </h4>
+                         <div class="space-y-2 text-sm">
+                            <div class="flex justify-between"><span>Tingkat Kerusakan:</span> <span class="font-bold px-2 py-0.5 rounded bg-white dark:bg-black/20">${data.kerusakan || '-'}</span></div>
+                            <div class="flex justify-between"><span>Bagian Rusak:</span> <span class="font-medium text-right">${data.bagianRusak || '-'}</span></div>
+                            <div class="border-t border-red-200 dark:border-red-800 my-2 pt-2"></div>
+                            <div class="flex justify-between"><span>Taksiran Kerusakan:</span> <span class="font-bold">${formatRupiah(data.nilaiKerusakan)}</span></div>
+                            <div class="flex justify-between"><span>Taksiran Kerugian:</span> <span class="font-bold">${formatRupiah(data.nilaiKerugian)}</span></div>
+                         </div>
+                    </div>
+                    
+                    ${bantuanHtml}
+                    
+                    <div>
+                        <h4 class="text-base font-bold border-b border-gray-200 dark:border-gray-700 pb-2 mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined">folder_open</span> Dokumen Administrasi
+                        </h4>
+                        <div class="space-y-3">
+                            ${renderDokumenSection('Disposisi', data.linkDisposisi, 'disposisi', data.idx)}
+                            ${renderDokumenSection('Serah Terima', data.linkSerahTerima, 'serahTerima', data.idx)}
+                            ${renderDokumenSection('Monitoring', data.linkMonitoring, 'monitoring', data.idx)}
+                        </div>
+                    </div>
+                    
+                    ${galleryHtml}
+                </div>
+            `;
+
+            routeButton.href = googleMapsUrl; 
+            if (data.linkDokumen) { 
+                downloadButton.href = data.linkDokumen; 
+                downloadButton.classList.remove('hidden'); 
+                downloadButton.classList.add('flex'); 
+            } else { 
+                downloadButton.classList.add('hidden');
+                downloadButton.classList.remove('flex');
+            }
+            
+            sidebar.classList.remove('translate-x-full'); 
+            sidebar.classList.add('translate-x-0');
+        }
+
+        function closeSidebar() {
+            sidebar.classList.add('translate-x-full');
+            sidebar.classList.remove('translate-x-0');
+        }
+
+function adjustTableHeight() {
+    const mainArea = document.querySelector('main'); 
+    const header = mainArea ? mainArea.querySelector('header') : null;
+    const contentScroller = mainArea ? mainArea.querySelector('div.overflow-y-auto') : null; 
+    const dashboardView = document.getElementById('dashboard-view');
+    const summaryBox = document.getElementById('summary-box');
+    const mapCard = document.getElementById('map-card');
+    const tableCard = document.getElementById('table-card');
+    const tableHeader = document.getElementById('table-header');
+    const tableScroller = document.getElementById('table-scroll-container');
+
+    if (!contentScroller) return;
+
+    if (window.innerWidth < 1280 || (dashboardView && dashboardView.classList.contains('hidden'))) {
+        contentScroller.style.overflowY = 'auto'; 
+        if(mapCard) mapCard.style.height = '';
+        if(tableCard) tableCard.style.height = '';
+        if(tableScroller) {
+            tableScroller.style.maxHeight = '';
+            tableScroller.style.height = '';
+        }
+        return; 
+    }
+
+    if (mainArea && header && summaryBox && mapCard && tableCard && tableHeader && tableScroller) {
+        try {
+            const mainHeight = mainArea.offsetHeight;
+            const headerHeight = header.offsetHeight;
+            const contentPaddingY = 48; 
+            const summaryHeight = summaryBox.offsetHeight;
+            const gridGap = 24; 
+            const bottomBuffer = 0; 
+            const availableHeight = mainHeight - headerHeight - contentPaddingY - summaryHeight - gridGap - bottomBuffer;
+            const targetGridRowHeight = Math.max(availableHeight, 300);
+            mapCard.style.height = targetGridRowHeight + 'px';
+            tableCard.style.height = targetGridRowHeight + 'px';
+            const tableHeaderHeight = tableHeader.offsetHeight;
+            const scrollerMaxHeight = targetGridRowHeight - tableHeaderHeight - 2;
+
+            tableScroller.style.maxHeight = scrollerMaxHeight + 'px';
+            tableScroller.style.height = scrollerMaxHeight + 'px';
+            contentScroller.style.overflowY = 'hidden';
+
+        } catch (e) {
+            console.error("Error calculating heights:", e);
+            contentScroller.style.overflowY = 'auto'; 
+        }
+    }
+}
+
+        fetchData(); 
+        fetchInterval = setInterval(fetchData, 5000);
+	fetchWeather();
+	setInterval(fetchWeather, 600000);
+	window.addEventListener('resize', adjustTableHeight); 
+
+    const themeToggle = document.getElementById('theme-toggle');
+    const html = document.documentElement;
+
+    themeToggle.addEventListener('click', () => {
+        html.classList.toggle('dark');
+        const isDark = html.classList.contains('dark');
+
+        if (isDark) {
+            if (map.hasLayer(osm)) map.removeLayer(osm);
+            if (!map.hasLayer(dark)) dark.addTo(map);
+        } else {
+            if (map.hasLayer(dark)) map.removeLayer(dark);
+            if (!map.hasLayer(osm)) osm.addTo(map);
+        }
+
+        const newTextColor = isDark ? '#EAEAEA' : '#333';
+        const newGridColor = isDark ? '#404040' : '#E5E7EB';
+
+        Object.values(reportChartInstances).forEach(chart => {
+            
+            if (chart.options.plugins && chart.options.plugins.legend) {
+                chart.options.plugins.legend.labels.color = newTextColor;
+            }
+
+            if (chart.options.scales) {
+                ['x', 'y', 'r'].forEach(axis => {
+                    if (chart.options.scales[axis]) {
+                        if (chart.options.scales[axis].ticks) {
+                            chart.options.scales[axis].ticks.color = newTextColor;
+                            if(axis === 'r') chart.options.scales[axis].ticks.backdropColor = 'transparent';
+                        }
+                        if (chart.options.scales[axis].grid) {
+                            chart.options.scales[axis].grid.color = newGridColor;
+                        }
+                    }
+                });
+            }
+
+            chart.update('none'); 
+        });
+    });
+
+        function setInitialMapLayer() {
+             if (html.classList.contains('dark')) {
+                 if (map.hasLayer(osm)) map.removeLayer(osm); 
+                 dark.addTo(map);
+             } else {
+             }
+        }
+        setInitialMapLayer(); 
+        fetchData();
+
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const filterSidebar = document.getElementById('filter-sidebar');
+        const filterOverlay = document.getElementById('filter-overlay');
+        const closeFilterBtn = document.getElementById('close-filter-btn');
+
+        hamburgerBtn.addEventListener('click', () => {
+            filterSidebar.classList.remove('-translate-x-full');
+            filterSidebar.classList.add('translate-x-0');
+            filterOverlay.classList.remove('hidden');
+        });
+
+        function closeFilterSidebar() {
+            filterSidebar.classList.add('-translate-x-full');
+            filterSidebar.classList.remove('translate-x-0');
+            filterOverlay.classList.add('hidden');
+        }
+
+        closeFilterBtn.addEventListener('click', closeFilterSidebar);
+        filterOverlay.addEventListener('click', closeFilterSidebar);
+
+        const timeFilterButtons = document.querySelectorAll('#time-filter-buttons .filter-btn');
+        timeFilterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                timeFilterButtons.forEach(btn => {
+                    btn.classList.remove('bg-primary/10', 'text-primary', 'font-medium');
+                });
+                button.classList.add('bg-primary/10', 'text-primary', 'font-medium');
+                currentTimeFilter = button.getAttribute('data-filter');
+		currentPage = 1;
+                applyFiltersAndProcess(true);
+            });
+        });
+
+function switchView(viewName) {
+    const dashboardView = document.getElementById('dashboard-view');
+    const reportsView = document.getElementById('reports-view');
+    const navPill = document.getElementById('nav-pill');
+    const navDashboard = document.getElementById('nav-dashboard');
+    const navReports = document.getElementById('nav-reports');
+    const floatBtn = document.getElementById('open-form-btn'); 
+    const weatherFocusView = document.getElementById('weather-focus-view');
+    const mainArea = document.querySelector('main'); 
+    const contentScroller = mainArea ? mainArea.querySelector('div.overflow-y-auto') : null;
+    const textActive = ['text-primary', 'hover:text-primary', 'dark:hover:text-primary'];
+    const textInactive = ['text-gray-500', 'dark:text-gray-400', 'hover:text-gray-900', 'dark:hover:text-gray-100'];
+    const animVisible = ['opacity-100', 'scale-100']; 
+    const animHidden = ['opacity-0', 'scale-95'];
+    const btnVisible = ['opacity-100', 'scale-100'];
+    const btnHidden = ['opacity-0', 'scale-0'];
+
+    if (isWeatherMode) {
+        isWeatherMode = false; 
+        
+        if (weatherFocusView) {
+            weatherFocusView.classList.remove(...animVisible);
+            weatherFocusView.classList.add(...animHidden);
+            
+            setTimeout(() => {
+                weatherFocusView.classList.add('hidden');
+                if (navPill) navPill.classList.remove('hidden');
+                
+                enterNewView(viewName); 
+            }, 300);
+        } else {
+            enterNewView(viewName);
+        }
+        return; 
+    }
+
+    if (viewName === 'dashboard') {
+        if (reportsView && !reportsView.classList.contains('hidden')) {
+            reportsView.classList.remove(...animVisible);
+            reportsView.classList.add(...animHidden);
+            setTimeout(() => enterNewView('dashboard'), 300);
+        } else {
+            enterNewView('dashboard');
+        }
+
+    } else if (viewName === 'reports') {
+        if (dashboardView && !dashboardView.classList.contains('hidden')) {
+            dashboardView.classList.remove(...animVisible);
+            dashboardView.classList.add(...animHidden);
+            
+            if (floatBtn) { 
+                floatBtn.classList.remove(...btnVisible);
+                floatBtn.classList.add(...btnHidden);
+            }
+            setTimeout(() => enterNewView('reports'), 300);
+        } else {
+            enterNewView('reports');
+        }
+    }
+
+    function enterNewView(target) {
+        if (navPill) navPill.classList.remove('hidden');
+
+        if (target === 'dashboard') {
+            if(reportsView) reportsView.classList.add('hidden');
+            
+            if(document.getElementById('summary-box')) document.getElementById('summary-box').classList.remove('hidden');
+            if(document.getElementById('dashboard-grid')) document.getElementById('dashboard-grid').classList.remove('hidden');
+            
+            if(dashboardView) {
+                dashboardView.classList.remove('hidden');
+                void dashboardView.offsetWidth; 
+                dashboardView.classList.remove(...animHidden);
+                dashboardView.classList.add(...animVisible);
+            }
+            
+            if (navPill) {
+                navPill.classList.remove('translate-x-full');
+                navPill.classList.add('translate-x-0');
+            }
+            navDashboard.classList.add(...textActive);
+            navDashboard.classList.remove(...textInactive);
+            navReports.classList.remove(...textActive);
+            navReports.classList.add(...textInactive);
+
+            if(floatBtn) {
+                floatBtn.classList.remove('hidden'); 
+                void floatBtn.offsetWidth; 
+                floatBtn.classList.remove(...btnHidden); 
+                floatBtn.classList.add(...btnVisible);   
+            }
+            
+            if (typeof adjustTableHeight === 'function') adjustTableHeight();
+            if (map) map.invalidateSize(); 
+
+        } else {
+            if(dashboardView) dashboardView.classList.add('hidden');
+            if(document.getElementById('summary-box')) document.getElementById('summary-box').classList.add('hidden');
+            if(document.getElementById('dashboard-grid')) document.getElementById('dashboard-grid').classList.add('hidden');
+            if(floatBtn) floatBtn.classList.add('hidden');
+            
+            if(reportsView) {
+                reportsView.classList.remove('hidden');
+                
+                if(contentScroller) {
+                    contentScroller.style.overflowY = 'auto';
+                    contentScroller.style.height = ''; 
+                    contentScroller.style.maxHeight = ''; 
+                }
+
+                void reportsView.offsetWidth;
+                reportsView.classList.remove(...animHidden);
+                reportsView.classList.add(...animVisible);
+                
+                requestAnimationFrame(() => {
+                    setTimeout(() => {
+                        renderReportCharts(getFilteredData(true), true); 
+                    }, 50); 
+                });
+            }
+
+            if (navPill) {
+                navPill.classList.remove('translate-x-0');
+                navPill.classList.add('translate-x-full');
+            }
+            navDashboard.classList.remove(...textActive);
+            navDashboard.classList.add(...textInactive);
+            navReports.classList.add(...textActive);
+            navReports.classList.remove(...textInactive);
+        }
+    }
+}
+    
+    let reportChartInstances = {};
+
+    function renderReportCharts(data, enableAnimation = false) {
+        const sourceData = data || allData;
+        if (!sourceData) return
+        let materialStats = {};
+        let trendDataMap = {}; 
+        let kerusakanMap = { "Rusak Ringan": 0, "Rusak Sedang": 0, "Rusak Berat": 0 };
+        let konstruksiMap = {}; 
+        const startDateVal = document.getElementById('filter-start-date').value;
+        const endDateVal = document.getElementById('filter-end-date').value;
+        let isDaily = false;
+
+        if (startDateVal && endDateVal) {
+            const start = new Date(startDateVal);
+            const end = new Date(endDateVal);
+            const diffTime = Math.abs(end - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+            if (diffDays <= 32) { 
+                isDaily = true;
+            }
+        }
+
+        const titleEl = document.getElementById('tren-chart-title');
+        if(titleEl) {
+            titleEl.innerText = isDaily ? "Tren Kejadian Bencana (Harian)" : "Tren Kejadian Bencana (Bulanan)";
+        }
+
+        sourceData.forEach(d => {
+            if(d.bantuan && typeof d.bantuan === 'object') {
+                for (const [mat, jumlah] of Object.entries(d.bantuan)) {
+                    const val = parseFloat(jumlah);
+                    if(val > 0) materialStats[mat] = (materialStats[mat] || 0) + val;
+                }
+            }
+            if(d.dateObj && d.dateObj instanceof Date && !isNaN(d.dateObj)) {
+                let sortKey, labelName;
+                if (isDaily) {
+                    const y = d.dateObj.getFullYear();
+                    const m = String(d.dateObj.getMonth() + 1).padStart(2, '0');
+                    const day = String(d.dateObj.getDate()).padStart(2, '0');
+                    sortKey = `${y}-${m}-${day}`;
+                    labelName = d.dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+                } else {
+                    const y = d.dateObj.getFullYear();
+                    const m = String(d.dateObj.getMonth() + 1).padStart(2, '0');
+                    sortKey = `${y}-${m}`;
+                    labelName = d.dateObj.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
+                }
+
+                if(!trendDataMap[sortKey]) trendDataMap[sortKey] = { label: labelName, count: 0 };
+                trendDataMap[sortKey].count++;
+            }
+            let level = d.kerusakan || "Tanpa Kategori";
+            if (level.toLowerCase().includes("ringan")) level = "Rusak Ringan";
+            else if (level.toLowerCase().includes("sedang")) level = "Rusak Sedang";
+            else if (level.toLowerCase().includes("berat")) level = "Rusak Berat";
+            kerusakanMap[level] = (kerusakanMap[level] || 0) + 1;
+
+            let kons = d.konstruksi || "Lainnya";
+            if (!konstruksiMap[kons]) konstruksiMap[kons] = { "Rusak Ringan": 0, "Rusak Sedang": 0, "Rusak Berat": 0, "Lainnya": 0 };
+            if (["Rusak Ringan", "Rusak Sedang", "Rusak Berat"].includes(level)) konstruksiMap[kons][level]++;
+            else konstruksiMap[kons]["Lainnya"]++;
+        });
+
+        const thead = document.getElementById('material-table-head');
+        const tbody = document.getElementById('material-table-body');
+        
+        if(thead && tbody) {
+            thead.innerHTML = '';
+            tbody.innerHTML = '';
+
+            const sortedMat = Object.entries(materialStats).sort((a,b) => b[1] - a[1]);
+
+            if (sortedMat.length === 0) {
+                tbody.innerHTML = '<tr><td class="p-4 text-center text-gray-400 italic" colspan="100%">Belum ada data logistik keluar.</td></tr>';
+            } else {
+                let headerHTML = "<tr>";
+                let bodyHTML = "<tr>";
+
+                sortedMat.forEach(([item, count]) => {
+                    headerHTML += `<th class="px-6 py-4 border-r border-gray-100 dark:border-gray-700 last:border-none min-w-[120px]">${item}</th>`;
+                    bodyHTML += `<td class="px-6 py-4 border-r border-gray-100 dark:border-gray-700 last:border-none"><span class="text-xl font-bold text-primary">${count.toLocaleString('id-ID')}</span></td>`;
+                });
+
+                headerHTML += "</tr>";
+                bodyHTML += "</tr>";
+                thead.innerHTML = headerHTML;
+                tbody.innerHTML = bodyHTML;
+            }
+        }
+
+        const createChart = (id, type, data, options) => {
+            const canvas = document.getElementById(id);
+            if (!canvas) return; 
+            
+            if (reportChartInstances[id]) {
+                reportChartInstances[id].data = data;
+                reportChartInstances[id].options = options;
+                reportChartInstances[id].update(enableAnimation ? 'default' : 'none');
+            } else {
+                const ctx = canvas.getContext('2d');
+                reportChartInstances[id] = new Chart(ctx, { type, data, options });
+            }
+        };
+
+        const isDark = document.documentElement.classList.contains('dark');
+        const textColor = isDark ? '#EAEAEA' : '#333';
+        const gridColor = isDark ? '#404040' : '#E5E7EB';
+        const sortedKeys = Object.keys(trendDataMap).sort();
+        createChart('chartTrenBulanan', 'line', {
+            labels: sortedKeys.map(k => trendDataMap[k].label),
+            datasets: [{
+                label: 'Jumlah Kejadian',
+                data: sortedKeys.map(k => trendDataMap[k].count),
+                borderColor: '#3B82F6', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 2, tension: 0.4, fill: true
+            }]
+        }, { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor } }, x: { grid: { display: false }, ticks: { color: textColor } } } });
+
+	const rusLabels = ["Rusak Ringan", "Rusak Sedang", "Rusak Berat"];
+        createChart('chartTingkatKerusakan', 'bar', {
+            labels: rusLabels,
+            datasets: [{
+                label: 'Jumlah Lokasi',
+                data: rusLabels.map(l => kerusakanMap[l] || 0),
+                backgroundColor: [
+                    '#4ADE80', 
+                    '#FACC15', 
+                    '#EF4444'  
+                ],
+                borderRadius: 0, 
+                barPercentage: 0.6 
+            }]
+        }, { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: { legend: { display: false } }, 
+            scales: {
+                y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor } },
+                x: { grid: { display: false }, ticks: { color: textColor } }
+            }
+        });
+
+        const konsLabels = ['Permanen', 'Semi Permanen', 'Non Permanen'].filter(
+             label => Object.keys(konstruksiMap).includes(label)
+        );
+        createChart('chartKonstruksi', 'bar', {
+            labels: konsLabels,
+            datasets: [
+                { label: 'Rusak Ringan', data: konsLabels.map(k => konstruksiMap[k]["Rusak Ringan"]), backgroundColor: '#4ADE80' },
+                { label: 'Rusak Sedang', data: konsLabels.map(k => konstruksiMap[k]["Rusak Sedang"]), backgroundColor: '#FACC15' },
+                { label: 'Rusak Berat',  data: konsLabels.map(k => konstruksiMap[k]["Rusak Berat"]),  backgroundColor: '#EF4444' }
+            ]
+        }, { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true, grid: { display: false }, ticks: { color: textColor } }, y: { stacked: true, grid: { color: gridColor }, ticks: { color: textColor }, beginAtZero: true } }, plugins: { legend: { position: 'top', align: 'end', labels: { color: textColor } } } });
+    }
+   
+    </script>
+
+<div id="image-preview-modal" onclick="closeImagePreview()" 
+         class="hidden fixed inset-0 z-[10000] bg-black/90 flex flex-col items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300">
+        
+        <button class="absolute top-6 right-6 text-white/70 hover:text-white transition-colors z-50">
+            <span class="material-symbols-outlined text-4xl">close</span>
+        </button>
+
+        <img id="preview-image-element" src="" 
+             class="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl scale-95 transition-transform duration-300"
+             onclick="event.stopPropagation()"> 
+             
+        <a id="preview-drive-link" href="#" target="_blank" onclick="event.stopPropagation()"
+           class="absolute bottom-8 flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white px-5 py-2.5 rounded-full backdrop-blur-md transition-all font-medium text-sm shadow-xl z-50 hover:scale-105 active:scale-95">
+            <span class="material-symbols-outlined text-lg">open_in_new</span>
+            Buka di Drive
+        </a>
+</div>
+
+<div id="auth-modal" class="fixed inset-0 z-[99999] bg-black/80 flex items-center justify-center p-4 backdrop-blur-md transition-opacity duration-300">
+        <div class="bg-white dark:bg-card-dark rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden transform transition-all border border-gray-100 dark:border-gray-800">
+            <div class="p-8 text-center">
+                <img src="https://bidangrrjember.github.io/peta-bencana-jember/logo-bpbd.png" alt="Logo BPBD" class="h-20 w-20 mx-auto mb-4 drop-shadow-md">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-1">DASHBOARD JITUPASNA</h2>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-8">BPBD Kabupaten Jember</p>
+                
+                <div class="space-y-4">
+                    <div>
+                        <input type="password" id="login-password" placeholder="Masukkan Password" 
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all mb-3 text-center tracking-widest font-medium placeholder:tracking-normal">
+                        <button id="btn-biometric-login" onclick="loginWithBiometric()" class="hidden w-full mt-3 py-3 bg-white dark:bg-card-dark border-2 border-primary text-primary hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2">
+    <span class="material-symbols-outlined text-2xl">fingerprint</span> 
+    Login dengan Biometrik
+</button>
+                        <p id="login-error" class="hidden text-xs text-red-500 mt-2 font-bold animate-pulse">Password yang Anda masukkan salah!</p>
+                    </div>
+                    
+                    <div class="relative flex py-2 items-center">
+                        <div class="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
+                        <span class="flex-shrink-0 mx-4 text-gray-400 text-[10px] font-bold uppercase tracking-wider">ATAU AKSES PUBLIK</span>
+                        <div class="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
+                    </div>
+
+                    <button onclick="handleGuestMode()" class="w-full py-3 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-95 border border-gray-200 dark:border-gray-700 flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-lg">person</span> Guest Mode
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
