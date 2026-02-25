@@ -39,6 +39,16 @@
         overflow-y: hidden;
 
       }
+
+      #form-view::-webkit-scrollbar {
+    display: none;
+}
+#form-view {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    overflow: hidden;
+}
+	
       .leaflet-pane[style*="z-index: 650"] {
         pointer-events: none;
       }
@@ -773,6 +783,11 @@
 
     </div> 
     
+<div id="form-view" class="hidden flex-col overflow-hidden transition-all duration-300 ease-in-out opacity-0 scale-95 origin-bottom-right -m-4 lg:-m-6 w-[calc(100%+2rem)] lg:w-[calc(100%+3rem)] h-[calc(100%+2rem)] lg:h-[calc(100%+3rem)]">
+        
+        <iframe src="https://bidangrrjember.github.io/jitupasna/" class="w-full h-full border-none" title="Form JITUPASNA" scrolling="yes" style="overflow:hidden;"></iframe>
+        
+    </div>
 
 <div id="reports-view" class="hidden w-full flex flex-col gap-6 p-1 transition-all duration-300 ease-in-out opacity-0 scale-95 origin-top">
     
@@ -829,15 +844,15 @@
 </div>
 
 
-<a href="https://bidangrrjember.github.io/jitupasna/" id="open-form-btn"
+<button onclick="toggleFormView()" id="open-form-btn"
    class="fixed bottom-6 right-6 lg:bottom-10 lg:right-10 flex items-center justify-center
           w-14 h-14 bg-primary text-white rounded-full shadow-2xl shadow-blue-500/50
           transition-all duration-300 ease-in-out z-[30]
           hover:scale-110 active:scale-95 
           opacity-100 scale-100"
-   title="E-Form JITUPASNA">
-    <span class="material-symbols-outlined text-3xl">add</span>
-</a>	
+   title="Buka E-Form JITUPASNA">
+    <span class="material-symbols-outlined text-3xl transition-transform duration-300" id="form-btn-icon">add</span>
+</button>	
 
         </main>
 
@@ -3543,6 +3558,69 @@ function switchView(viewName) {
         }, { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true, grid: { display: false }, ticks: { color: textColor } }, y: { stacked: true, grid: { color: gridColor }, ticks: { color: textColor }, beginAtZero: true } }, plugins: { legend: { position: 'top', align: 'end', labels: { color: textColor } } } });
     }
    
+	let isFormOpen = false;
+
+        function toggleFormView() {
+            const dashboardView = document.getElementById('dashboard-view');
+            const reportsView = document.getElementById('reports-view');
+            const weatherView = document.getElementById('weather-focus-view');
+            const formView = document.getElementById('form-view');
+            
+            const btn = document.getElementById('open-form-btn');
+            const icon = document.getElementById('form-btn-icon');
+            
+            const animVisible = ['opacity-100', 'scale-100'];
+            const animHidden = ['opacity-0', 'scale-95'];
+
+            if (!isFormOpen) {
+                // --- BUKA FORMULIR ---
+                
+                // 1. Sembunyikan view lain
+                if(dashboardView) dashboardView.classList.add('hidden');
+                if(reportsView) reportsView.classList.add('hidden');
+                if(weatherView) weatherView.classList.add('hidden');
+
+                // 2. Tampilkan Form View dengan animasi
+                formView.classList.remove('hidden');
+                // Sedikit delay agar animasi CSS jalan
+                setTimeout(() => {
+                    formView.classList.remove(...animHidden);
+                    formView.classList.add(...animVisible);
+                }, 10);
+
+                // 3. Ubah tombol jadi Merah (Tanda Close)
+                btn.classList.replace('bg-primary', 'bg-red-600');
+                btn.classList.replace('shadow-blue-500/50', 'shadow-red-600/50');
+                icon.style.transform = 'rotate(135deg)'; // Putar ikon "+" jadi "x"
+                btn.title = "Tutup Formulir";
+                
+                isFormOpen = true;
+
+            } else {
+                // --- TUTUP FORMULIR ---
+
+                // 1. Sembunyikan Form
+                formView.classList.remove(...animVisible);
+                formView.classList.add(...animHidden);
+                setTimeout(() => {
+                    formView.classList.add('hidden');
+                    
+                    // 2. Kembalikan ke Dashboard (atau view terakhir)
+                    if(dashboardView) dashboardView.classList.remove('hidden');
+                    // Jika mau animasi balik ke dashboard halus:
+                    setTimeout(() => dashboardView?.classList.add(...animVisible), 10);
+                }, 300);
+
+                // 3. Ubah tombol kembali jadi Biru
+                btn.classList.replace('bg-red-600', 'bg-primary');
+                btn.classList.replace('shadow-red-600/50', 'shadow-blue-500/50');
+                icon.style.transform = 'rotate(0deg)';
+                btn.title = "Buka E-Form JITUPASNA";
+
+                isFormOpen = false;
+            }
+        }
+
     </script>
 
 <div id="image-preview-modal" onclick="closeImagePreview()" 
