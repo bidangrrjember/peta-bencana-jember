@@ -527,7 +527,7 @@
 
 </header>
 
-            <div class="flex-1 p-4 lg:p-6 overflow-y-auto custom-scrollbar bg-background-light dark:bg-background-dark">
+            <div id="main-scroller" class="flex-1 p-4 lg:p-6 overflow-y-auto custom-scrollbar bg-background-light dark:bg-background-dark">
 
 	<div id="weather-focus-view" class="hidden w-full min-h-full flex flex-col gap-6 pb-0 transition-all duration-300 ease-in-out opacity-0 scale-95 origin-center">
     
@@ -773,38 +773,316 @@
 
     </div> 
     
+	<div id="form-view" class="hidden w-full bg-background-light dark:bg-background-dark min-h-full transition-all duration-300 ease-in-out opacity-0 scale-95 origin-bottom">
+
+        <div class="w-full p-0 pb-0">
+        <form id="assessmentForm" class="space-y-4">
+
+<!-- ROW 1 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="form-card">
+                    <div class="form-header"><span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1">crisis_alert</span> Data Bencana</div>
+                    <div class="form-group" style="display:none;"><input type="text" id="bencana" name="bencana"></div>
+                    <div class="form-group">
+                        <label for="jenisBencana" class="form-label">Jenis Bencana</label>
+                        <select id="jenisBencana" name="jenisBencana"><option value="">Pilih...</option><option value="Angin Kencang">Angin Kencang</option><option value="Banjir">Banjir</option><option value="Kebakaran">Kebakaran</option><option value="Gempa Bumi">Gempa Bumi</option><option value="Gunung Meletus">Gunung Meletus</option><option value="Tsunami">Tsunami</option><option value="Tanah Longsor">Tanah Longsor</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="sektor" class="form-label">Sektor JITUPASNA</label>
+                        <select id="sektor" name="sektor"><option value="">Pilih Sektor...</option><option value="Perumahan dan Permukiman">Perumahan dan Permukiman</option><option value="Infrastruktur Pembangunan">Infrastruktur Pembangunan</option><option value="Ekonomi">Ekonomi</option><option value="Sosial dan Kemanusiaan">Sosial dan Kemanusiaan</option><option value="Lintas Sektor">Lintas Sektor</option></select>
+                    </div>
+                    <div class="form-group mb-0">
+                        <label for="subSektor" class="form-label">Sub Sektor</label>
+                        <select id="subSektor" name="subSektor" disabled><option value="">Pilih Sektor Dulu...</option></select>
+                    </div>
+                </div>
+                <div class="form-card">
+                    <div class="form-header"><span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1">person</span> Identitas &amp; Kontak</div>
+                    <div class="form-group">
+                        <label for="namaKK" class="form-label">Nama Kepala Keluarga</label>
+                        <input type="text" id="namaKK" name="namaKK" placeholder="Masukkan nama...">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="form-group">
+                            <label for="jumlahKeluarga" class="form-label">Jumlah Anggota</label>
+                            <input type="number" id="jumlahKeluarga" name="jumlahKeluarga" placeholder="Jumlah jiwa...">
+                        </div>
+                        <div class="form-group">
+                            <label for="statusRumah" class="form-label">Status Rumah</label>
+                            <select id="statusRumah" name="statusRumah"><option value="">Pilih...</option><option value="Milik Sendiri">Milik Sendiri</option><option value="Sewa">Sewa</option></select>
+                        </div>
+                    </div>
+                    <div class="form-group mb-0">
+                        <label for="nomoryangBisaDihubungi" class="form-label">Nomor yang Bisa Dihubungi</label>
+                        <input type="tel" id="nomoryangBisaDihubungi" name="nomoryangBisaDihubungi" placeholder="08123456789">
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROW 2 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="form-card">
+                    <div class="form-header"><span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1">location_on</span> Alamat &amp; Lokasi</div>
+                    <div class="form-group">
+                        <label for="tempatTinggalSementara" class="form-label">Tempat Tinggal Sementara</label>
+                        <input type="text" id="tempatTinggalSementara" name="tempatTinggalSementara" placeholder="Rumah Kerabat / Pos Pengungsian / ...">
+                    </div>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="form-group">
+                            <label for="jalanDusun" class="form-label">Jalan/Dusun</label>
+                            <input type="text" id="jalanDusun" name="jalanDusun" placeholder="Dusun Krajan">
+                        </div>
+                        <div class="form-group">
+                            <label for="rt" class="form-label">RT</label>
+                            <input type="text" id="rt" name="rt" placeholder="001">
+                        </div>
+                        <div class="form-group">
+                            <label for="rw" class="form-label">RW</label>
+                            <input type="text" id="rw" name="rw" placeholder="005">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="form-group">
+                            <label for="alamatKecamatan" class="form-label">Kecamatan</label>
+                            <select id="alamatKecamatan" name="alamatKecamatan"><option value="">Pilih Kecamatan...</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="alamatDesa" class="form-label">Kelurahan/Desa</label>
+                            <select id="alamatDesa" name="alamatDesa" disabled><option value="">Pilih Kecamatan Dulu...</option></select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 mb-2">
+                        <div class="form-group mb-0">
+                            <label for="latitude" class="form-label">Latitude</label>
+                            <input type="text" id="latitude" name="latitude" placeholder="Klik tombol deteksi">
+                        </div>
+                        <div class="form-group mb-0">
+                            <label for="longitude" class="form-label">Longitude</label>
+                            <input type="text" id="longitude" name="longitude" placeholder="Klik tombol deteksi">
+                        </div>
+                    </div>
+                    <button type="button" id="getLocationBtn" class="form-button-blue w-full mt-1">
+                        <span class="material-symbols-outlined text-sm">my_location</span> Deteksi Lokasi Otomatis
+                    </button>
+                    <div id="locationStatus" class="text-xs text-center mt-2 text-gray-400"></div>
+                </div>
+                <div class="space-y-4">
+                    <div class="form-card">
+                        <div class="form-header"><span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1">schedule</span> Waktu Asesmen</div>
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-700">
+                            <div>
+                                <span id="labelWaktu" class="text-sm font-semibold text-text-light dark:text-text-dark block">Asesmen Saat Ini</span>
+                                <span id="descWaktu" class="text-xs text-gray-400">Waktu tercatat otomatis saat kirim.</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                                <input type="checkbox" id="toggleWaktu" class="sr-only peer">
+                                <div class="w-10 h-5 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:bg-primary transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5"></div>
+                            </label>
+                        </div>
+                        <div id="containerManualWaktu" class="hidden mt-3">
+                            <label for="inputWaktuManual" class="form-label">Pilih Tanggal &amp; Jam</label>
+                            <input type="datetime-local" id="inputWaktuManual">
+                        </div>
+                    </div>
+                    <div class="form-card">
+                        <div class="form-header"><span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1">groups</span> Personil &amp; Unsur</div>
+                        <div class="form-group list-builder-container mb-3">
+                            <label for="personilSelect" class="form-label">Personil yang Berangkat</label>
+                            <ul id="personilListContainer" class="item-list"></ul>
+                            <div class="flex gap-2">
+                                <select id="personilSelect" class="flex-1"><option value="">Pilih personil...</option><option value="Ir. Anang Dwi Resdianto, S.T., M.M., M.T.">Ir. Anang Dwi Resdianto, S.T., M.M., M.T.</option><option value="Raden Waloejo Djati, S.T.">Raden Waloejo Djati, S.T.</option><option value="Anton">Anton</option><option value="Cahyani Wulandari, S.T.">Cahyani Wulandari, S.T.</option><option value="Yangga Purnagusti, S.T.">Yangga Purnagusti, S.T.</option><option value="Muhammad Qoidul Umam, S.T.">Muhammad Qoidul Umam, S.T.</option><option value="Risky Rena Anggia Sari, S.Si.">Risky Rena Anggia Sari, S.Si.</option><option value="Deliana Aristantia, S.Pd.">Deliana Aristantia, S.Pd.</option><option value="Ali Maskur Bakri">Ali Maskur Bakri</option><option value="Lainnya">Lainnya</option></select>
+                                <button type="button" id="personilButton" class="form-button-green">Tambah</button>
+                            </div>
+                            <input type="text" id="personilLainnyaInput" class="lainnya-input mt-2" placeholder="Ketik nama personil lainnya...">
+                            <input type="hidden" id="personilyangBerangkat" name="personilyangBerangkat">
+                            <input type="hidden" id="personilLainnya" name="personilLainnya">
+                        </div>
+                        <div class="form-group list-builder-container mb-0">
+                            <label for="unsurSelect" class="form-label">Unsur yang Terlibat</label>
+                            <ul id="unsurListContainer" class="item-list"></ul>
+                            <div class="flex gap-2">
+                                <select id="unsurSelect" class="flex-1"><option value="">Pilih unsur...</option><option value="BPBD Kabupaten Jember">BPBD Kabupaten Jember</option><option value="Perangkat Kelurahan/Desa">Perangkat Kelurahan/Desa</option><option value="TNI/POLRI">TNI/POLRI</option><option value="Warga">Warga</option><option value="Relawan">Relawan</option><option value="Lainnya">Lainnya</option></select>
+                                <button type="button" id="unsurButton" class="form-button-green">Tambah</button>
+                            </div>
+                            <input type="text" id="unsurLainnyaInput" class="lainnya-input mt-2" placeholder="Ketik unsur lainnya...">
+                            <input type="hidden" id="unsuryangTerlibat" name="unsuryangTerlibat">
+                            <input type="hidden" id="unsurLainnya" name="unsurLainnya">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROW 3: Data Kerusakan -->
+            <div class="form-card">
+                <div class="form-header"><span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1">home_repair_service</span> Data Kerusakan</div>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+                    <div class="form-group mb-0">
+                        <label for="ukuranPanjang" class="form-label">Panjang (m)</label>
+                        <input type="number" step="0.1" id="ukuranPanjang" name="ukuranPanjang" placeholder="0.0">
+                    </div>
+                    <div class="form-group mb-0">
+                        <label for="ukuranLebar" class="form-label">Lebar (m)</label>
+                        <input type="number" step="0.1" id="ukuranLebar" name="ukuranLebar" placeholder="0.0">
+                    </div>
+                    <div class="form-group mb-0 col-span-2">
+                        <label for="jenisKonstruksi" class="form-label">Jenis Konstruksi</label>
+                        <select id="jenisKonstruksi" name="jenisKonstruksi"><option value="">Pilih...</option><option value="Permanen">Permanen</option><option value="Semi Permanen">Semi Permanen</option><option value="Non Permanen">Non Permanen</option></select>
+                    </div>
+                </div>
+                <div class="form-group list-builder-container">
+                    <label for="bagianKerusakanSelect" class="form-label">Bagian yang Mengalami Kerusakan</label>
+                    <ul id="bagianKerusakanListContainer" class="item-list"></ul>
+                    <div class="flex gap-2">
+                        <select id="bagianKerusakanSelect" class="flex-1"><option value="">Pilih bagian...</option><option value="Atap">Atap</option><option value="Dinding">Dinding</option><option value="Lantai">Lantai</option><option value="Pondasi">Pondasi</option></select>
+                        <button type="button" id="bagianKerusakanButton" class="form-button-green">Tambah</button>
+                    </div>
+                    <input type="text" id="bagianKerusakanLainnyaInput" class="lainnya-input mt-2" placeholder="Ketik bagian lainnya...">
+                    <input type="hidden" id="bagianKerusakan" name="bagianKerusakan">
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-3">
+                    <div class="form-group kerusakan-fisik-group mb-0" data-category="Pondasi">
+                        <label for="kerusakanPondasi" class="form-label">Kerusakan Fisik Pondasi</label>
+                        <select id="kerusakanPondasi" name="kerusakanPondasi"><option value="">Pilih...</option><option value="Retakan sangat jelas namun tidak tembus sampai tulang beton (6%)">Retakan sangat jelas namun tidak tembus sampai tulang beton (6%)</option><option value="Kehancuran beton yang sangat nyata dengan tulangan beton terlihat (6%)">Kehancuran beton yang sangat nyata dengan tulangan beton terlihat (6%)</option><option value="Penurunan dan/atau Kemiringan lantai dapat terlihat (8%)">Penurunan dan/atau Kemiringan lantai dapat terlihat (8%)</option><option value="Pondasi hancur dan/atau tidak bisa diperbaiki (10%)">Pondasi hancur dan/atau tidak bisa diperbaiki (10%)</option></select>
+                    </div>
+                    <div class="form-group kerusakan-fisik-group mb-0" data-category="Dinding">
+                        <label for="kerusakanRangkaStruktur" class="form-label">Kerusakan Rangka Struktur (Kolom/Balok)</label>
+                        <select id="kerusakanRangkaStruktur" name="kerusakanRangkaStruktur"><option value="">Pilih...</option><option value="Retakan yang sangat jelas namun tidak tembus sampai tulangan beton (10%)">Retakan yang sangat jelas namun tidak tembus sampai tulangan beton (10%)</option><option value="Kehancuran beton yang sangat nyata dengan tulangan beton terlihat (10%)">Kehancuran beton yang sangat nyata dengan tulangan beton terlihat (10%)</option><option value="Tulangan tertekuk (15%)">Tulangan tertekuk (15%)</option><option value="Deformasi vertikal/miring pada kolom dapat terlihat (25%)">Deformasi vertikal/miring pada kolom dapat terlihat (25%)</option><option value="Rangka struktur kayu rusak/roboh (25%)">Rangka struktur kayu rusak/roboh (25%)</option></select>
+                    </div>
+                    <div class="form-group kerusakan-fisik-group mb-0" data-category="Atap">
+                        <label for="kerusakanRangkaAtap" class="form-label">Kerusakan Rangka Atap/Kuda-Kuda</label>
+                        <select id="kerusakanRangkaAtap" name="kerusakanRangkaAtap"><option value="">Pilih...</option><option value="Reng dan/atau usuk hancur sebagian atau seluruh (10%)">Reng dan/atau usuk hancur sebagian atau seluruh (10%)</option><option value="Kuda-kuda roboh sebagian atau seluruh (25%)">Kuda-kuda roboh sebagian atau seluruh (25%)</option></select>
+                    </div>
+                    <div class="form-group kerusakan-fisik-group mb-0" data-category="Atap">
+                        <label for="kerusakanPenutupAtap" class="form-label">Kerusakan Penutup Atap/Genteng</label>
+                        <select id="kerusakanPenutupAtap" name="kerusakanPenutupAtap"><option value="">Pilih...</option><option value="Berjatuhan menyebar sebagian atau seluruh (5%)">Berjatuhan menyebar sebagian atau seluruh (5%)</option></select>
+                    </div>
+                    <div class="form-group kerusakan-fisik-group mb-0" data-category="Atap">
+                        <label for="kerusakanLangit" class="form-label">Kerusakan Langit-Langit/Plafon</label>
+                        <select id="kerusakanLangit" name="kerusakanLangit"><option value="">Pilih...</option><option value="Langit-langit terlepas/jatuh menyebar sebagian atau seluruh (5%)">Langit-langit terlepas/jatuh menyebar sebagian atau seluruh (5%)</option><option value="Langit-langit terlepas/jatuh dan rangka langit-langit rusak menyebar sebagian atau seluruh (5%)">Langit-langit terlepas/jatuh dan rangka langit-langit rusak menyebar sebagian atau seluruh (5%)</option></select>
+                    </div>
+                    <div class="form-group kerusakan-fisik-group mb-0" data-category="Dinding">
+                        <label for="kerusakanDinding" class="form-label">Kerusakan Fisik Dinding</label>
+                        <select id="kerusakanDinding" name="kerusakanDinding"><option value="">Pilih...</option><option value="Plesteran terkelupas (10%)">Plesteran terkelupas (10%)</option><option value="Retakan dapat terlihat jelas, tembus pada pasangan batu (10%)">Retakan dapat terlihat jelas, tembus pada pasangan batu (10%)</option><option value="Dinding mengalami displacement horizontal/miring (17%)">Dinding mengalami displacement horizontal/miring (17%)</option><option value="Dinding jatuh sebagian atau menyeluruh (25%)">Dinding jatuh sebagian atau menyeluruh (25%)</option><option value="Dinding partisi/sesek rusak sebagian/menyeluruh (25%)">Dinding partisi/sesek rusak sebagian/menyeluruh (25%)</option></select>
+                    </div>
+                    <div class="form-group kerusakan-fisik-group mb-0" data-category="Lantai">
+                        <label for="kerusakanLantai" class="form-label">Kerusakan Fisik Lantai</label>
+                        <select id="kerusakanLantai" name="kerusakanLantai"><option value="">Pilih...</option><option value="Retak dan/atau hancur menyebar sebagian atau seluruh (5%)">Retak dan/atau hancur menyebar sebagian atau seluruh (5%)</option></select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-3">
+                    <div class="form-group mb-0">
+                        <label for="nilaiKerugian" class="form-label">Nilai Kerugian (Rp)</label>
+                        <input type="number" id="nilaiKerugian" name="nilaiKerugian" placeholder="Estimasi nilai rupiah...">
+                    </div>
+                    <div class="form-group mb-0">
+                        <label for="pengkajianDampak" class="form-label">Pengkajian Dampak</label>
+                        <textarea id="pengkajianDampak" name="pengkajianDampak" placeholder="Deskripsikan dampak yang terjadi..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROW 4: Bantuan -->
+            <div class="form-card">
+                <div class="form-header"><span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1">inventory_2</span> Bantuan yang Diajukan</div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                    <div class="bg-gray-50 dark:bg-gray-800/60 rounded-xl p-3 border border-gray-100 dark:border-gray-700/50"><label for="semen" class="block text-xs font-semibold text-gray-400 mb-1.5">Semen</label><input type="number" id="semen" name="semen" placeholder="0" class="!p-1.5 !text-sm !rounded-lg"></div>
+                    <div class="bg-gray-50 dark:bg-gray-800/60 rounded-xl p-3 border border-gray-100 dark:border-gray-700/50"><label for="batuBata" class="block text-xs font-semibold text-gray-400 mb-1.5">Batu Bata</label><input type="number" id="batuBata" name="batuBata" placeholder="0" class="!p-1.5 !text-sm !rounded-lg"></div>
+                    <div class="bg-gray-50 dark:bg-gray-800/60 rounded-xl p-3 border border-gray-100 dark:border-gray-700/50"><label for="genteng" class="block text-xs font-semibold text-gray-400 mb-1.5">Genteng</label><input type="number" id="genteng" name="genteng" placeholder="0" class="!p-1.5 !text-sm !rounded-lg"></div>
+                    <div class="bg-gray-50 dark:bg-gray-800/60 rounded-xl p-3 border border-gray-100 dark:border-gray-700/50"><label for="kalsiboard" class="block text-xs font-semibold text-gray-400 mb-1.5">Kalsiboard</label><input type="number" id="kalsiboard" name="kalsiboard" placeholder="0" class="!p-1.5 !text-sm !rounded-lg"></div>
+                    <div class="bg-gray-50 dark:bg-gray-800/60 rounded-xl p-3 border border-gray-100 dark:border-gray-700/50"><label for="kayuBalok" class="block text-xs font-semibold text-gray-400 mb-1.5">Kayu Balok</label><input type="number" id="kayuBalok" name="kayuBalok" placeholder="0" class="!p-1.5 !text-sm !rounded-lg"></div>
+                    <div class="bg-gray-50 dark:bg-gray-800/60 rounded-xl p-3 border border-gray-100 dark:border-gray-700/50"><label for="kayuUsuk" class="block text-xs font-semibold text-gray-400 mb-1.5">Kayu Usuk</label><input type="number" id="kayuUsuk" name="kayuUsuk" placeholder="0" class="!p-1.5 !text-sm !rounded-lg"></div>
+                    <div class="bg-gray-50 dark:bg-gray-800/60 rounded-xl p-3 border border-gray-100 dark:border-gray-700/50"><label for="kayuReng" class="block text-xs font-semibold text-gray-400 mb-1.5">Kayu Reng</label><input type="number" id="kayuReng" name="kayuReng" placeholder="0" class="!p-1.5 !text-sm !rounded-lg"></div>
+                    <div class="bg-gray-50 dark:bg-gray-800/60 rounded-xl p-3 border border-gray-100 dark:border-gray-700/50"><label for="besi6mm" class="block text-xs font-semibold text-gray-400 mb-1.5">Besi ø 6mm</label><input type="number" id="besi6mm" name="besi6mm" placeholder="0" class="!p-1.5 !text-sm !rounded-lg"></div>
+                    <div class="bg-gray-50 dark:bg-gray-800/60 rounded-xl p-3 border border-gray-100 dark:border-gray-700/50"><label for="besi10mm" class="block text-xs font-semibold text-gray-400 mb-1.5">Besi ø 10mm</label><input type="number" id="besi10mm" name="besi10mm" placeholder="0" class="!p-1.5 !text-sm !rounded-lg"></div>
+                    <div class="bg-gray-50 dark:bg-gray-800/60 rounded-xl p-3 border border-gray-100 dark:border-gray-700/50"><label for="terpal3x4" class="block text-xs font-semibold text-gray-400 mb-1.5">Terpal 3×4m</label><input type="number" id="terpal3x4" name="terpal3x4" placeholder="0" class="!p-1.5 !text-sm !rounded-lg"></div>
+                    <div class="bg-gray-50 dark:bg-gray-800/60 rounded-xl p-3 border border-gray-100 dark:border-gray-700/50"><label for="terpal5x6" class="block text-xs font-semibold text-gray-400 mb-1.5">Terpal 5×6m</label><input type="number" id="terpal5x6" name="terpal5x6" placeholder="0" class="!p-1.5 !text-sm !rounded-lg"></div>
+                </div>
+            </div>
+
+            <!-- ROW 5: Upload + Kirim -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start lg:items-stretch">
+    
+    <div class="form-card flex flex-col w-full h-auto lg:h-full">
+        <div class="form-header flex-shrink-0">
+            <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1">upload_file</span> 
+            Upload Disposisi
+        </div>
+        <div class="flex-none lg:flex-1 flex flex-col lg:justify-end">
+            <div class="form-group mb-0">
+                <label for="fileDisposisi" class="form-label">File Disposisi (Opsional)</label>
+                <input type="file" id="fileDisposisi" name="fileDisposisi" accept=".pdf" class="form-file-input">
+            </div>
+        </div>
+    </div>
+
+    <div class="form-card flex flex-col w-full h-auto lg:h-full">
+        <div class="form-header flex-shrink-0">
+            <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1">add_a_photo</span> 
+            Upload Dokumentasi
+        </div>
+        <div class="flex-none lg:flex-1 flex flex-col lg:justify-end">
+            <div class="form-group mb-0">
+                <label for="filesDokumentasi" class="form-label">Dokumentasi (Maks 8 foto)</label>
+                <input type="file" id="filesDokumentasi" name="filesDokumentasi" multiple accept="image/*,.jpeg,.jpg,.png" class="form-file-input">
+            </div>
+        </div>
+    </div>
+
+    <div class="form-card flex flex-col w-full h-auto lg:h-full">
+        <div class="form-header flex-shrink-0">
+            <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1">send</span> 
+            Kirim Laporan
+        </div>
+        <div class="flex-none lg:flex-1 flex flex-col lg:justify-end">
+            <p class="text-[10px] text-gray-400 dark:text-gray-500 mb-3 flex items-start gap-1.5 leading-tight">
+                <span class="material-symbols-outlined text-xs text-amber-400 flex-shrink-0">warning</span>
+                Pastikan data benar sebelum kirim.
+            </p>
+            <button type="submit" id="submitButton" class="w-full py-2.5 px-4 rounded-lg bg-primary text-white text-xs font-bold hover:bg-blue-600 active:scale-95 transition-all shadow-md shadow-blue-500/30 disabled:bg-gray-400 flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-base">send</span> Kirim Laporan
+            </button>
+        </div>
+    </div>
+
+</div>
+
+        </form>
+        </div>
+
+    </div>
 
 <div id="reports-view" class="hidden w-full flex flex-col gap-6 p-1 transition-all duration-300 ease-in-out opacity-0 scale-95 origin-top">
     
     <div class="h-[400px] shrink-0 flex flex-col bg-white dark:bg-card-dark p-6 rounded-lg border border-border-light dark:border-border-dark shadow-sm">
-    <h4 class="font-bold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2 text-base shrink-0">
-        <span class="material-symbols-outlined text-primary">ssid_chart</span> <span id="tren-chart-title">Tren Kejadian Bencana (Bulanan)</span>
-    </h4>
-    <div class="relative flex-1 w-full min-h-0">
-        <canvas id="chartTrenBulanan"></canvas>
-    </div>
-</div>
-
-    <div class="h-[400px] shrink-0 grid grid-cols-1 lg:grid-cols-3 gap-6">
-    
-    <div class="flex flex-col bg-white dark:bg-card-dark p-6 rounded-lg border border-border-light dark:border-border-dark shadow-sm">
         <h4 class="font-bold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2 text-base shrink-0">
-            <span class="material-symbols-outlined text-red-500">pie_chart</span> Statistik Tingkat Kerusakan
-        </h4>
-        <div class="relative flex-1 flex justify-center items-center min-h-0">
-            <canvas id="chartTingkatKerusakan"></canvas>
-        </div>
-    </div>
-
-    <div class="lg:col-span-2 flex flex-col bg-white dark:bg-card-dark p-6 rounded-lg border border-border-light dark:border-border-dark shadow-sm">
-        <h4 class="font-bold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2 text-base shrink-0">
-            <span class="material-symbols-outlined text-orange-500">foundation</span> Kerentanan Bangunan (Konstruksi)
+            <span class="material-symbols-outlined text-primary">ssid_chart</span> <span id="tren-chart-title">Tren Kejadian Bencana (Bulanan)</span>
         </h4>
         <div class="relative flex-1 w-full min-h-0">
-            <canvas id="chartKonstruksi"></canvas>
+            <canvas id="chartTrenBulanan"></canvas>
         </div>
     </div>
-</div>
+
+    <div class="h-[400px] shrink-0 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <div class="flex flex-col bg-white dark:bg-card-dark p-6 rounded-lg border border-border-light dark:border-border-dark shadow-sm">
+            <h4 class="font-bold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2 text-base shrink-0">
+                <span class="material-symbols-outlined text-red-500">pie_chart</span> Statistik Tingkat Kerusakan
+            </h4>
+            <div class="relative flex-1 flex justify-center items-center min-h-0">
+                <canvas id="chartTingkatKerusakan"></canvas>
+            </div>
+        </div>
+
+        <div class="lg:col-span-2 flex flex-col bg-white dark:bg-card-dark p-6 rounded-lg border border-border-light dark:border-border-dark shadow-sm">
+            <h4 class="font-bold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2 text-base shrink-0">
+                <span class="material-symbols-outlined text-orange-500">foundation</span> Kerentanan Bangunan (Konstruksi)
+            </h4>
+            <div class="relative flex-1 w-full min-h-0">
+                <canvas id="chartKonstruksi"></canvas>
+            </div>
+        </div>
+        
+    </div>
 
     <div class="shrink-0 bg-white dark:bg-card-dark rounded-lg border border-border-light dark:border-border-dark shadow-sm overflow-hidden mb-1">
         
@@ -817,11 +1095,12 @@
         <div class="overflow-x-auto no-scrollbar">
             <table class="w-full text-sm text-center border-collapse whitespace-nowrap">
                 <thead id="material-table-head" class="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-bold text-xs uppercase tracking-wider">
-                    </thead>
+                </thead>
                 <tbody id="material-table-body" class="bg-white dark:bg-card-dark text-gray-800 dark:text-gray-200">
-                    </tbody>
+                </tbody>
             </table>
         </div>
+        
     </div>
 
 </div>
@@ -829,20 +1108,14 @@
 </div>
 
 
-<a href="https://bidangrrjember.github.io/jitupasna/" id="open-form-btn"
-   class="fixed bottom-6 right-6 lg:bottom-10 lg:right-10 flex items-center justify-center
-          w-14 h-14 bg-primary text-white rounded-full shadow-2xl shadow-blue-500/50
-          transition-all duration-300 ease-in-out z-[30]
-          hover:scale-110 active:scale-95 
-          opacity-100 scale-100"
-   title="E-Form JITUPASNA">
-    <span class="material-symbols-outlined text-3xl">add</span>
-</a>	
+<button id="open-form-btn" onclick="toggleFormView()" class="fixed bottom-8 right-8 z-[100] w-16 h-16 bg-primary text-white rounded-full shadow-2xl shadow-blue-500/50 flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300 group">
+    <span class="material-symbols-outlined text-3xl transition-transform duration-300">add</span>
+</button>
 
         </main>
 
-        <div id="sidebar" class="fixed top-0 right-0 w-full max-w-md h-full bg-card-light dark:bg-card-dark shadow-2xl z-40
-                                flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out">
+        <div id="sidebar" class="fixed top-0 right-0 w-full max-w-md h-full bg-card-light dark:bg-card-dark shadow-2xl z-[110]
+                        flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out">
             <div id="sidebar-header" class="p-5 flex justify-between items-center border-b border-border-light dark:border-border-dark flex-shrink-0">
                 <h3 id="sidebar-title" class="text-lg font-bold">Detail Laporan</h3>
                 <button class="close-btn text-3xl font-light text-gray-500 hover:text-red-500" onclick="closeSidebar()">×</button>
@@ -857,24 +1130,34 @@
         <span>Unduh Laporan</span>
     </a>
 
-    <div class="flex gap-3 h-14">
-        
+    <div class="flex gap-3 h-14 w-full">
+    
         <a href="#" id="route-button-link" target="_blank" 
-           class="flex-1 h-full flex items-center justify-center gap-2 px-4 bg-primary hover:bg-blue-600 text-white rounded-xl font-bold text-sm shadow-md shadow-blue-500/30 transition-all duration-200 hover:scale-[1.02] active:scale-95">
-            <span class="material-symbols-outlined text-xl">directions</span>
-            <span>Buka Rute Lokasi</span>
+           class="flex-none w-14 h-full flex items-center justify-center bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-800 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-700/50 rounded-xl shadow-sm transition-all duration-200 hover:scale-105 active:scale-95"
+           title="Buka Rute Lokasi">
+            <span class="material-symbols-outlined text-2xl">directions</span>
         </a>
 
-        <a href="#" id="share-wa-btn" target="_blank" 
+        <div class="flex-1 h-full flex rounded-xl shadow-md shadow-blue-500/30 overflow-hidden transition-all duration-200">
+            <button id="btn-cetak-pdf" onclick="" 
+               class="flex-1 h-full flex items-center justify-center gap-2 px-4 bg-primary hover:bg-blue-600 text-white font-bold text-sm transition-colors active:bg-blue-700">
+                <span id="icon-cetak-pdf" class="material-symbols-outlined text-xl">print</span>
+                <span id="text-cetak-pdf">Cetak Laporan</span>
+            </button>
+            
+            <button id="btn-reload-pdf" onclick="" 
+               class="hidden w-12 h-full flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white transition-colors active:bg-blue-800 border-l border-blue-400/50" title="Cetak Ulang & Timpa Laporan Lama">
+                <span id="icon-reload-pdf" class="material-symbols-outlined text-lg">sync</span>
+            </button>
+        </div>
+        <a href="#" id="share-wa-btn" target="_blank"
            class="flex-none w-14 h-full flex items-center justify-center bg-[#25D366] hover:bg-[#128C7E] text-white rounded-xl shadow-md shadow-green-500/30 transition-all duration-200 hover:scale-105 active:scale-95"
            title="Kirim Laporan via WhatsApp">
             <svg class="w-8 h-8 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
             </svg>
         </a>
-
     </div>
-
 </div>
 
     </div>
@@ -902,13 +1185,74 @@
                 </div>
                 <div class="chart-container p-4 rounded-lg border border-border-light dark:border-border-dark shadow-sm lg:col-span-3 force-bantuan-layout" id="bantuan-table-container">
     <h5 class="text-center font-semibold mb-3">Total Bantuan Stimulan Diberikan</h5>
-    <style>
-		
-        .force-bantuan-layout .bantuan-table-wrapper {
-            overflow-x: auto !important;
-            width: 100% !important;
-            -webkit-overflow-scrolling: touch;
-        }
+    <style type="text/tailwindcss">
+    /* FORM STYLING - UPDATED ROUNDED CORNERS */
+    .form-card {
+        /* Ubah rounded-xl jadi rounded-lg */
+        @apply bg-white dark:bg-card-dark rounded-lg border border-border-light dark:border-border-dark p-5 shadow-sm;
+    }
+    .form-header {
+        @apply text-sm font-bold text-gray-700 dark:text-gray-200 border-b border-gray-100 dark:border-gray-700/60 pb-3 mb-4 flex items-center gap-2;
+    }
+    .form-group { @apply mb-3 text-left; }
+    .form-label {
+        @apply block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5;
+    }
+    .form-label-note {
+        @apply block text-xs text-gray-300 dark:text-gray-600 italic mb-1;
+    }
+    
+    /* INPUTS: Ubah rounded-xl jadi rounded-lg */
+    .form-input-style,
+    #assessmentForm input[type="text"],
+    #assessmentForm input[type="number"],
+    #assessmentForm input[type="datetime-local"],
+    #assessmentForm input[type="tel"],
+    #assessmentForm select,
+    #assessmentForm textarea {
+        @apply w-full rounded-lg bg-gray-50 dark:bg-gray-800 text-sm text-gray-700 dark:text-gray-200
+        border border-gray-200 dark:border-gray-600
+        focus:border-primary focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-gray-700
+        transition-all duration-200 px-3 py-2.5;
+    }
+
+    #assessmentForm select { @apply cursor-pointer; }
+    #assessmentForm textarea { @apply resize-none min-h-[80px]; }
+    #assessmentForm input:disabled,
+    #assessmentForm select:disabled { @apply opacity-40 cursor-not-allowed; }
+
+    .list-builder-container {
+        /* Ubah rounded-xl jadi rounded-lg */
+        @apply border border-dashed border-gray-200 dark:border-gray-600 rounded-lg p-3 bg-gray-50/50 dark:bg-gray-800/30;
+    }
+    .item-list { @apply space-y-1.5 mb-2; }
+    .item-list li {
+        @apply bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 px-3 py-1.5 rounded-md flex justify-between items-center text-xs font-medium shadow-sm;
+    }
+
+    /* BUTTONS: Ubah rounded-xl jadi rounded-lg */
+    .form-button-green {
+        @apply bg-primary/10 hover:bg-primary text-primary hover:text-white border border-primary/20 hover:border-primary font-semibold text-xs py-2 px-4 rounded-lg transition-all duration-200 active:scale-95 whitespace-nowrap cursor-pointer;
+    }
+    .btn-green { 
+        @apply bg-primary/10 hover:bg-primary text-primary hover:text-white border border-primary/20 font-semibold text-xs py-2 px-4 rounded-lg transition-all active:scale-95 cursor-pointer; 
+    }
+    .form-button-blue {
+        @apply flex items-center justify-center gap-1.5 bg-gray-50 dark:bg-gray-700 hover:bg-primary hover:text-white text-gray-500 dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:border-primary font-semibold text-sm py-2 px-4 rounded-lg transition-all duration-200 active:scale-95 cursor-pointer;
+    }
+    .form-file-input {
+        @apply w-full text-xs text-gray-500 dark:text-gray-400
+        file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0
+        file:text-xs file:font-semibold file:bg-primary/10 file:text-primary
+        hover:file:bg-primary hover:file:text-white file:transition-all file:cursor-pointer cursor-pointer;
+    }
+    .kerusakan-fisik-group, .lainnya-input { display: none; }
+    
+    .force-bantuan-layout .bantuan-table-wrapper {
+        overflow-x: auto !important;
+        width: 100% !important;
+        -webkit-overflow-scrolling: touch;
+    }
         .force-bantuan-layout .bantuan-table {
             width: 100% !important;
             border-collapse: collapse !important;
@@ -937,6 +1281,8 @@
         .dark .force-bantuan-layout .bantuan-table th {
             background-color: #1E1E1E !important;
         }
+
+
     </style>
     <div class="bantuan-table-wrapper">
         <table class="bantuan-table">
@@ -949,7 +1295,7 @@
 
 
     <script>
-        const DATA_URL = 'https://script.google.com/macros/s/AKfycbxN3RQML63nSmK5gODBEYB8eG66JygbLr-3wab9UEzS9e0N29SEK288dFTFRuWL0bE/exec';
+        const DATA_URL = 'https://script.google.com/macros/s/AKfycbzIt0UDe1krnVpsy7SkdjFmtR3f1sGX72EQCcGxotmuStOfkAzocZTRowOIoQ13lFae/exec';
         let allData = [];
 	let weatherChartInstance = null;
         let layerGroups = {};
@@ -1014,7 +1360,7 @@ const checkIsOnlyTerpal = (item) => {
 };
 
         const map = L.map('map', { center: [-8.17, 113.70], zoom: 12, attributionControl: false, zoomControl: false }); //
-        const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map); //
+        const osm = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution: '© CARTO' }).addTo(map); //
         const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: '© Esri' }); //
         const dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '© CARTO' }); //
         const terrain = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { attribution: '© OpenTopoMap' }); //
@@ -1354,7 +1700,7 @@ function toggleWeatherMode() {
     const navReports = document.getElementById('nav-reports');
     const floatBtn = document.getElementById('open-form-btn'); 
     const mainArea = document.querySelector('main'); 
-    const contentScroller = mainArea ? mainArea.querySelector('div.overflow-y-auto') : null;
+    const contentScroller = document.getElementById('main-scroller');
     const animVisible = ['opacity-100', 'scale-100'];
     const animHidden = ['opacity-0', 'scale-95'];
     
@@ -1488,8 +1834,8 @@ const isOnlyTerpal = checkIsOnlyTerpal(item);
                             ${item.nama || 'N/A'}
                         </div>
                         
-                        <div class="w-32 sm:w-40 lg:w-48 text-xs text-gray-500 dark:text-gray-400 truncate" title="${item.jalandusun || ''}">
-                            ${item.jalandusun || '-'}
+                        <div class="w-32 sm:w-40 lg:w-48 text-xs text-gray-500 dark:text-gray-400 truncate" title="${item.desakelurahan || ''}">
+                            ${item.desakelurahan || '-'}
                         </div>
                     </td>
                     <td class="px-4 py-4 whitespace-nowrap">
@@ -2634,6 +2980,572 @@ function fetchData() {
             });
         }
 
+	// --- FUNGSI INTERAKSI REKOMENDASI ---
+        function toggleEditRekomendasi() {
+            const viewCont = document.getElementById('rekomendasi-view-container');
+            const editCont = document.getElementById('rekomendasi-edit-container');
+            if (viewCont.classList.contains('hidden')) {
+                // Jika sedang terbuka, maka tutup
+                viewCont.classList.remove('hidden');
+                editCont.classList.add('hidden');
+            } else {
+                // Jika sedang tertutup, tutup field lain dulu, baru buka rekomendasi
+                closeAllInlineEdits(); 
+                viewCont.classList.add('hidden');
+                editCont.classList.remove('hidden');
+            }
+        }
+
+	function addRekInput() {
+            const wrapper = document.getElementById('rek-input-wrapper');
+            const row = document.createElement('div');
+            row.className = 'flex items-center gap-2 mb-2 rek-input-row';
+            row.innerHTML = `
+                <span class="text-sm font-bold text-gray-400 rek-number"></span>
+                <input type="text" class="flex-1 text-sm p-2 border border-purple-200 dark:border-purple-700 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-purple-500 outline-none" placeholder="Ketik poin rekomendasi...">
+                <button onclick="this.parentElement.remove(); updateRekNumbers();" class="text-red-500 hover:text-red-700 p-1"><span class="material-symbols-outlined text-base">delete</span></button>
+            `;
+            wrapper.appendChild(row);
+            updateRekNumbers();
+            row.querySelector('input').focus(); // Otomatis fokus ke input baru
+        }
+
+        function updateRekNumbers() {
+            // Perbarui nomor urut setelah ada penambahan/penghapusan
+            const rows = document.querySelectorAll('#rek-input-wrapper .rek-input-row');
+            rows.forEach((row, index) => {
+                row.querySelector('.rek-number').innerText = (index + 1) + '.';
+            });
+        }
+
+        async function saveRekomendasi(idx) {
+            const item = allData.find(d => d.idx == idx);
+            if(!item) return;
+
+            // Ambil semua input di dalam wrapper, filter yang kosong, lalu gabung dengan "; "
+            const inputs = document.querySelectorAll('#rek-input-wrapper input');
+            const valuesArray = Array.from(inputs).map(input => input.value.trim()).filter(val => val !== '');
+            const newVal = valuesArray.join('; ');
+
+            const btnSave = document.getElementById('btn-save-rekomendasi');
+            const originalBtnText = btnSave.innerHTML;
+            
+            btnSave.disabled = true;
+            btnSave.innerHTML = '<span class="material-symbols-outlined text-xs animate-spin">progress_activity</span> Memproses...';
+
+            try {
+                const payload = {
+                    mode: 'updateText',
+                    laporanId: item.timestamp,
+                    columnName: 'Rekomendasi', 
+                    value: newVal
+                };
+
+                await fetch(DATA_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify(payload),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                });
+
+                item.rekomendasi = newVal;
+                showNotification('Berhasil! Rekomendasi tersimpan di Spreadsheet.');
+                openSidebarWithData(item); 
+                
+            } catch (error) {
+                console.error('Error saat menyimpan rekomendasi:', error);
+                showNotification('Gagal menyimpan ke server!');
+                btnSave.disabled = false;
+                btnSave.innerHTML = originalBtnText;
+            }
+        }
+
+	async function updateTanggalKeDatabase(columnName, value, idx) {
+            const item = allData.find(d => d.idx == idx);
+            if(!item) return;
+
+            showNotification('Menyimpan tanggal...');
+
+            try {
+                // Menggunakan rute handleUpdateText yang sudah kamu buat
+                const payload = {
+                    mode: 'updateText',
+                    laporanId: item.timestamp,
+                    columnName: columnName,
+                    value: value
+                };
+
+                await fetch(DATA_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify(payload),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                });
+
+                showNotification(`Berhasil! ${columnName} tersimpan.`);
+                
+                // Update memori lokal web agar tidak perlu refresh penuh
+                if (columnName === 'Tanggal Serah Terima') item.tglSerahTerima = value;
+                if (columnName === 'Tanggal Monitoring') item.tglMonitoring = value;
+
+            } catch (error) {
+                console.error('Error menyimpan tanggal:', error);
+                showNotification('Gagal menyimpan tanggal ke server!');
+            }
+        }
+
+	// 1. FUNGSI UNTUK MENCETAK KOTAK EDIT & LOGO PENSIL
+        function createEditableField(item, label, value, columnName, objKey, inputType = 'text', options = []) {
+            const fieldId = `field-${objKey}-${item.idx}`;
+            let inputHtml = '';
+            const safeValue = value ? String(value).replace(/"/g, '&quot;') : '';
+
+            // Render bentuk input berdasarkan tipenya
+            if (inputType === 'textarea') {
+                inputHtml = `<textarea id="input-${fieldId}" class="w-full text-sm p-2 border border-gray-300 dark:border-gray-600 rounded-lg mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary outline-none" rows="3">${value || ''}</textarea>`;
+            } else if (inputType === 'select') {
+                inputHtml = `<select id="input-${fieldId}" class="w-full text-sm p-2 border border-gray-300 dark:border-gray-600 rounded-lg mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary outline-none">
+                    ${options.map(opt => `<option value="${opt}" ${opt == value ? 'selected' : ''}>${opt}</option>`).join('')}
+                </select>`;
+            } else if (inputType === 'datetime') {
+                 let dateVal = '';
+                 if (item.dateObj && !isNaN(item.dateObj.getTime())) {
+                     const d = item.dateObj;
+                     const pad = (n) => String(n).padStart(2, '0');
+                     dateVal = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+                 }
+                 inputHtml = `<input type="datetime-local" id="input-${fieldId}" value="${dateVal}" class="w-full text-sm p-2 border border-gray-300 dark:border-gray-600 rounded-lg mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary outline-none cursor-pointer">`;
+            } else {
+                inputHtml = `<input type="text" id="input-${fieldId}" value="${safeValue}" class="w-full text-sm p-2 border border-gray-300 dark:border-gray-600 rounded-lg mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary outline-none">`;
+            }
+
+            // Tombol pensil hanya muncul jika Admin login
+            const editBtn = isLoggedIn ? `<button onclick="openInlineEdit('edit-${fieldId}', 'view-${fieldId}')" class="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-primary transition-all p-1.5 bg-white dark:bg-gray-800 rounded-md shadow-sm border border-gray-200 dark:border-gray-700 -mt-1 ml-2 flex-shrink-0" title="Edit ${label}"><span class="material-symbols-outlined text-[14px]">edit</span></button>` : '';
+
+            return `
+            <div class="group relative rounded-lg transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50 -mx-2 px-2 py-1.5">
+                <p class="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-0.5">${label}</p>
+                
+                <div id="view-${fieldId}" class="flex justify-between items-start">
+                    <p class="font-medium text-sm text-gray-800 dark:text-gray-200 ${inputType === 'textarea' ? 'leading-relaxed whitespace-pre-wrap' : 'truncate'}">${value || '-'}</p>
+                    ${editBtn}
+                </div>
+
+                <div id="edit-${fieldId}" class="hidden mt-1.5 bg-white dark:bg-gray-900 p-2.5 rounded-xl border border-primary/30 shadow-md relative z-10">
+                    ${inputHtml}
+                    <div class="flex justify-end gap-2 mt-3">
+                        <button onclick="document.getElementById('edit-${fieldId}').classList.add('hidden'); document.getElementById('view-${fieldId}').classList.remove('hidden');" class="px-3 py-1.5 text-xs font-medium text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">Batal</button>
+                        <button id="btn-save-input-${fieldId}" onclick="saveInlineEdit('${item.idx}', '${columnName}', '${objKey}', 'input-${fieldId}', '${inputType}')" class="px-3 py-1.5 text-xs font-bold bg-primary hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center gap-1 shadow-sm shadow-blue-500/30"><span class="material-symbols-outlined text-[14px]">save</span> Simpan</button>
+                    </div>
+                </div>
+            </div>
+            `;
+        }
+
+        // 2. FUNGSI UNTUK MENYIMPAN HASIL EDIT KE DATABASE
+        async function saveInlineEdit(idx, columnName, objKey, inputId, type) {
+            const item = allData.find(d => d.idx == idx);
+            if (!item) return;
+            const inputEl = document.getElementById(inputId);
+            let newVal = inputEl.value;
+
+            if (type === 'datetime') {
+                newVal = newVal.replace('T', ' '); // Format agar mudah dibaca Spreadsheet
+            }
+
+            const btnSave = document.getElementById('btn-save-' + inputId);
+            const originalText = btnSave.innerHTML;
+            btnSave.disabled = true;
+            btnSave.innerHTML = '<span class="material-symbols-outlined animate-spin text-[14px]">progress_activity</span>';
+
+            try {
+                const payload = {
+                    mode: 'updateText',
+                    laporanId: item.timestamp,
+                    columnName: columnName,
+                    value: newVal
+                };
+
+                await fetch(DATA_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify(payload),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                });
+
+                showNotification(`Berhasil! Data diperbarui.`);
+
+                // Update data di memori web
+                item[objKey] = newVal;
+                if (columnName === 'Timestamp') {
+                    item.timestamp = newVal;
+                    item.dateObj = parseIndonesianDate(newVal) || new Date(newVal);
+                    item.tanggalWaktu = newVal;
+                }
+
+                // Render ulang sidebar untuk melihat perubahannya langsung
+                openSidebarWithData(item);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Gagal menyimpan perubahan ke server!');
+                btnSave.disabled = false;
+                btnSave.innerHTML = originalText;
+            }
+        }
+
+	// --- FUNGSI UNTUK MENUTUP SEMUA INLINE EDIT BERSAMAAN ---
+        function closeAllInlineEdits() {
+            // 1. Tutup semua field teks biasa
+            document.querySelectorAll('[id^="edit-field-"]').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('[id^="view-field-"]').forEach(el => el.classList.remove('hidden'));
+            
+            // 2. Tutup edit bantuan
+            document.querySelectorAll('[id^="edit-bantuan-"]').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('[id^="view-bantuan-"]').forEach(el => el.classList.remove('hidden'));
+            
+            // 3. Tutup edit personil
+            document.querySelectorAll('[id^="edit-personil-"]').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('[id^="view-personil-"]').forEach(el => el.classList.remove('hidden'));
+            
+            // 4. Tutup edit rekomendasi
+            const rekEdit = document.getElementById('rekomendasi-edit-container');
+            const rekView = document.getElementById('rekomendasi-view-container');
+            if (rekEdit && rekView) {
+                rekEdit.classList.add('hidden');
+                rekView.classList.remove('hidden');
+            }
+        }
+
+        // --- FUNGSI BUKA 1 EDIT SAJA ---
+        function openInlineEdit(targetEditId, targetViewId) {
+            closeAllInlineEdits(); // Sapu bersih / tutup semua dulu
+            document.getElementById(targetViewId).classList.add('hidden');
+            document.getElementById(targetEditId).classList.remove('hidden'); // Baru buka yang diklik
+        }
+
+	// --- FUNGSI UNTUK MENYIMPAN BANTUAN TANPA BUAT BARIS BARU ---
+        async function saveBantuanData(idx) {
+            const item = allData.find(d => d.idx == idx);
+            if (!item) return;
+
+            const btnSave = document.getElementById('btn-save-bantuan-' + idx);
+            const originalText = btnSave.innerHTML;
+            btnSave.disabled = true;
+            btnSave.innerHTML = '<span class="material-symbols-outlined animate-spin text-[14px]">progress_activity</span>';
+
+            // Daftar kolom bantuan di Spreadsheet
+            const mapColBantuan = {"Semen":"Semen", "Batu Bata":"Batu Bata", "Genteng":"Genteng", "Kalsiboard":"Kalsiboard", "Kayu Balok":"Kayu Balok", "Kayu Usuk":"Kayu Usuk", "Kayu Reng":"Kayu Reng", "Besi ø 6 mm":"Besi 6mm", "Besi ø 10 mm":"Besi 10mm", "Terpal 3x4m":"Terpal 3x4", "Terpal 5x6m":"Terpal 5x6"};
+            
+            let updates = {};
+            let localBantuanUpdate = {...item.bantuan};
+
+            for (const [key, colName] of Object.entries(mapColBantuan)) {
+                // Mencocokkan ID input yang dibuat di openSidebarWithData
+                const inputId = `edit-bantuan-${idx}-${colName.replace(/\s+/g, '')}`;
+                const inputEl = document.getElementById(inputId);
+                
+                if (inputEl) {
+                    const val = inputEl.value;
+                    
+                    // --- PERBAIKAN LOGIKA: ---
+                    // Jika teks kosong ("") ATAU nilainya 0 (atau kurang), ubah jadi strip "-"
+                    if (val === "" || parseFloat(val) <= 0) {
+                        updates[colName] = "-";
+                        localBantuanUpdate[key] = 0;
+                    } else {
+                        updates[colName] = val;
+                        localBantuanUpdate[key] = parseFloat(val);
+                    }
+                }
+            }
+
+            try {
+                await fetch(DATA_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({
+                        mode: 'updateMultiple',
+                        laporanId: item.timestamp,
+                        updates: updates
+                    }),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                });
+
+                showNotification(`Berhasil! Data Bantuan diperbarui.`);
+                item.bantuan = localBantuanUpdate; 
+                openSidebarWithData(item); // Refresh tampilan sidebar
+
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Gagal menyimpan bantuan!');
+                btnSave.disabled = false;
+                btnSave.innerHTML = originalText;
+            }
+        }
+	
+	// =================================================================
+        // TARUH FUNGSI CETAK PDF DI SINI (TEPAT DI BAWAH saveRekomendasi)
+        // =================================================================
+        function formatTanggalLaporan(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            const bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            return `${date.getDate()} ${bulan[date.getMonth()]} ${date.getFullYear()}`;
+        }
+
+        async function cetakLaporanPDF(idx, docType = 'laporan', isReload = false) {
+            const item = allData.find(d => d.idx == idx);
+            if(!item) return;
+
+            // Validasi Tanggal Wajib Isi
+            if (docType === 'serahTerima') {
+                const tglInput = document.getElementById('input-tgl-serahTerima');
+                if (tglInput && !tglInput.value) return alert('Mohon isi Tanggal B.A Serah Terima terlebih dahulu!');
+            } else if (docType === 'monitoring') {
+                const tglInput = document.getElementById('input-tgl-monitoring');
+                if (tglInput && !tglInput.value) return alert('Mohon isi Tanggal Monitoring terlebih dahulu!');
+            }
+
+            // Loading diarahkan ke tombol yang di-klik
+            let btnCetak;
+            let originalText = "";
+            
+            if (docType === 'laporan') {
+                btnCetak = isReload ? document.getElementById('btn-reload-pdf') : document.getElementById('btn-cetak-pdf');
+            } else {
+                btnCetak = document.getElementById(`cetak-${docType}-btn`);
+            }
+            
+            if (btnCetak) {
+                originalText = btnCetak.innerHTML;
+                btnCetak.disabled = true;
+                btnCetak.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">progress_activity</span>';
+                if (!isReload && docType === 'laporan') btnCetak.innerHTML += ' Proses...';
+                if (docType !== 'laporan') btnCetak.innerHTML += ' Proses...';
+            }
+
+            // Logika Pemilihan Foto Berdasarkan Jenis Dokumen
+            let targetPhotos = [];
+            if (docType === 'laporan') {
+                targetPhotos = item.photos || [];
+            } else if (docType === 'serahTerima') {
+                targetPhotos = item.linkSerahTerima ? String(item.linkSerahTerima).split(',').map(s => s.trim()).filter(Boolean) : [];
+            } else if (docType === 'monitoring') {
+                targetPhotos = item.linkMonitoring ? String(item.linkMonitoring).split(',').map(s => s.trim()).filter(Boolean) : [];
+            }
+
+            // 1. Format Tanggal
+            const tglAsesmen = item.tanggalWaktu || 'Belum ada tanggal';
+	    // --- Logika Penentuan Desa / Kelurahan ---
+            const kecamatanKota = ['kaliwates', 'patrang', 'sumbersari'];
+            const kecRaw = (item.kec || '').toLowerCase().trim();
+            const jenisWilayah = kecamatanKota.includes(kecRaw) ? 'Kelurahan' : 'Desa';
+            const namaDesaKelurahan = item.desakelurahan ? `${jenisWilayah} ${item.desakelurahan}` : '-';
+            
+            // 2. Merakit Daftar menjadi berurut ke bawah
+            let bantuanText = "- Belum ada bantuan";
+            if (item.bantuan && typeof item.bantuan === 'object') {
+                let listBantuan = [];
+                let counter = 1;
+                // Ekstrak objek bantuan menjadi teks list berurut
+                for (const [material, jumlah] of Object.entries(item.bantuan)) {
+                    if (parseFloat(jumlah) > 0) {
+                        listBantuan.push(`${counter}. ${material}: ${jumlah}`);
+                        counter++;
+                    }
+                }
+                if (listBantuan.length > 0) {
+                let combined = [];
+                const batasKiri = 5; // Batas maksimal item yang memanjang ke bawah
+                const maxRows = Math.max(batasKiri, listBantuan.length - batasKiri);
+
+                for (let i = 0; i < maxRows; i++) {
+                    let left = listBantuan[i] || "";
+                    let right = listBantuan[i + batasKiri] || "";
+
+                    // Menggabungkan kiri dan kanan menggunakan karakter Tab (\t)
+                    if (left && right) {
+                        // Gunakan 2 atau 3 \t agar jaraknya cukup di Google Docs
+                        combined.push(`${left}\t\t${right}`);
+                    } else if (left) {
+                        combined.push(left);
+                    } else if (right) {
+                        combined.push(`\t\t\t${right}`);
+                    }
+                }
+                bantuanText = combined.join('\n');
+            }
+            }
+
+            let personilText = "- Belum ada data personil";
+            if (item.personil && item.personil !== '-') {
+                let personilStr = String(item.personil);
+                
+                // Amankan gelar dari pemisahan koma
+                const titles = [
+                    ", S.T.", ", M.M.", ", M.T.", ", S.Si.", ", S.I.Kom.", ", M.Kom.", ", S.Sos.", ", M.Sos.", ", S.E.", ", S.Tr.Kom.", ", S.Kom.", ", S.Kom", ", S.Geo.", ", S.Geo", ", M.Si.", ", M.Si", ", S.H.", ", S.STP.", ", S.Tr.I.P.", ", A.Md.", ", A.Md", ", S.Tr.Gz.", ", S.Pd."
+                ];
+                
+                titles.forEach(title => {
+                    const safeTitle = title.replace(/\./g, '\\.');
+                    const regex = new RegExp(safeTitle, 'gi');
+                    personilStr = personilStr.replace(regex, title.replace(',', '#')); 
+                });
+
+                // Pecah berdasarkan koma antar nama, lalu kembalikan tanda '#' menjadi koma
+                personilText = personilStr.split(',')
+                    .map(p => p.replace(/#/g, ',').trim())
+                    .filter(p => p !== '')
+                    .map((p, i) => `${i + 1}. ${p}`).join('\n');
+            }
+
+            // --- FUNGSI PEMBANTU ---
+            const formatRp = (angka) => {
+                if (!angka || isNaN(parseFloat(angka)) || parseFloat(angka) === 0) return "-";
+                return "Rp " + new Intl.NumberFormat('id-ID').format(parseFloat(angka));
+            };
+
+            const toDms = (deg, isLat) => {
+                if (!deg) return "";
+                const absolute = Math.abs(deg);
+                const degrees = Math.floor(absolute);
+                const minutesNotTruncated = (absolute - degrees) * 60;
+                const minutes = Math.floor(minutesNotTruncated);
+                const seconds = ((minutesNotTruncated - minutes) * 60).toFixed(1);
+                const direction = isLat ? (deg >= 0 ? "N" : "S") : (deg >= 0 ? "E" : "W");
+                return `${degrees}° ${minutes}' ${seconds}" ${direction}`;
+            };
+            
+            const koordinatString = (item.lat && item.lng) ? `${toDms(item.lat, true)} • ${toDms(item.lng, false)}` : '-';
+            const ukuranStr = (item.panjang && item.lebar) ? `${item.panjang} x ${item.lebar} Meter` : '-';
+
+            // Merakit daftar Unsur yang Terlibat
+            let unsurText = "- Belum ada data unsur";
+            if (item.unsur && item.unsur !== '-') {
+                unsurText = String(item.unsur).split(',')
+                    .filter(u => u.trim() !== '')
+                    .map((u, i) => `${i + 1}. ${u.trim()}`).join('\n');
+            }
+
+	    // Merakit daftar Rekomendasi
+            let rekomendasiText = "NIHIL";
+            if (item.rekomendasi && item.rekomendasi !== '-') {
+                rekomendasiText = String(item.rekomendasi).split(';')
+                    .map(r => r.trim())
+                    .filter(r => r !== '')
+                    .map((r, i) => `${i + 1}. ${r}`).join('\n');
+            }
+
+            // 3. Mapping Presisi ke Placeholder Google Docs
+            const payload = {
+                mode: 'generatePDF',
+		docType: docType,
+                nama: item.nama || 'Tanpa Nama',
+		photos: targetPhotos,
+                laporanId: item.timestamp,
+                columnName: docType === 'laporan' ? 'Link Laporan' : null,
+		oldLinkUrl: docType === 'laporan' ? item.linkLaporan : (docType === 'serahTerima' ? item.linkSerahTerima : item.linkMonitoring),
+                replacements: {
+                    '<<BENCANA>>': item.bencana || '-',
+                    '<<SEKTOR>>': item.sektor || '-',
+                    '<<SUB SEKTOR>>': item.subsektor || '-', // Di Docs pakai SPASI
+                    '<<JALAN_DUSUN>>': item.jalandusun || '-',
+                    '<<RT>>': item.rt || '-',
+                    '<<RW>>': item.rw || '-',
+                    '<<KELURAHAN_DESA>>': namaDesaKelurahan,
+                    '<<KECAMATAN>>': item.kec || '-',
+                    '<<KOORDINAT>>': koordinatString,
+                    
+                    '<<NAMA_KORBAN>>': item.nama || '-',
+                    '<<ANGGOTA_KELUARGA>>': item.jumlahKeluarga || '-', // Di Docs tulisannya ini
+                    '<<STATUS_RUMAH>>': item.statusRumah || '-',
+                    '<<TEMPAT_SEMENTARA>>': item.tempatTinggal || '-', // Di Docs tulisannya ini
+                    
+                    '<<HARI>>': item.dateObj ? item.dateObj.toLocaleDateString('id-ID', { weekday: 'long' }) : '-',
+                    '<<TANGGAL>>': item.dateObj ? item.dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-',
+                    '<<WAKTU>>': item.dateObj ? item.dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB' : '-',
+                    
+                    '<<BAGIAN_KERUSAKAN>>': item.bagianRusak || '-',
+                    '<<JENIS_KONSTRUKSI>>': item.konstruksi || '-',
+                    '<<UKURAN_KERUSAKAN>>': ukuranStr,
+                    '<<KATEGORI_KERUSAKAN>>': item.kerusakan || '-',
+                    '<<NILAI_KERUSAKAN>>': formatRp(item.nilaiKerusakan),
+                    '<<NILAI_KERUGIAN>>': formatRp(item.nilaiKerugian),
+                    
+                    '<<DAFTAR_BANTUAN>>': bantuanText,
+                    '<<DAFTAR_PERSONIL>>': personilText,
+                    '<<DAFTAR_UNSUR>>': unsurText,
+                    
+                    '<<PENGKAJIAN_DAMPAK>>': item.pengkajian || '-',
+                    '<<REKOMENDASI>>': rekomendasiText,
+
+                    // Untuk Berita Acara Terpal
+                    '<<terpal3x4>>': (item.bantuan && item.bantuan['Terpal 3x4m'] && parseFloat(item.bantuan['Terpal 3x4m']) > 0) ? item.bantuan['Terpal 3x4m'] : '-',
+                    '<<terpal5x6>>': (item.bantuan && item.bantuan['Terpal 5x6m'] && parseFloat(item.bantuan['Terpal 5x6m']) > 0) ? item.bantuan['Terpal 5x6m'] : '-',
+                    
+                    // Untuk Tanggal Input Manual
+                    '<<TANGGAL_ST>>': document.getElementById('input-tgl-serahTerima') && document.getElementById('input-tgl-serahTerima').value ? formatTanggalLaporan(document.getElementById('input-tgl-serahTerima').value) : '-',
+                    '<<TANGGAL_MT>>': document.getElementById('input-tgl-monitoring') && document.getElementById('input-tgl-monitoring').value ? formatTanggalLaporan(document.getElementById('input-tgl-monitoring').value) : '-',
+                }
+            };
+
+            // --- PROSES KIRIM KE SERVER ---
+            try {
+                const response = await fetch(DATA_URL, {
+                    method: 'POST',
+                    redirect: 'follow', // Wajib ditambah agar GAS tidak error CORS
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+                
+                // Ambil respons sebagai teks dulu untuk mencegah error parse JSON
+                const textResponse = await response.text(); 
+                
+                try {
+                    const result = JSON.parse(textResponse);
+                    if (result.status === 'sukses') {
+                        showNotification(isReload ? 'Laporan Diperbarui & Ditimpa!' : 'PDF Berhasil Dibuat!');
+                        window.open(result.pdfUrl, '_blank'); 
+                        
+                        // Kembalikan struktur HTML tombol sebelum merender ulang sidebar
+                        if (btnCetak) {
+                            btnCetak.innerHTML = originalText;
+                        }
+
+                        // Update Instan tanpa refresh web
+                        if (docType === 'laporan') {
+                            item.linkLaporan = result.pdfUrl;
+                            openSidebarWithData(item);
+                        }
+                    } else {
+                        showNotification('Gagal membuat PDF: ' + result.message);
+                        console.error('Error GAS:', result.message);
+                        // KEMBALIKAN TEKS JIKA GAGAL DARI SERVER
+                        if (btnCetak) btnCetak.innerHTML = originalText; 
+                    }
+                } catch(e) {
+                    console.error("Crash di Dashboard:", e.message, "\nRespons Server:", textResponse);
+                    showNotification('Terjadi error di tampilan. Cek F12.');
+                    // KEMBALIKAN TEKS JIKA CRASH
+                    if (btnCetak) btnCetak.innerHTML = originalText; 
+                }
+                
+            } catch (error) {
+                console.error('Error Jaringan:', error);
+                showNotification('Terjadi kesalahan koneksi saat mencetak PDF.');
+                // KEMBALIKAN TEKS JIKA ERROR JARINGAN
+                if (btnCetak) btnCetak.innerHTML = originalText; 
+            } finally {
+                // PERBAIKAN UTAMA:
+                // HANYA aktifkan kembali tombolnya (hilangkan loading).
+                // JANGAN timpa innerHTML di sini, karena akan merusak teks "Buka Laporan" yang baru saja diatur oleh fungsi sukses di atas.
+                if (btnCetak) {
+                    btnCetak.disabled = false;
+                }
+            }
+        }
+
 async function handleSidebarUpload(fileType, reportIndex) {
             
             const UPLOAD_URL = DATA_URL;
@@ -2757,96 +3669,142 @@ async function handleSidebarUpload(fileType, reportIndex) {
         }
 
 	function formatRupiah(angka) {
-    if (!angka || isNaN(parseFloat(angka)) || parseFloat(angka) === 0) {
-        return "Rp 0";
-    }
-    let number = parseFloat(String(angka).replace(/[^0-9]/g, ''));
-    return "Rp " + new Intl.NumberFormat('id-ID', { 
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0 
-    }).format(number);
-}
-
-function renderDokumenSection(judul, linkString, tipeInput, idx) {
-            let linksHtml = '';
-            if (linkString && linkString !== '-' && linkString.trim() !== '') {
-                const urls = linkString.split(',').map(u => u.trim()).filter(u => u);
-                
-                if (urls.length > 0) {
-                    let fileButtons = '';
-                    let imageGrid = '';
-
-                    urls.forEach((url, i) => {
-                        // Deteksi jika link eksplisit merupakan file dokumen (PDF, Word, Excel)
-                        const isFile = url.toLowerCase().match(/\.(pdf|doc|docx|xls|xlsx)$/i) || url.toLowerCase().includes('format=pdf');
-                        
-                        if (isFile) {
-                            // Tampilan Toggle/Button untuk file dokumen
-                            fileButtons += `
-                                <a href="${url}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-200 border border-blue-200 dark:border-blue-800 rounded-lg text-xs font-semibold hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors" title="Buka File ke-${i+1}">
-                                    <span class="material-symbols-outlined text-sm">description</span>
-                                    File ${i + 1}
-                                </a>
-                            `;
-                        } else {
-                            // Tampilan Grid Gambar (Thumbnail) seperti Dokumentasi Lapangan
-                            const displaySrc = getDriveImgUrl(url);
-                            imageGrid += `
-                                <div onclick="openImagePreview('${url}')" class="group relative aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 block shadow-sm cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all" title="Lihat Dokumen ${i+1}">
-                                    <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-300 dark:text-gray-600 z-0">
-                                        <span class="material-symbols-outlined text-3xl">image</span>
-                                    </div>
-                                    <img src="${displaySrc}" class="relative z-10 w-full h-full object-cover transition-all duration-500 ease-in-out group-hover:scale-110 opacity-0" 
-                                         alt="Dokumen ${i + 1}" loading="lazy" 
-                                         onload="this.classList.remove('opacity-0')" 
-                                         onerror="this.parentElement.style.display='none'">
-                                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors z-20 pointer-events-none"></div>
-                                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-30 pointer-events-none">
-                                        <span class="material-symbols-outlined text-white drop-shadow-md text-3xl">visibility</span>
-                                    </div>
-                                </div>
-                            `;
-                        }
-                    });
-
-                    if (imageGrid !== '') {
-                        linksHtml += `<div class="grid grid-cols-3 gap-2 mb-3">${imageGrid}</div>`;
-                    }
-                    if (fileButtons !== '') {
-                        linksHtml += `<div class="flex flex-wrap gap-2 mb-3">${fileButtons}</div>`;
-                    }
-                }
+            if (!angka || isNaN(parseFloat(angka)) || parseFloat(angka) === 0) {
+                return "Rp 0";
             }
-
-            const uploadHtml = isLoggedIn ? `
-                <div class="flex items-center gap-2">
-                    <input type="file" id="file-${tipeInput}-input" accept=".pdf,.jpg,.jpeg,.png" multiple
-                           class="block w-full flex-1 text-xs text-gray-500 dark:text-gray-400
-                                  file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 
-                                  file:text-xs file:font-medium
-                                  file:bg-gray-100 file:text-gray-700 
-                                  dark:file:bg-gray-700 dark:file:text-gray-300
-                                  hover:file:bg-gray-200 dark:hover:file:bg-gray-600
-                                  cursor-pointer">
-                    <button id="upload-${tipeInput}-btn" 
-                            onclick="handleSidebarUpload('${tipeInput}', '${idx}')"
-                            class="flex-shrink-0 flex items-center justify-center gap-1 bg-primary hover:bg-blue-600 text-white 
-                                   text-xs font-medium py-1.5 px-3 rounded-md transition-colors h-8
-                                   disabled:opacity-50 disabled:cursor-not-allowed">
-                        <span class="material-symbols-outlined text-sm">cloud_upload</span>
-                        Upload
-                    </button>
-                </div>
-            ` : '';
-
-            return `
-                <div class="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-700">
-                    <p class="text-xs font-bold uppercase text-gray-500 dark:text-gray-400 mb-2 tracking-wide">${judul}</p>
-                    ${linksHtml}
-                    ${uploadHtml}
-                </div>
-            `;
+            // Langsung parsing angkanya karena dari backend sudah berupa Number murni
+            let number = parseFloat(angka);
+            return "Rp " + new Intl.NumberFormat('id-ID', { 
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0 
+            }).format(number);
         }
+
+function renderDokumenSection(judul, linkString, tipeInput, idx, tglValue) {
+    let linksHtml = '';
+    let hasValidFiles = false;
+
+    if (linkString && linkString !== '-' && linkString.trim() !== '') {
+        const urls = linkString.split(',').map(u => u.trim()).filter(u => u);
+        
+        if (urls.length > 0) {
+            hasValidFiles = true; 
+            let fileButtons = '';
+            let imageGrid = '';
+
+            urls.forEach((url, i) => {
+                const isFile = url.toLowerCase().match(/\.(pdf|doc|docx|xls|xlsx)$/i) || url.toLowerCase().includes('format=pdf');
+                
+                if (isFile) {
+                    fileButtons += `
+                        <a href="${url}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-200 border border-blue-200 dark:border-blue-800 rounded-lg text-xs font-semibold hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors" title="Buka File ke-${i+1}">
+                            <span class="material-symbols-outlined text-sm">description</span>
+                            File ${i + 1}
+                        </a>
+                    `;
+                } else {
+                    const displaySrc = getDriveImgUrl(url);
+                    
+                    // --- LOGIKA PELACAK LINK ASLI ---
+                    let fileId = "";
+                    const matchSlash = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                    if (matchSlash && matchSlash[1]) fileId = matchSlash[1];
+                    else {
+                        const matchParam = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                        if (matchParam && matchParam[1]) fileId = matchParam[1];
+                    }
+                    const fallbackUrl = fileId ? `https://drive.google.com/uc?export=view&id=${fileId}` : 'https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg';
+
+                    // --- LOGIKA ONERROR ANTI HILANG ---
+                    imageGrid += `
+                        <div onclick="openImagePreview('${url}')" class="group relative aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 block shadow-sm cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all" title="Lihat Dokumen ${i+1}">
+                            <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-300 dark:text-gray-600 z-0">
+                                <span class="material-symbols-outlined text-3xl">image</span>
+                            </div>
+                            <img src="${displaySrc}" class="relative z-10 w-full h-full object-cover transition-all duration-500 ease-in-out group-hover:scale-110 opacity-0" 
+                                 alt="Dokumen ${i + 1}" loading="lazy" 
+                                 onload="this.classList.remove('opacity-0')" 
+                                 onerror="if(this.getAttribute('data-fallback')==='true'){this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg'; this.classList.remove('opacity-0','object-cover'); this.classList.add('p-3','object-contain');}else{this.setAttribute('data-fallback','true'); this.src='${fallbackUrl}'; this.classList.remove('opacity-0');}">
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors z-20 pointer-events-none"></div>
+                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-30 pointer-events-none">
+                                <span class="material-symbols-outlined text-white drop-shadow-md text-3xl">visibility</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            if (imageGrid !== '') {
+                linksHtml += `<div class="grid grid-cols-3 gap-2 mb-3">${imageGrid}</div>`;
+            }
+            if (fileButtons !== '') {
+                linksHtml += `<div class="flex flex-wrap gap-2 mb-3">${fileButtons}</div>`;
+            }
+        }
+    }
+
+    let cetakBtnHtml = '';
+    if ((tipeInput === 'serahTerima' || tipeInput === 'monitoring') && hasValidFiles) {
+        const labelCetak = tipeInput === 'serahTerima' ? 'Cetak' : 'Cetak';
+        cetakBtnHtml = `
+            <button id="cetak-${tipeInput}-btn" 
+                    onclick="cetakLaporanPDF('${idx}', '${tipeInput}')"
+                    class="w-full sm:w-auto flex-1 inline-flex justify-center items-center gap-1.5 px-4 py-2 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/20 dark:hover:bg-purple-900/40 text-purple-700 dark:text-purple-400 text-xs font-bold rounded-lg border border-purple-200 dark:border-purple-700/50 transition-all duration-200 hover:shadow-sm active:scale-95">
+                <span class="material-symbols-outlined text-[16px]">print</span>
+                ${labelCetak}
+            </button>
+        `;
+    }
+
+    const uploadHtml = isLoggedIn ? `
+        <div class="flex flex-col gap-2 mt-4 pt-3 border-t border-gray-200 dark:border-gray-700/50">
+            <input type="file" id="file-${tipeInput}-input" 
+                   accept="${(tipeInput === 'serahTerima' || tipeInput === 'monitoring') ? 'image/png, image/jpeg, image/jpg' : '.pdf,.jpg,.jpeg,.png'}" 
+                   multiple
+                   class="block w-full text-xs text-gray-500 dark:text-gray-400
+                          file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 
+                          file:text-xs file:font-bold file:transition-all file:duration-200 file:active:scale-95
+                          file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 
+                          dark:file:bg-gray-800 dark:file:text-gray-300 dark:hover:file:bg-gray-700
+                          cursor-pointer border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 overflow-hidden shadow-sm">
+            <div class="flex gap-2 w-full">
+                <button id="upload-${tipeInput}-btn" 
+                        onclick="handleSidebarUpload('${tipeInput}', '${idx}')"
+                        class="w-full sm:w-auto flex-1 inline-flex justify-center items-center gap-1.5 px-4 py-2 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/40 text-blue-700 dark:text-blue-400 text-xs font-bold rounded-lg border border-blue-200 dark:border-blue-700/50 transition-all duration-200 hover:shadow-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span class="material-symbols-outlined text-[16px]">cloud_upload</span>
+                    Upload
+                </button>
+                ${cetakBtnHtml}
+            </div>
+        </div>
+    ` : '';
+
+    let dateInputHtml = '';
+    if (tipeInput === 'serahTerima' || tipeInput === 'monitoring') {
+        const labelTgl = tipeInput === 'serahTerima' ? 'Tgl. Serah Terima' : 'Tgl. Monitoring';
+        const colNameTgl = tipeInput === 'serahTerima' ? 'Tanggal Serah Terima' : 'Tanggal Monitoring';
+        dateInputHtml = `
+            <div class="mb-3">
+                <label class="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide">${labelTgl}</label>
+                <input type="date" id="input-tgl-${tipeInput}" 
+                       value="${tglValue || ''}" 
+                       onchange="updateTanggalKeDatabase('${colNameTgl}', this.value, '${idx}')"
+                       class="w-full text-sm p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary outline-none transition-all cursor-pointer shadow-sm">
+            </div>
+        `;
+    }
+
+    return `
+        <div class="p-4 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+            <p class="text-xs font-bold uppercase text-gray-600 dark:text-gray-300 mb-3 tracking-wider flex items-center gap-2">
+                <span class="material-symbols-outlined text-[16px]">folder_managed</span> ${judul}
+            </p>
+            ${dateInputHtml}
+            ${linksHtml}
+            ${uploadHtml}
+        </div>
+    `;
+}
 
 function getDriveImgUrl(url) {
             if (!url) return "";
@@ -2870,31 +3828,52 @@ function getDriveImgUrl(url) {
         }
 
 function openImagePreview(originalUrl) {
-            const modal = document.getElementById('image-preview-modal');
-            const img = document.getElementById('preview-image-element');
-            const driveLink = document.getElementById('preview-drive-link'); // Tangkap elemen tombol
-            
-            if (!originalUrl) return;
-            let displaySrc = getDriveImgUrl(originalUrl);
-            if (displaySrc.includes("google.com/thumbnail")) {
-                displaySrc = displaySrc.replace("sz=s1000", "sz=s3000");
-            }
+    const modal = document.getElementById('image-preview-modal');
+    const img = document.getElementById('preview-image-element');
+    const driveLink = document.getElementById('preview-drive-link');
+    
+    if (!originalUrl) return;
+    let displaySrc = getDriveImgUrl(originalUrl);
+    if (displaySrc.includes("google.com/thumbnail")) {
+        displaySrc = displaySrc.replace("sz=s1000", "sz=s3000");
+    }
 
-            img.src = ""; 
-            img.classList.remove('scale-100');
-            img.classList.add('scale-95');
-            modal.classList.remove('hidden');
-            img.src = displaySrc;
-            img.onload = () => {
-                img.classList.remove('scale-95');
-                img.classList.add('scale-100');
-            };
-            
-            // Set href tombol mengarah ke link original Google Drive
-            if (driveLink) {
-                driveLink.href = originalUrl;
-            }
+    img.src = ""; 
+    img.classList.remove('scale-100', 'p-10');
+    img.classList.add('scale-95');
+    img.setAttribute('data-fallback', 'false'); // Reset pelacak error
+    modal.classList.remove('hidden');
+    
+    let fileId = "";
+    const matchSlash = originalUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (matchSlash && matchSlash[1]) fileId = matchSlash[1];
+    else {
+        const matchParam = originalUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+        if (matchParam && matchParam[1]) fileId = matchParam[1];
+    }
+    
+    // --- LOGIKA ONERROR UNTUK MODAL POP-UP ---
+    img.onerror = function() {
+        if(this.getAttribute('data-fallback') === 'true') {
+            this.onerror = null;
+            this.src = 'https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg';
+            this.classList.add('p-10');
+        } else {
+            this.setAttribute('data-fallback', 'true');
+            this.src = fileId ? 'https://drive.google.com/uc?export=view&id=' + fileId : 'https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg';
         }
+    };
+
+    img.src = displaySrc;
+    img.onload = () => {
+        img.classList.remove('scale-95');
+        img.classList.add('scale-100');
+    };
+    
+    if (driveLink) {
+        driveLink.href = originalUrl;
+    }
+}
 
         function closeImagePreview() {
             const modal = document.getElementById('image-preview-modal');
@@ -2922,22 +3901,204 @@ function openImagePreview(originalUrl) {
             const kecamatanKota = ['kaliwates', 'patrang', 'sumbersari'];
             const kecRaw = (data.kec || '').toLowerCase().trim();
             const jenisWilayah = kecamatanKota.includes(kecRaw) ? 'Kelurahan' : 'Desa';
+            // =========================================================
+            // --- LOGIKA BANTUAN EDITABLE ---
+            // =========================================================
             let bantuanHtml = '';
-            if (isLoggedIn && data.bantuan && typeof data.bantuan === 'object') {
-                let adaBantuan = false;
-                let bantuanContent = '<div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">';
-                for (const item in data.bantuan) {
+            const listBantuanKey = ["Semen", "Batu Bata", "Genteng", "Kalsiboard", "Kayu Balok", "Kayu Usuk", "Kayu Reng", "Besi ø 6 mm", "Besi ø 10 mm", "Terpal 3x4m", "Terpal 5x6m"];
+            const mapColBantuan = {"Semen":"Semen", "Batu Bata":"Batu Bata", "Genteng":"Genteng", "Kalsiboard":"Kalsiboard", "Kayu Balok":"Kayu Balok", "Kayu Usuk":"Kayu Usuk", "Kayu Reng":"Kayu Reng", "Besi ø 6 mm":"Besi 6mm", "Besi ø 10 mm":"Besi 10mm", "Terpal 3x4m":"Terpal 3x4", "Terpal 5x6m":"Terpal 5x6"};
+
+            let viewBantuanHtml = '<div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">';
+            let adaBantuan = false;
+            let editBantuanHtml = '<div class="grid grid-cols-2 lg:grid-cols-3 gap-2 mb-3">';
+
+            if (data.bantuan && typeof data.bantuan === 'object') {
+                for (const item of listBantuanKey) {
                     const jumlah = parseFloat(data.bantuan[item]) || 0;
+                    
+                    // Render View
                     if (jumlah > 0) {
                         adaBantuan = true;
-                        bantuanContent += `<div class="flex justify-between border-b border-dashed border-gray-200 dark:border-gray-700 pb-1"><span>${item}</span> <span class="font-semibold">${jumlah}</span></div>`;
+                        viewBantuanHtml += `<div class="flex justify-between border-b border-dashed border-gray-200 dark:border-gray-700 pb-1"><span>${item}</span> <span class="font-semibold">${jumlah}</span></div>`;
                     }
-                }
-                bantuanContent += '</div>';
-                if (adaBantuan) {
-                    bantuanHtml = `<div class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-100 dark:border-yellow-800/30 mb-4"><h4 class="text-sm font-bold text-yellow-800 dark:text-yellow-500 mb-3 flex items-center gap-2"><span class="material-symbols-outlined text-base">inventory_2</span> Bantuan Stimulan</h4>${bantuanContent}</div>`;
+
+                    // Render Kotak Input Edit
+                    editBantuanHtml += `
+                    <div class="flex flex-col bg-gray-50 dark:bg-gray-800 p-1.5 rounded-md border border-gray-100 dark:border-gray-700">
+                        <label class="text-[9px] text-gray-500 uppercase font-bold truncate mb-1" title="${item}">${item}</label>
+                        <input type="number" id="edit-bantuan-${data.idx}-${mapColBantuan[item].replace(/\s+/g, '')}" value="${jumlah || ''}" placeholder="0" class="w-full text-xs p-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 focus:ring-1 focus:ring-yellow-500 outline-none text-center">
+                    </div>`;
                 }
             }
+            viewBantuanHtml += '</div>';
+            if (!adaBantuan) viewBantuanHtml = '<p class="text-sm text-gray-500 italic">Belum ada bantuan stimulan.</p>';
+            editBantuanHtml += '</div>';
+
+            const editBantuanBtn = isLoggedIn ? `<button onclick="openInlineEdit('edit-bantuan-${data.idx}', 'view-bantuan-${data.idx}')" class="mt-4 w-full sm:w-auto inline-flex justify-center items-center gap-1.5 px-4 py-2 bg-yellow-50 hover:bg-yellow-100 dark:bg-yellow-900/20 dark:hover:bg-yellow-900/40 text-yellow-700 dark:text-yellow-500 text-xs font-bold rounded-lg border border-yellow-200 dark:border-yellow-700/50 transition-all duration-200 hover:shadow-sm active:scale-95"><span class="material-symbols-outlined text-[16px]">edit_square</span> Edit Bantuan</button>` : '';
+
+            bantuanHtml = `
+            <div class="bg-yellow-50 dark:bg-yellow-900/10 p-4 rounded-lg border border-yellow-100 dark:border-yellow-800/30 mb-4">
+                <h4 class="text-sm font-bold text-yellow-800 dark:text-yellow-500 mb-3 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-base">inventory_2</span> Bantuan Stimulan
+                </h4>
+                
+                <div id="view-bantuan-${data.idx}">
+                    ${viewBantuanHtml}
+                    ${editBantuanBtn}
+                </div>
+
+                <div id="edit-bantuan-${data.idx}" class="hidden mt-2 bg-white dark:bg-gray-900 p-3 rounded-xl border border-yellow-400/30 shadow-md">
+                    ${editBantuanHtml}
+                    <div class="flex justify-end gap-2 mt-2">
+                        <button onclick="document.getElementById('edit-bantuan-${data.idx}').classList.add('hidden'); document.getElementById('view-bantuan-${data.idx}').classList.remove('hidden');" class="px-3 py-1.5 text-xs font-medium text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">Batal</button>
+                        <button id="btn-save-bantuan-${data.idx}" onclick="saveBantuanData('${data.idx}')" class="px-3 py-1.5 text-xs font-bold bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg flex items-center gap-1 shadow-sm"><span class="material-symbols-outlined text-[14px]">save</span> Simpan</button>
+                    </div>
+                </div>
+            </div>`;
+
+	// --- BAGIAN REKOMENDASI PENANGANAN ---
+            let rekVal = (data.rekomendasi && data.rekomendasi !== '-') ? data.rekomendasi : '';
+            // Pecah data dari Spreadsheet berdasarkan titik koma (;)
+            let rekArray = rekVal ? rekVal.split(';').map(s => s.trim()).filter(Boolean) : [];
+
+            // Buat HTML untuk Mode View (List)
+            let rekViewContent = '';
+            if (rekArray.length > 0) {
+                rekViewContent = `<ol class="list-decimal list-outside ml-4 text-sm text-gray-700 dark:text-gray-300 mb-3 space-y-1">
+                    ${rekArray.map(r => `<li>${r}</li>`).join('')}
+                </ol>
+                <button onclick="toggleEditRekomendasi()" class="mt-2 w-full sm:w-auto inline-flex justify-center items-center gap-1.5 px-4 py-2 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/20 dark:hover:bg-purple-900/40 text-purple-700 dark:text-purple-400 text-xs font-bold rounded-lg border border-purple-200 dark:border-purple-700/50 transition-all duration-200 hover:shadow-sm active:scale-95">
+                    <span class="material-symbols-outlined text-[16px]">edit_note</span> Edit Rekomendasi
+                </button>`;
+            } else {
+                rekViewContent = `<p class="text-sm text-gray-500 italic mb-3">Belum ada rekomendasi yang diberikan.</p>
+                <button onclick="toggleEditRekomendasi()" class="mt-2 w-full sm:w-auto inline-flex justify-center items-center gap-1.5 px-4 py-2 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/20 dark:hover:bg-purple-900/40 text-purple-700 dark:text-purple-400 text-xs font-bold rounded-lg border border-purple-200 dark:border-purple-700/50 transition-all duration-200 hover:shadow-sm active:scale-95">
+                    <span class="material-symbols-outlined text-[16px]">add_circle</span> Tambah Rekomendasi
+                </button>`;
+            }
+
+            // Buat HTML untuk Mode Edit (Input Fields)
+            let editInputsHtml = '';
+            if (rekArray.length === 0) {
+                editInputsHtml = `
+                    <div class="flex items-center gap-2 mb-2 rek-input-row">
+                        <span class="text-sm font-bold text-gray-400 rek-number">1.</span>
+                        <input type="text" class="flex-1 text-sm p-2 border border-purple-200 dark:border-purple-700 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-purple-500 outline-none" placeholder="Ketik poin rekomendasi...">
+                        <button onclick="this.parentElement.remove(); updateRekNumbers();" class="text-red-500 hover:text-red-700 p-1"><span class="material-symbols-outlined text-base">delete</span></button>
+                    </div>`;
+            } else {
+                editInputsHtml = rekArray.map((r, i) => `
+                    <div class="flex items-center gap-2 mb-2 rek-input-row">
+                        <span class="text-sm font-bold text-gray-400 rek-number">${i+1}.</span>
+                        <input type="text" value="${r}" class="flex-1 text-sm p-2 border border-purple-200 dark:border-purple-700 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-purple-500 outline-none" placeholder="Ketik poin rekomendasi...">
+                        <button onclick="this.parentElement.remove(); updateRekNumbers();" class="text-red-500 hover:text-red-700 p-1"><span class="material-symbols-outlined text-base">delete</span></button>
+                    </div>`).join('');
+            }
+
+            let rekomendasiHtml = `
+                <div class="bg-purple-50 dark:bg-purple-900/10 p-4 rounded-lg border border-purple-100 dark:border-purple-800/30 mb-4">
+                    <h4 class="text-sm font-bold text-purple-800 dark:text-purple-400 mb-3 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-base">lightbulb</span> Rekomendasi Penanganan
+                    </h4>
+                    
+                    <div id="rekomendasi-view-container">
+                        ${rekViewContent}
+                    </div>
+
+                    <div id="rekomendasi-edit-container" class="hidden mt-2">
+                        <div id="rek-input-wrapper" class="mb-2">
+                            ${editInputsHtml}
+                        </div>
+                        
+                        <button onclick="addRekInput()" class="text-xs font-semibold text-purple-600 dark:text-purple-400 flex items-center gap-1 hover:underline mb-4">
+                            <span class="material-symbols-outlined text-xs">add</span> Tambah Poin
+                        </button>
+
+                        <div class="flex gap-2 justify-end">
+                            <button onclick="toggleEditRekomendasi()" class="px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors">Batal</button>
+                            <button id="btn-save-rekomendasi" onclick="saveRekomendasi(${data.idx})" class="px-3 py-1.5 text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 rounded-md flex items-center gap-1 transition-all active:scale-95 shadow-sm shadow-purple-500/30">
+                                <span class="material-symbols-outlined text-xs">save</span> Simpan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+	    // =========================================================
+            // --- LOGIKA REGISTER NOMOR SURAT EDITABLE ---
+            // =========================================================
+            let regSuratHtml = '';
+            
+            // Hanya muncul jika korban menerima bantuan
+            if (checkIsDibantu(data)) {
+                let terpalField = '';
+                
+                // Cek apakah korban menerima bantuan terpal (3x4 atau 5x6)
+                const dptTerpal = (data.bantuan && ((parseFloat(data.bantuan['Terpal 3x4m']) > 0) || (parseFloat(data.bantuan['Terpal 5x6m']) > 0)));
+                
+                // Input B.A Terpal hanya muncul jika memang dikasih terpal
+                if (dptTerpal) {
+                    terpalField = createEditableField(data, 'No. B.A Penyerahan (Khusus Terpal)', data.noBATerpal, 'No. B.A Terpal', 'noBATerpal', 'text');
+                }
+
+                regSuratHtml = `
+                    <div class="bg-gray-50 dark:bg-gray-800/40 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm mb-4">
+                        <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-base">tag</span> Register Nomor Surat
+                        </h4>
+                        <div class="flex flex-col gap-1">
+                            ${createEditableField(data, 'No. Perintah Pengiriman Bantuan', data.noSuratPengiriman, 'No. Surat Pengiriman', 'noSuratPengiriman', 'text')}
+                            ${createEditableField(data, 'No. B.A Penyerahan Barang', data.noBAPenyerahan, 'No. B.A Penyerahan', 'noBAPenyerahan', 'text')}
+                            ${terpalField}
+                        </div>
+                    </div>
+                `;
+            }
+
+	    // =========================================================
+            // --- LOGIKA PERSONIL EDITABLE ---
+            // =========================================================
+            let personilHtml = '';
+            let personilRaw = data.personil && data.personil !== '-' ? data.personil : '';
+            let listPersonil = [];
+            
+            if (personilRaw) {
+                let personilStr = personilRaw;
+                const titles = [", S.T.", ", M.M.", ", M.T.", ", S.Si.", ", S.I.Kom.", ", M.Kom.", ", S.Sos.", ", M.Sos.", ", S.E.", ", S.Tr.Kom.", ", S.Kom.", ", S.Kom", ", S.Geo.", ", S.Geo", ", M.Si.", ", M.Si", ", S.H.", ", S.STP.", ", S.Tr.I.P.", ", A.Md.", ", A.Md", ", S.Tr.Gz.", ", S.Pd."];
+                titles.forEach(title => {
+                    const safeTitle = title.replace(/\./g, '\\.');
+                    const regex = new RegExp(safeTitle, 'gi');
+                    personilStr = personilStr.replace(regex, title.replace(',', '#')); 
+                });
+                listPersonil = personilStr.split(',').map(p => p.replace(/#/g, ',').trim()).filter(p => p);
+            }
+
+            let personilViewContent = listPersonil.length > 0 
+                ? listPersonil.map(p => `<div class="flex items-center gap-2 border-b border-dashed border-blue-200 dark:border-blue-800/50 pb-1.5 last:border-0 last:pb-0"><span class="material-symbols-outlined text-sm text-blue-500">engineering</span><span class="font-medium">${p}</span></div>`).join('')
+                : '<p class="text-sm text-gray-500 italic">Belum ada personil bertugas.</p>';
+
+            const editPersonilBtn = isLoggedIn ? `<button onclick="openInlineEdit('edit-personil-${data.idx}', 'view-personil-${data.idx}')" class="mt-4 w-full sm:w-auto inline-flex justify-center items-center gap-1.5 px-4 py-2 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/40 text-blue-700 dark:text-blue-400 text-xs font-bold rounded-lg border border-blue-200 dark:border-blue-700/50 transition-all duration-200 hover:shadow-sm active:scale-95"><span class="material-symbols-outlined text-[16px]">manage_accounts</span> Edit Personil</button>` : '';
+
+            personilHtml = `
+            <div class="bg-blue-50 dark:bg-blue-900/10 p-4 rounded-lg border border-blue-100 dark:border-blue-800/30 mb-4 group relative">
+                <h4 class="text-sm font-bold text-blue-800 dark:text-blue-500 mb-3 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-base">group</span> Personil Bertugas
+                </h4>
+                
+                <div id="view-personil-${data.idx}" class="text-sm text-gray-800 dark:text-gray-200 flex flex-col gap-2">
+                    ${personilViewContent}
+                    ${editPersonilBtn}
+                </div>
+
+                <div id="edit-personil-${data.idx}" class="hidden mt-2 bg-white dark:bg-gray-900 p-3 rounded-xl border border-blue-400/30 shadow-md">
+                    <p class="text-[10px] text-gray-500 mb-1">Pisahkan nama dengan koma (,)</p>
+                    <textarea id="input-personil-${data.idx}" class="w-full text-sm p-2 border border-blue-200 dark:border-blue-700 rounded-lg bg-gray-50 dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 outline-none" rows="3">${personilRaw}</textarea>
+                    <div class="flex justify-end gap-2 mt-2">
+                        <button onclick="document.getElementById('edit-personil-${data.idx}').classList.add('hidden'); document.getElementById('view-personil-${data.idx}').classList.remove('hidden');" class="px-3 py-1.5 text-xs font-medium text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">Batal</button>
+                        <button id="btn-save-input-personil-${data.idx}" onclick="saveInlineEdit('${data.idx}', 'Personil Terlibat', 'personil', 'input-personil-${data.idx}', 'textarea')" class="px-3 py-1.5 text-xs font-bold bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center gap-1 shadow-sm"><span class="material-symbols-outlined text-[14px]">save</span> Simpan</button>
+                    </div>
+                </div>
+            </div>`;
 
             let galleryHtml = '';
             const photoList = (data.photos || []).filter(url => url && url.trim() !== "");
@@ -3028,39 +4189,65 @@ function openImagePreview(originalUrl) {
         btnWA.href = `https://wa.me/?text=${encodeURIComponent(pesanWA)}`;
     }
 
-	    sidebarTitle.innerText = data.nama || 'Detail Laporan';
+    const btnCetakPdf = document.getElementById('btn-cetak-pdf');
+    const btnReloadPdf = document.getElementById('btn-reload-pdf');
+    const textCetak = document.getElementById('text-cetak-pdf');
+    const iconCetak = document.getElementById('icon-cetak-pdf');
+
+    if (btnCetakPdf) {
+        if (data.linkLaporan && data.linkLaporan.trim() !== '' && data.linkLaporan !== '-') {
+            textCetak.innerText = 'Buka Laporan';
+            iconCetak.innerText = 'open_in_new';
+            btnCetakPdf.setAttribute('onclick', `window.open('${data.linkLaporan}', '_blank')`);
+            
+            btnReloadPdf.classList.remove('hidden');
+            btnReloadPdf.setAttribute('onclick', `cetakLaporanPDF(${data.idx}, 'laporan', true)`);
+        } else {
+            textCetak.innerText = 'Cetak Laporan';
+            iconCetak.innerText = 'print';
+            btnCetakPdf.setAttribute('onclick', `cetakLaporanPDF(${data.idx}, 'laporan', false)`);
+            
+            btnReloadPdf.classList.add('hidden');
+        }
+    }
+
+    sidebarTitle.innerText = data.nama || 'Detail Laporan';
             
             const tanggalAsesmen = data.dateObj 
                 ? data.dateObj.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) 
                 : (data.tanggalWaktu || 'Tidak ada data');
+            // Siapkan daftar pilihan untuk Dropdown Edit
+            const daftarBencana = ["Angin Kencang", "Banjir", "Kebakaran", "Gempa Bumi", "Gunung Meletus", "Tsunami", "Tanah Longsor"];
+            const daftarKecamatan = Object.keys(window.dataJember).sort();
+	    let daftarDesa = [];
+            if (data.kec && window.dataJember[data.kec]) {
+                daftarDesa = [...window.dataJember[data.kec]].sort();
+            }
+            
             content.innerHTML = `
                 <div class="space-y-6">
-                    <div class="bg-white dark:bg-card-dark rounded-lg">
-                        <div class="flex items-start gap-3 mb-4">
-                            <div class="bg-primary/10 text-primary p-2 rounded-full">
-                                <span class="material-symbols-outlined text-xl">location_on</span>
-                            </div>
-                            <div>
-                                <h4 class="text-base font-bold">${data.jalandusun || 'Dusun Tidak Diketahui'}</h4>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">
-                                    ${jenisWilayah} ${data.desakelurahan}, Kec. ${data.kec}
-                                </p>
-                            </div>
+                    <div class="bg-white dark:bg-card-dark rounded-xl p-4 border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-visible">
+                        <div class="flex items-center gap-2 mb-2 border-b border-gray-100 dark:border-gray-800 pb-3">
+                            <span class="material-symbols-outlined text-primary">edit_note</span>
+                            <h4 class="font-bold text-gray-800 dark:text-gray-200">Informasi Utama</h4>
                         </div>
                         
-                        <div class="grid grid-cols-2 gap-4 text-sm">
-                            <div>
-                                <p class="text-xs text-gray-400">Jenis Bencana</p>
-                                <p class="font-medium">${data.bencana||'-'}</p>
+                        <div class="flex flex-col gap-1">
+                            ${createEditableField(data, 'Nama Kepala Keluarga', data.nama, 'Nama KK', 'nama', 'text')}
+                            
+                            <div class="grid grid-cols-2 gap-x-4">
+                                ${createEditableField(data, 'Jalan/Dusun', data.jalandusun, 'Jalan/Dusun', 'jalandusun', 'text')}
+                                ${createEditableField(data, 'Desa/Kelurahan', data.desakelurahan, 'Desa/Kelurahan', 'desakelurahan', 'select', daftarDesa)}
                             </div>
-                            <div>
-                                <p class="text-xs text-gray-400">Tanggal Asesmen</p>
-                                <p class="font-medium">${tanggalAsesmen}</p>
+                            
+                            <div class="grid grid-cols-2 gap-x-4">
+                                ${createEditableField(data, 'Kecamatan', data.kec, 'Kecamatan', 'kec', 'select', daftarKecamatan)}
+                                ${createEditableField(data, 'Jenis Bencana', data.bencana, 'Jenis Bencana', 'bencana', 'select', daftarBencana)}
                             </div>
-                            <div class="col-span-2">
-                                <p class="text-xs text-gray-400">Hasil Pengkajian</p>
-                                <p class="font-medium leading-relaxed">${data.pengkajian||'-'}</p>
-                            </div>
+                            
+                            ${createEditableField(data, 'Tanggal & Waktu Asesmen', data.tanggalWaktu, 'Timestamp', 'tanggalWaktu', 'datetime')}
+                            
+                            ${createEditableField(data, 'Hasil Pengkajian Dampak', data.pengkajian, 'Pengkajian Dampak', 'pengkajian', 'textarea')}
                         </div>
                     </div>
 
@@ -3077,17 +4264,26 @@ function openImagePreview(originalUrl) {
                          </div>
                     </div>
                     
-                    ${bantuanHtml}
+                    ${rekomendasiHtml} ${bantuanHtml}
+
+		    ${regSuratHtml}
+
+		    ${personilHtml} <div>
+                    <h4 class="text-base font-bold border-b border-gray-200 dark:border-gray-700 pb-2 mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined">folder_open</span> Dokumen Administrasi
+                    </h4>
+
+		    ${personilHtml} <div>
+                    <h4 class="text-base font-bold border-b border-gray-200 dark:border-gray-700 pb-2 mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined">folder_open</span> Dokumen Administrasi
+                    </h4>
                     
                     <div>
-                        <h4 class="text-base font-bold border-b border-gray-200 dark:border-gray-700 pb-2 mb-4 flex items-center gap-2">
-                            <span class="material-symbols-outlined">folder_open</span> Dokumen Administrasi
-                        </h4>
                         <div class="space-y-3">
-                            ${renderDokumenSection('Disposisi', data.linkDisposisi, 'disposisi', data.idx)}
-                            ${renderDokumenSection('Serah Terima', data.linkSerahTerima, 'serahTerima', data.idx)}
-                            ${renderDokumenSection('Monitoring', data.linkMonitoring, 'monitoring', data.idx)}
-                        </div>
+    ${renderDokumenSection('Disposisi', data.linkDisposisi, 'disposisi', data.idx, '')}
+    ${checkIsDibantu(data) ? renderDokumenSection('Serah Terima', data.linkSerahTerima, 'serahTerima', data.idx, data.tglSerahTerima) : ''}
+    ${checkIsDibantu(data) ? renderDokumenSection('Monitoring', data.linkMonitoring, 'monitoring', data.idx, data.tglMonitoring) : ''}
+</div>
                     </div>
                     
                     ${galleryHtml}
@@ -3542,7 +4738,524 @@ function switchView(viewName) {
             ]
         }, { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true, grid: { display: false }, ticks: { color: textColor } }, y: { stacked: true, grid: { color: gridColor }, ticks: { color: textColor }, beginAtZero: true } }, plugins: { legend: { position: 'top', align: 'end', labels: { color: textColor } } } });
     }
+
+function toggleFormView() {
+    const dashboard = document.getElementById('dashboard-view');
+    const reports = document.getElementById('reports-view');
+    const formView = document.getElementById('form-view');
+    const btn = document.getElementById('open-form-btn');
+    const icon = btn ? btn.querySelector('.material-symbols-outlined') : null;
+    const mainScroller = document.getElementById('main-scroller');
+
+    // Kelas animasi standar (sama seperti fitur switchView)
+    const animVisible = ['opacity-100', 'scale-100'];
+    const animHidden = ['opacity-0', 'scale-95'];
+
+    if (formView.classList.contains('hidden')) {
+        // == BUKA FORM ==
+        
+        // 1. Cari view mana yang sedang terbuka (Dashboard atau Reports)
+        let activeView = !dashboard.classList.contains('hidden') ? dashboard : (!reports.classList.contains('hidden') ? reports : null);
+
+        // 2. Mainkan animasi memudar/keluar untuk view yang aktif
+        if (activeView) {
+            activeView.classList.remove(...animVisible);
+            activeView.classList.add(...animHidden);
+        }
+
+        // Animasi Tombol "+" memutar menjadi "x"
+        if(btn) {
+            btn.classList.replace('bg-primary', 'bg-red-600');
+            btn.classList.replace('shadow-blue-500/50', 'shadow-red-600/50');
+            btn.title = "Tutup Formulir";
+        }
+        if (icon) icon.style.transform = 'rotate(135deg)';
+
+        // 3. Tunggu 300ms sampai animasi view lama selesai, baru munculkan form
+        setTimeout(() => {
+            if (activeView) activeView.classList.add('hidden'); // Hilangkan dari layout
+            
+            formView.classList.remove('hidden'); // Munculkan form di layout
+            if(mainScroller) { mainScroller.style.overflowY = 'auto'; mainScroller.scrollTop = 0; }
+            
+            void formView.offsetWidth; // Pancing browser untuk me-render ulang (reflow)
+            
+            // Mainkan animasi masuk untuk form
+            formView.classList.remove(...animHidden);
+            formView.classList.add(...animVisible);
+        }, 300);
+
+    } else {
+        // == TUTUP FORM ==
+        
+        // 1. Mainkan animasi memudar/keluar untuk form
+        formView.classList.remove(...animVisible);
+        formView.classList.add(...animHidden);
+
+        // Animasi Tombol "x" berputar kembali ke "+"
+        if(btn) {
+            btn.classList.replace('bg-red-600', 'bg-primary');
+            btn.classList.replace('shadow-red-600/50', 'shadow-blue-500/50');
+            btn.title = "Buat Laporan Baru";
+        }
+        if (icon) icon.style.transform = 'rotate(0deg)';
+
+        // 2. Tunggu 300ms, lalu kembalikan view yang sebelumnya dibuka
+        setTimeout(() => {
+            formView.classList.add('hidden'); // Hilangkan form dari layout
+            
+            // Cek variabel lastActiveView untuk mengembalikan view yang tepat
+            let viewToRestore = (typeof lastActiveView !== 'undefined' && lastActiveView === 'reports') ? reports : dashboard;
+            
+            viewToRestore.classList.remove('hidden'); // Munculkan di layout
+            if(mainScroller) mainScroller.scrollTop = 0;
+            
+            void viewToRestore.offsetWidth; // Pancing reflow
+            
+            // Mainkan animasi masuk untuk dashboard/reports
+            viewToRestore.classList.remove(...animHidden);
+            viewToRestore.classList.add(...animVisible);
+            
+            // Update ukuran Peta dan Tabel agar tidak error setelah disembunyikan
+            if(typeof map !== 'undefined') map.invalidateSize(); 
+            if(typeof adjustTableHeight === 'function') adjustTableHeight();
+        }, 300);
+    }
+}
+
+        // Setup List Builder (Untuk Personil, Unsur, Kerusakan)
+        function setupListBuilder(prefix) {
+            const selectEl = document.getElementById(prefix + 'Select');
+            const inputLain = document.getElementById(prefix + 'LainnyaInput');
+            const btnAdd = document.getElementById(prefix + 'Button');
+            const container = document.getElementById(prefix + 'ListContainer');
+            
+            if(!selectEl || !btnAdd || !container) return; 
+
+            // Listener Select
+            selectEl.addEventListener('change', () => {
+                if(inputLain) inputLain.style.display = (selectEl.value === 'Lainnya') ? 'block' : 'none';
+            });
+
+            // Listener Button Add
+            btnAdd.addEventListener('click', (e) => {
+                e.preventDefault(); // Cegah submit form
+                let val = (selectEl.value === 'Lainnya') ? inputLain.value : selectEl.value;
+                if(!val) return alert("Pilih atau isi data dulu!");
+                
+                // Cek duplikat
+                let exists = Array.from(container.querySelectorAll('li')).some(li => li.dataset.value === val);
+                if(exists) return alert("Item sudah ditambahkan!");
+
+                const li = document.createElement('li');
+                li.dataset.value = val;
+                li.innerHTML = `<span class="truncate">${val}</span> <span class="remove-item material-symbols-outlined" onclick="this.parentElement.remove(); updateHiddenInputs('${prefix}')">close</span>`;
+                container.appendChild(li);
+                
+                updateHiddenInputs(prefix);
+                
+                // Reset input
+                selectEl.value = "";
+                if(inputLain) { inputLain.value = ""; inputLain.style.display = "none"; }
+                
+                // Khusus Bagian Kerusakan: Tampilkan pertanyaan detail
+                if(prefix === 'bagianKerusakan') toggleKerusakanDetail(val, true);
+            });
+        }
+
+        function updateHiddenInputs(prefix) {
+            const container = document.getElementById(`${prefix}ListContainer`);
+            if(!container) return;
+            
+            const items = Array.from(container.querySelectorAll('li')).map(li => li.dataset.value);
+            
+            // Mapping ke ID hidden input yang sesuai
+            let targetId = '';
+            if(prefix === 'personil') targetId = 'personilyangBerangkat';
+            else if (prefix === 'unsur') targetId = 'unsuryangTerlibat';
+            else if (prefix === 'bagianKerusakan') targetId = 'bagianKerusakan';
+            
+            const targetEl = document.getElementById(targetId);
+            if(targetEl) targetEl.value = items.join(', ');
+
+            // Khusus kerusakan, jika item dihapus, sembunyikan detailnya
+            if (prefix === 'bagianKerusakan') {
+                document.querySelectorAll('.kerusakan-fisik-group').forEach(el => el.style.display = 'none');
+                items.forEach(val => toggleKerusakanDetail(val, true));
+            }
+        }
+
+        function toggleKerusakanDetail(bagian, show) {
+            // Cari elemen yang punya data-category sama dengan bagian kerusakan
+            const groups = document.querySelectorAll(`.kerusakan-fisik-group[data-category="${bagian}"]`);
+            groups.forEach(g => g.style.display = show ? 'block' : 'none');
+        }
+
+        // Panggil fungsi setup saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            setupListBuilder('personil');
+            setupListBuilder('unsur');
+            setupListBuilder('bagianKerusakan');
+	
+	// DROPDOWN KECAMATAN / DESA
+        window.dataJember = {
+            "Ajung": ["Ajung","Klompangan","Mangaran","Pancakarya","Rowoindah","Sukamakmur","Wirowongso"],
+            "Ambulu": ["Ambulu","Andongsari","Karang Anyar","Pontang","Sabrang","Sumberejo","Tegalsari"],
+            "Arjasa": ["Arjasa","Biting","Candijati","Darsono","Kamal","Kemuning Lor"],
+            "Bangsalsari": ["Badean","Bangsalsari","Banjarsari","Curahkalong","Gambirono","Karangsono","Langkap","Petung","Sukorejo","Tisnogambar","Tugusari"],
+            "Balung": ["Balung Kidul","Balung Kulon","Balung Lor","Curahlele","Gumelar","Karangduren","Karang Semanding","Tutul"],
+            "Gumukmas": ["Bagorejo","Gumukmas","Karangrejo","Kepanjen","Mayangan","Menampu","Purwoasri","Tembokrejo"],
+            "Jelbuk": ["Jelbuk","Panduman","Sucopangepok","Sugerkidul","Sukojember","Sukowiryo"],
+            "Jenggawah": ["Jatisari","Jenggawah","Kemuningsari Kidul","Cangkring","Jatimulyo","Kertonegoro","Sruni","Wonojati"],
+            "Jombang": ["Jombang","Keting","Ngampelrejo","Padomasan","Sarimulyo","Wringinagung"],
+            "Kalisat": ["Ajung","Gambiran","Glagahwero","Gumuksari","Kalisat","Patempuran","Plalangan","Sebanen","Sukoreno","Sumberjeruk","Sumberkalong","Sumberketempa"],
+            "Kaliwates": ["Jember Kidul","Kaliwates","Kebon Agung","Kepatihan","Mangli","Sempusari","Tegal Besar"],
+            "Kencong": ["Cakru","Kencong","Kraton","Paseban","Wonorejo"],
+            "Ledokombo": ["Karangpaiton","Ledokombo","Lembengan","Slateng","Sukogidri","Sumberanget","Sumberbulus","Sumberlesung","Sumbersalak","Suren"],
+            "Mayang": ["Mayang","Mrawan","Seputih","Sidomukti","Sumberkejayan","Tegalwaru","Tegalrejo"],
+            "Mumbulsari": ["Karang Kedawung","Kawangrejo","Lampeji","Lengkong","Mumbulsari","Suco","Tamansari"],
+            "Panti": ["Glagahwero","Kemiri","Kemuningsari Lor","Pakis","Panti","Serut","Suci"],
+            "Pakusari": ["Bedadung","Jatian","Kertosari","Pakusari","Patemon","Subo","Sumberpinang"],
+            "Patrang": ["Banjarsengon","Baratan","Bintoro","Gebang","Jemberlor","Jumerto","Patrang","Slawu"],
+            "Puger": ["Bagon","Grenden","Jambearum","Kasiyan","Kasiyan Timur","Mlokorejo","Mojomulyo","Mojosari","Puger Kulon","Puger Wetan","Wonosari","Wringintelu"],
+            "Rambipuji": ["Curahmalang","Gugut","Kaliwining","Nogosari","Pecoro","Rambigundam","Rambipuji","Rowotamtu"],
+            "Semboro": ["Pondokdalem","Pondokjoyo","Rejoagung","Semboro","Sidomekar","Sidomulyo"],
+            "Silo": ["Garahan","Harjomulyo","Karangharjo","Mulyorejo","Pace","Sempolan","Sidomulyo","Silo","Sumberjati"],
+            "Sukorambi": ["Dukuhmencek","Jubung","Karangpring","Klungkung","Sukorambi"],
+            "Sukowono": ["Arjasa","Balet Baru","Dawuhanmangli","Mojogemi","Pocangan","Sukokerto","Sukorejo","Sukosari","Sukowono","Sumberwringin","Sumberdanti","Sumberwaru"],
+            "Sumberbaru": ["Gelang","Jambesari","Jamintoro","Jatiroto","Kaliglagah","Karangbayat","Pringgowirawan","Rowotengah","Sumberagung","Yosorati"],
+            "Sumberjambe": ["Cumedak","Gunungmalang","Jambearum","Plerean","Pringgondani","Randuagung","Rowosari","Sumberjambe","Sumberpakem"],
+            "Sumbersari": ["Antirogo","Karangrejo","Kebonsari","Kranjingan","Sumbersari","Tegalgede","Wirolegi"],
+            "Tanggul": ["Darungan","Klatakan","Kramat Sukoharjo","Manggisan","Patemon","Selodakon","Tanggul Kulon","Tanggul Wetan"],
+            "Tempurejo": ["Andongrejo","Curahnongko","Curahtakir","Pondokrejo","Sidodadi","Sanenrejo","Tempurejo","Wonoasri"],
+            "Umbulsari": ["Gadingrejo","Gunungsari","Mundurejo","Paleran","Sidorejo","Sukoreno","Tanjungsari","Tegalwangi","Umbulrejo","Umbulsari"],
+            "Wuluhan": ["Ampel","Dukuhdempok","Glundengan","Kesilir","Lojejer","Tamansari","Tanjungrejo"]
+        };
+        const kecamatanSelect = document.getElementById('alamatKecamatan');
+        const desaSelect = document.getElementById('alamatDesa');
+        if (kecamatanSelect) {
+            Object.keys(window.dataJember).sort().forEach(kec => kecamatanSelect.add(new Option(kec, kec)));
+            kecamatanSelect.addEventListener('change', () => {
+                const sel = kecamatanSelect.value;
+                desaSelect.innerHTML = '';
+                if (sel) {
+                    desaSelect.disabled = false;
+                    desaSelect.add(new Option('Pilih Kelurahan/Desa...', ''));
+                    window.dataJember[sel].sort().forEach(d => desaSelect.add(new Option(d, d)));
+                } else {
+                    desaSelect.disabled = true;
+                    desaSelect.add(new Option('Pilih Kecamatan Dulu...', ''));
+                }
+            });
+        }
+
+        // DROPDOWN SEKTOR / SUB SEKTOR
+        const dataSektor = {
+            "Perumahan dan Permukiman": ["Perumahan","Prasarana Lingkungan Perumahan","Prasarana Sosial Masyarakat"],
+            "Infrastruktur Pembangunan": ["Transportasi Darat, Laut, dan Udara","Energi","Pos dan Telekomunikasi","Air dan Sanitasi","Pemerintahan Umum"],
+            "Ekonomi": ["Pertanian dan Peternakan","Perkebunan","Perikanan","Industri Kecil dan Menengah","Perdagangan","Pariwisata","Perbankan"],
+            "Sosial dan Kemanusiaan": ["Kesehatan","Pendidikan","Agama","Budaya","Perlindungan Sosial","Kependudukan","Ketahanan Pangan","Keamanan dan Ketertiban"],
+            "Lintas Sektor": ["Tata Kelola Pemerintahan","Lingkungan Hidup","Gender"]
+        };
+        const sektorSelect = document.getElementById('sektor');
+        const subSektorSelect = document.getElementById('subSektor');
+        if (sektorSelect) {
+            sektorSelect.addEventListener('change', () => {
+                const sel = sektorSelect.value;
+                subSektorSelect.innerHTML = '';
+                if (sel && dataSektor[sel]) {
+                    subSektorSelect.disabled = false;
+                    subSektorSelect.add(new Option('Pilih Sub Sektor...', ''));
+                    dataSektor[sel].forEach(s => subSektorSelect.add(new Option(s, s)));
+                } else {
+                    subSektorSelect.disabled = true;
+                    subSektorSelect.add(new Option('Pilih Sektor Dulu...', ''));
+                }
+            });
+        }
+
+	// TOGGLE WAKTU
+        const toggleWaktu = document.getElementById('toggleWaktu');
+        const containerManualWaktu = document.getElementById('containerManualWaktu');
+        const labelWaktu = document.getElementById('labelWaktu');
+        const descWaktu = document.getElementById('descWaktu');
+        const inputWaktuManual = document.getElementById('inputWaktuManual');
+
+        if (toggleWaktu) {
+            toggleWaktu.addEventListener('change', function() {
+                if (this.checked) {
+                    containerManualWaktu.classList.remove('hidden');
+                    labelWaktu.textContent = "Asesmen Masa Lampau";
+                    descWaktu.textContent = "Silakan atur tanggal dan jam asesmen.";
+                    labelWaktu.classList.add('text-primary');
+                    if (!inputWaktuManual.value) {
+                        const now = new Date();
+                        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                        inputWaktuManual.value = now.toISOString().slice(0, 16);
+                    }
+                } else {
+                    containerManualWaktu.classList.add('hidden');
+                    labelWaktu.textContent = "Asesmen Saat Ini";
+                    descWaktu.textContent = "Waktu akan tercatat otomatis saat kirim.";
+                    labelWaktu.classList.remove('text-primary');
+                    inputWaktuManual.value = '';
+                }
+            });
+        }
+
+	// SUBMIT FORM
+        const form = document.getElementById('assessmentForm');
+        const submitButton = document.getElementById('submitButton');
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const namaKK = document.getElementById('namaKK').value;
+            const alamatDesa = document.getElementById('alamatDesa').value;
+            if (!namaKK && !alamatDesa) {
+                if (!confirm('Nama KK dan Desa masih kosong. Yakin ingin mengirim?')) return;
+            }
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span class="material-symbols-outlined animate-spin text-base">progress_activity</span> Mengirim...';
+
+            try {
+                const formData = await createFormDataObject();
+                if (formData.filesDokumentasi.length > 8) throw new Error("Maksimal 8 file dokumentasi.");
+                await fetch(DATA_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(formData), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
+
+                // Reset form
+                form.reset();
+                ['personilListContainer','unsurListContainer','bagianKerusakanListContainer'].forEach(id => { const el = document.getElementById(id); if(el) el.innerHTML = ''; });
+                if(document.getElementById('locationStatus')) document.getElementById('locationStatus').innerHTML = '';
+                updateHiddenInputs('personil'); updateHiddenInputs('unsur'); updateHiddenInputs('bagianKerusakan');
+                document.querySelectorAll('.kerusakan-fisik-group').forEach(q => q.style.display = 'none');
+                const desaSelect = document.getElementById('alamatDesa');
+                if(desaSelect) { desaSelect.innerHTML = '<option value="">Pilih Kecamatan Dulu...</option>'; desaSelect.disabled = true; }
+                const subSektorSelect = document.getElementById('subSektor');
+                if(subSektorSelect) { subSektorSelect.innerHTML = '<option value="">Pilih Sektor Dulu...</option>'; subSektorSelect.disabled = true; }
+
+                // Tutup form & refresh data
+                toggleFormView();
+                showNotification('✅ Laporan berhasil dikirim!');
+                if(fetchInterval) clearInterval(fetchInterval);
+                fetchData();
+                fetchInterval = setInterval(fetchData, 5000);
+
+            } catch (error) {
+                showNotification('Gagal: ' + error.message);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Kirim Laporan';
+            }
+        });
+
+        async function createFormDataObject() {
+            const formData = {};
+            formData.mode = "baru";
+            formData.bencana = document.getElementById('bencana').value;
+            formData.jenisBencana = document.getElementById('jenisBencana').value;
+            formData.sektor = document.getElementById('sektor').value;
+            formData.subSektor = document.getElementById('subSektor').value;
+            formData.namaKK = document.getElementById('namaKK').value;
+            formData.jumlahKeluarga = document.getElementById('jumlahKeluarga').value;
+            formData.statusRumah = document.getElementById('statusRumah').value;
+            formData.tempatTinggalSementara = document.getElementById('tempatTinggalSementara').value;
+            formData.jalanDusun = document.getElementById('jalanDusun').value;
+            formData.rt = document.getElementById('rt').value;
+            formData.rw = document.getElementById('rw').value;
+            formData.alamatDesa = document.getElementById('alamatDesa').value;
+            formData.alamatKecamatan = document.getElementById('alamatKecamatan').value;
+            formData.latitude = document.getElementById('latitude').value;
+            formData.longitude = document.getElementById('longitude').value;
+            const isManualMode = document.getElementById('toggleWaktu').checked;
+            if (isManualMode) {
+                const rawDate = document.getElementById('inputWaktuManual').value;
+                formData.manualTimestamp = rawDate ? new Date(rawDate).toISOString() : new Date().toISOString();
+            } else {
+                formData.manualTimestamp = new Date().toISOString();
+            }
+            formData.nomoryangBisaDihubungi = document.getElementById('nomoryangBisaDihubungi').value;
+            formData.ukuranPanjang = document.getElementById('ukuranPanjang').value;
+            formData.ukuranLebar = document.getElementById('ukuranLebar').value;
+            formData.jenisKonstruksi = document.getElementById('jenisKonstruksi').value;
+            formData.kerusakanPondasi = document.getElementById('kerusakanPondasi').value;
+            formData.kerusakanRangkaStruktur = document.getElementById('kerusakanRangkaStruktur').value;
+            formData.kerusakanRangkaAtap = document.getElementById('kerusakanRangkaAtap').value;
+            formData.kerusakanPenutupAtap = document.getElementById('kerusakanPenutupAtap').value;
+            formData.kerusakanLangit = document.getElementById('kerusakanLangit').value;
+            formData.kerusakanDinding = document.getElementById('kerusakanDinding').value;
+            formData.kerusakanLantai = document.getElementById('kerusakanLantai').value;
+            formData.nilaiKerugian = document.getElementById('nilaiKerugian').value;
+            formData.pengkajianDampak = document.getElementById('pengkajianDampak').value;
+            formData.semen = document.getElementById('semen').value;
+            formData.batuBata = document.getElementById('batuBata').value;
+            formData.genteng = document.getElementById('genteng').value;
+            formData.kalsiboard = document.getElementById('kalsiboard').value;
+            formData.kayuBalok = document.getElementById('kayuBalok').value;
+            formData.kayuUsuk = document.getElementById('kayuUsuk').value;
+            formData.kayuReng = document.getElementById('kayuReng').value;
+            formData.besi6mm = document.getElementById('besi6mm').value;
+            formData.besi10mm = document.getElementById('besi10mm').value;
+            formData.terpal3x4 = document.getElementById('terpal3x4').value;
+            formData.terpal5x6 = document.getElementById('terpal5x6').value;
+            formData.bagianKerusakan = document.getElementById('bagianKerusakan').value;
+            formData.personilyangBerangkat = document.getElementById('personilyangBerangkat').value;
+            formData.personilLainnya = document.getElementById('personilLainnya').value;
+            formData.unsuryangTerlibat = document.getElementById('unsuryangTerlibat').value;
+            formData.unsurLainnya = document.getElementById('unsurLainnya').value;
+
+	    // =====================================================================
+// TAMBAHAN: KALKULASI NILAI KERUSAKAN & TINGKAT KERUSAKAN
+// =====================================================================
+const parsePersen = (val) => {
+    if (!val) return 0;
+    const match = val.match(/\((\d+)%\)/); // Ambil angka di dalam kurung e.g. (10%)
+    return match ? parseInt(match[1]) : 0;
+};
+
+// 1. Hitung Total Persentase Kerusakan
+const totalPersentase = 
+    parsePersen(formData.kerusakanPondasi) +
+    parsePersen(formData.kerusakanRangkaStruktur) +
+    parsePersen(formData.kerusakanRangkaAtap) +
+    parsePersen(formData.kerusakanPenutupAtap) +
+    parsePersen(formData.kerusakanLangit) +
+    parsePersen(formData.kerusakanDinding) +
+    parsePersen(formData.kerusakanLantai);
+
+// 2. Tentukan Kategori / Tingkat Kerusakan
+let tingkatKerusakan = "-";
+if (totalPersentase > 0) {
+    if (totalPersentase <= 29) tingkatKerusakan = "Rusak Ringan";
+    else if (totalPersentase <= 70) tingkatKerusakan = "Rusak Sedang";
+    else tingkatKerusakan = "Rusak Berat";
+}
+formData.tingkatKerusakan = tingkatKerusakan;
+
+// 3. Tentukan Harga Berdasarkan Konstruksi
+let hargaKonstruksi = 0;
+if (formData.jenisKonstruksi === "Non Permanen") hargaKonstruksi = 470000;
+else if (formData.jenisKonstruksi === "Semi Permanen") hargaKonstruksi = 950000;
+else if (formData.jenisKonstruksi === "Permanen") hargaKonstruksi = 2250000;
+
+// 4. Hitung Nilai Rupiah Kerusakan (Rumus: Luas x % x Harga)
+const luas = (parseFloat(formData.ukuranPanjang) || 0) * (parseFloat(formData.ukuranLebar) || 0);
+formData.nilaiKerusakan = luas * (totalPersentase / 100) * hargaKonstruksi;
+// =====================================================================
+
+            const disposisiFile = document.getElementById('fileDisposisi').files[0];
+            if (disposisiFile) {
+                formData.fileDisposisi = disposisiFile.type.startsWith('image/') ? await compressImage(disposisiFile, 1024, 0.7) : await readFileRaw(disposisiFile);
+            } else { formData.fileDisposisi = null; }
+
+            const dokumentasiFiles = document.getElementById('filesDokumentasi').files;
+            formData.filesDokumentasi = [];
+            if (dokumentasiFiles.length > 0) {
+                formData.filesDokumentasi = await Promise.all(Array.from(dokumentasiFiles).map(file =>
+                    file.type.startsWith('image/') ? compressImage(file, 1024, 0.6) : readFileRaw(file)
+                ));
+            }
+            return formData;
+        }
+
+        function compressImage(file, maxWidth, quality) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        let width = img.width, height = img.height;
+                        if (width > height) { if (width > maxWidth) { height *= maxWidth / width; width = maxWidth; } }
+                        else { if (height > maxWidth) { width *= maxWidth / height; height = maxWidth; } }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width; canvas.height = height;
+                        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                        const base64Data = canvas.toDataURL('image/jpeg', quality).split(',')[1];
+                        resolve({ fileName: file.name, fileType: 'image/jpeg', fileData: base64Data });
+                    };
+                    img.onerror = reject;
+                };
+                reader.onerror = reject;
+            });
+        }
+
+        function readFileRaw(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve({ fileName: file.name, fileType: file.type, fileData: reader.result.split(',')[1] });
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+	        const getLocationBtn = document.getElementById('getLocationBtn');
+        const locationStatus = document.getElementById('locationStatus');
+        if (getLocationBtn) {
+            getLocationBtn.addEventListener('click', function() {
+                if (navigator.geolocation) {
+                    getLocationBtn.disabled = true;
+                    locationStatus.innerHTML = '<span class="text-primary">Mencari lokasi akurat... Harap tunggu.</span>';
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        document.getElementById('latitude').value = position.coords.latitude.toFixed(7);
+			document.getElementById('longitude').value = position.coords.longitude.toFixed(7);
+                        locationStatus.innerHTML = '<b class="text-green-600">✅ Lokasi berhasil terdeteksi!</b>';
+                        getLocationBtn.disabled = false;
+                    }, function(error) {
+                        let msg = "Gagal mendapatkan lokasi.";
+                        if (error.code == error.PERMISSION_DENIED) msg = "Anda menolak izin akses lokasi. Silakan izinkan di pengaturan browser.";
+                        else if (error.code == error.POSITION_UNAVAILABLE) msg = "Informasi lokasi tidak tersedia dari perangkat Anda.";
+                        else if (error.code == error.TIMEOUT) msg = "Waktu permintaan habis. Coba lagi di tempat dengan sinyal lebih baik.";
+                        locationStatus.innerHTML = `<b class="text-red-500">${msg}</b>`;
+                        getLocationBtn.disabled = false;
+                    }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
+                } else {
+                    locationStatus.innerHTML = '<b class="text-red-500">Geolocation tidak didukung browser ini.</b>';
+                }
+            });
+        }
+        });
    
+	// --- SKRIP FITUR: AUTO-LIFT FAB BUTTON ---
+    
+    document.addEventListener("DOMContentLoaded", function() {
+        const mainScroller = document.getElementById('main-scroller'); // Area scroll utama
+        const fabBtn = document.getElementById('open-form-btn'); // Tombol Merah/Biru
+        const submitBtn = document.getElementById('submitButton'); // Tombol Kirim
+
+        if (mainScroller && fabBtn && submitBtn) {
+            mainScroller.addEventListener('scroll', function() {
+                // Hanya jalankan logika jika form sedang terbuka (tombol jadi merah/Close)
+                // Kita cek apakah iconnya sudah berubah rotasi (tanda form aktif) atau cek ID form-view
+                const isFormOpen = !document.getElementById('form-view').classList.contains('hidden');
+                
+                if (!isFormOpen) {
+                    fabBtn.style.bottom = ''; // Reset jika form tertutup
+                    return; 
+                }
+
+                // Ambil posisi tombol submit relatif terhadap layar
+                const submitRect = submitBtn.getBoundingClientRect();
+                const windowHeight = window.innerHeight;
+
+                // Logika Deteksi:
+                // Jika bagian ATAS tombol submit sudah masuk ke viewport (layar) 
+                // DAN bagian BAWAH tombol submit belum lewat jauh ke atas
+                // (Artinya tombol submit sedang terlihat di layar bagian bawah)
+                const isSubmitVisible = (submitRect.top < windowHeight) && (submitRect.bottom > 0);
+
+                if (isSubmitVisible) {
+                    // GESER TOMBOL MERAH KE ATAS
+                    // Default bottom-8 (2rem/32px). Kita naikkan jadi sekitar 100px
+                    fabBtn.style.bottom = '100px'; 
+                } else {
+                    // KEMBALIKAN KE POSISI SEMULA
+                    fabBtn.style.bottom = '2rem'; // Sama dengan class 'bottom-8'
+                }
+            });
+        }
+    });
+
     </script>
 
 <div id="image-preview-modal" onclick="closeImagePreview()" 
@@ -3597,4 +5310,3 @@ function switchView(viewName) {
 
 </body>
 </html>
-
