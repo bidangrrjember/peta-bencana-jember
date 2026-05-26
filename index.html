@@ -974,10 +974,17 @@
                         <label for="nilaiKerugian" class="form-label">Nilai Kerugian (Rp)</label>
                         <input type="number" id="nilaiKerugian" name="nilaiKerugian" placeholder="Estimasi nilai rupiah...">
                     </div>
-                    <div class="form-group mb-0">
-                        <label for="pengkajianDampak" class="form-label">Pengkajian Dampak</label>
-                        <textarea id="pengkajianDampak" name="pengkajianDampak" placeholder="Deskripsikan dampak yang terjadi..."></textarea>
-                    </div>
+                    <div class="form-group mb-0 relative">
+    <div class="flex justify-between items-center mb-1.5">
+        <label for="pengkajianDampak" class="form-label !mb-0">Pengkajian Dampak</label>
+        
+        <button type="button" onclick="generateDampakAI()" id="btnAI-Dampak" class="text-[10px] bg-gradient-to-r from-blue-500 to-purple-500 text-white px-2 py-1 rounded hover:opacity-80 transition-opacity flex items-center gap-1 shadow-sm border border-purple-400">
+            <span class="material-symbols-outlined text-[12px]">magic_button</span> Susun Narasi AI
+        </button>
+    </div>
+    
+    <textarea id="pengkajianDampak" name="pengkajianDampak" placeholder="Deskripsikan dampak yang terjadi..." class="w-full text-sm p-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 focus:ring-2 focus:ring-primary outline-none transition-all"></textarea>
+</div>
                 </div>
             </div>
 
@@ -1295,7 +1302,7 @@
 
 
     <script>
-        const DATA_URL = 'https://script.google.com/macros/s/AKfycbzIt0UDe1krnVpsy7SkdjFmtR3f1sGX72EQCcGxotmuStOfkAzocZTRowOIoQ13lFae/exec';
+        const DATA_URL = 'https://script.google.com/macros/s/AKfycbwxaROcOI10DPXzVZ6ApN2KapcnJ3BDDOr0vQUnPoDhM6RDxR3H5zQy-Pv0q4LHYvnp/exec';
         let allData = [];
 	let weatherChartInstance = null;
         let layerGroups = {};
@@ -4352,6 +4359,64 @@ function adjustTableHeight() {
             console.error("Error calculating heights:", e);
             contentScroller.style.overflowY = 'auto'; 
         }
+    }
+}
+
+// --- FITUR GEMINI AI: GENERATE PENGKAJIAN DAMPAK VIA GET REQUEST ---
+async function generateDampakAI() {
+    const btn = document.getElementById('btnAI-Dampak');
+    const textarea = document.getElementById('pengkajianDampak');
+
+    // 1. Kumpulkan konteks dari form
+    const dataPayload = {
+    mode: 'generateAI',
+    bencana: document.getElementById('jenisBencana').value || 'bencana',
+    desa: document.getElementById('alamatDesa').value || 'desa tersebut',
+    kecamatan: document.getElementById('alamatKecamatan').value || 'kecamatan tersebut',
+    kerugian: document.getElementById('nilaiKerugian').value || '0',
+    panjang: document.getElementById('ukuranPanjang').value || '0',
+    lebar: document.getElementById('ukuranLebar').value || '0',
+    konstruksi: document.getElementById('jenisKonstruksi').value || 'tidak diketahui',
+    anggotaKeluarga: document.getElementById('jumlahKeluarga').value || '0'  // ← TAMBAH INI
+};
+
+    // Validasi sederhana
+    if (dataPayload.bencana === 'bencana' || dataPayload.kecamatan === 'kecamatan tersebut') {
+        alert("Mohon isi minimal 'Jenis Bencana' dan 'Kecamatan' di form atas agar AI bisa menyusun narasi yang akurat.");
+        return;
+    }
+
+    // 2. Ubah UI saat loading
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined text-[12px] animate-spin">progress_activity</span> Memproses...';
+    textarea.value = "AI sedang menyusun kalimat laporan. Mohon tunggu...";
+
+    try {
+        // 3. Ubah payload menjadi format URL Parameter (contoh: ?mode=generateAI&bencana=Banjir...)
+        const params = new URLSearchParams(dataPayload).toString();
+        const urlAI = `${DATA_URL}?${params}`;
+
+        // 4. Tembak ke Apps Script menggunakan metode GET (bebas error CORS)
+        const response = await fetch(urlAI, {
+            method: 'GET' 
+        });
+
+        const responseData = await response.json();
+
+        // 5. Tampilkan hasilnya
+        if (responseData.status === 'sukses') {
+            textarea.value = responseData.text;
+        } else {
+            textarea.value = "Terjadi masalah: " + (responseData.message || "Gagal menyusun narasi.");
+        }
+
+    } catch (error) {
+        console.error("Error panggil Apps Script:", error);
+        textarea.value = "Gagal terhubung ke server JITUPASNA. Pastikan kamu sudah Deploy as New Version di Apps Script.";
+    } finally {
+        // 6. Kembalikan UI tombol ke semula
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined text-[12px]">magic_button</span> Susun Narasi AI';
     }
 }
 
