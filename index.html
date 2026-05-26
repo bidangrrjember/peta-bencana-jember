@@ -1310,7 +1310,7 @@
 
 
     <script>
-        const DATA_URL = 'https://script.google.com/macros/s/AKfycbxWrMz7n-3Jy9GjbihheCgL2YRvB2LFvY2sGMqBCegLeNdoFRmwnfBnB0fu6zBs2Xhv/exec';
+        const DATA_URL = 'https://script.google.com/macros/s/AKfycbykSc4sEngv4NsDQ6u6NeiIK851qzqxMUpSDZZYBBP77bRqyi8iNyZwRkZQ7dFDovoU/exec';
         let allData = [];
 	let weatherChartInstance = null;
         let layerGroups = {};
@@ -4400,7 +4400,8 @@ async function generateDampakAI() {
     panjang: document.getElementById('ukuranPanjang').value || '0',
     lebar: document.getElementById('ukuranLebar').value || '0',
     konstruksi: document.getElementById('jenisKonstruksi').value || 'tidak diketahui',
-    anggotaKeluarga: document.getElementById('jumlahKeluarga').value || '0'  // ← TAMBAH INI
+    anggotaKeluarga: document.getElementById('jumlahKeluarga').value || '0',  
+    catatanTambahan: document.getElementById('pengkajianDampak').value.trim() || '' 
 };
 
     // Validasi sederhana
