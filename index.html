@@ -494,9 +494,18 @@
         </h1>
     </div>
 
-<div class="flex items-center justify-end gap-4">
+<div class="flex items-center justify-end gap-3 sm:gap-4">
         
-        <div class="hidden lg:grid relative grid-cols-2 items-center p-1 w-64 bg-background-light dark:bg-background-dark rounded-lg border border-border-light dark:border-border-dark">
+<a href="https://docs.google.com/spreadsheets/d/1E8Vz_Ovt09A3OXZI6Eq7_T0g54aJXxsy-UhnwtmrDpc/edit" 
+       target="_blank" 
+       id="btn-open-database" 
+       class="hidden items-center justify-center gap-2 px-4 h-10 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/60 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors text-sm font-semibold shadow-sm"
+       title="Buka Spreadsheet Database">
+        <span class="material-symbols-outlined text-[18px]">table_chart</span>
+        <span class="hidden sm:inline">Database</span>
+    </a>        
+
+<div class="hidden lg:grid relative grid-cols-2 items-center p-1 w-64 bg-background-light dark:bg-background-dark rounded-lg border border-border-light dark:border-border-dark">
     
     <div id="nav-pill" class="absolute top-1 bottom-1 left-1 w-[calc(50%-0.25rem)] bg-card-light dark:bg-card-dark rounded shadow-sm transition-transform duration-300 ease-in-out z-0 translate-x-0"></div>
 
@@ -511,7 +520,6 @@
         <span class="material-symbols-outlined text-lg">bar_chart</span>
         <span>Reports</span>
             </a>
-
         </div>
         <button id="fullscreen-btn" title="Mode Layar Penuh" class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 text-text-light dark:text-text-dark">
             <span class="material-symbols-outlined">fullscreen</span>
@@ -2021,27 +2029,42 @@ async function registerBiometric() {
         }
 
         function updateAuthUI() {
-            const authIcon = document.getElementById('auth-icon');
-            const authBtn = document.getElementById('auth-toggle-btn');
-            
-            if (!authIcon || !authBtn) return;
+    const authIcon = document.getElementById('auth-icon');
+    const authBtn = document.getElementById('auth-toggle-btn');
+    
+    // 1. Ambil elemen tombol database
+    const btnDb = document.getElementById('btn-open-database'); 
+    
+    if (!authIcon || !authBtn) return;
 
-            if (isLoggedIn) {
-                authIcon.innerText = 'logout';
-                authBtn.title = 'Logout Admin';
-                authBtn.onclick = function() {
-                    handleGuestMode(); 
-                };
-            } else {
-                authIcon.innerText = 'login';
-                authBtn.title = 'Login Admin';
-                authBtn.onclick = function() {
-                    const authModal = document.getElementById('auth-modal');
-                    if (authModal) authModal.classList.remove('hidden');
-                    setTimeout(() => document.getElementById('login-password').focus(), 100);
-                };
-            }
+    if (isLoggedIn) {
+        authIcon.innerText = 'logout';
+        authBtn.title = 'Logout Admin';
+        authBtn.onclick = function() {
+            handleGuestMode(); 
+        };
+        
+        // 2. Tampilkan tombol database jika Admin Login (Ganti hidden jadi flex)
+        if (btnDb) {
+            btnDb.classList.remove('hidden');
+            btnDb.classList.add('flex');
         }
+    } else {
+        authIcon.innerText = 'login';
+        authBtn.title = 'Login Admin';
+        authBtn.onclick = function() {
+            const authModal = document.getElementById('auth-modal');
+            if (authModal) authModal.classList.remove('hidden');
+            setTimeout(() => document.getElementById('login-password').focus(), 100);
+        };
+        
+        // 3. Sembunyikan tombol database jika mode Guest (Ganti flex jadi hidden)
+        if (btnDb) {
+            btnDb.classList.add('hidden');
+            btnDb.classList.remove('flex');
+        }
+    }
+}
 
         document.addEventListener('DOMContentLoaded', () => {
             checkAuth(); 
