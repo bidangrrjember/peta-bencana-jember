@@ -3547,6 +3547,12 @@ function fetchData() {
                     '<<PENGKAJIAN_DAMPAK>>': item.pengkajian || '-',
                     '<<REKOMENDASI>>': rekomendasiText,
 
+		    // --- TAMBAHKAN 3 BARIS INI ---
+                    '<<NO_SURAT_1>>': item.noSuratPengiriman || '-',
+                    '<<NO_SURAT_2>>': item.noBAPenyerahan || '-',
+                    '<<NO_SURAT_3>>': item.noBATerpal || '-',
+                    // -----------------------------
+
                     // Untuk Berita Acara Terpal
                     '<<terpal3x4>>': (item.bantuan && item.bantuan['Terpal 3x4m'] && parseFloat(item.bantuan['Terpal 3x4m']) > 0) ? item.bantuan['Terpal 3x4m'] : '-',
                     '<<terpal5x6>>': (item.bantuan && item.bantuan['Terpal 5x6m'] && parseFloat(item.bantuan['Terpal 5x6m']) > 0) ? item.bantuan['Terpal 5x6m'] : '-',
@@ -4098,14 +4104,37 @@ function openImagePreview(originalUrl) {
             
             // Hanya muncul jika korban menerima bantuan
             if (checkIsDibantu(data)) {
-                let terpalField = '';
-                
-                // Cek apakah korban menerima bantuan terpal (3x4 atau 5x6)
-                const dptTerpal = (data.bantuan && ((parseFloat(data.bantuan['Terpal 3x4m']) > 0) || (parseFloat(data.bantuan['Terpal 5x6m']) > 0)));
-                
-                // Input B.A Terpal hanya muncul jika memang dikasih terpal
+                let dptTerpal = false;
+                let dptMaterialLain = false;
+
+                // Memeriksa satu per satu isi bantuan
+                if (data.bantuan) {
+                    for (const [key, value] of Object.entries(data.bantuan)) {
+                        if (parseFloat(value) > 0) {
+                            if (key === 'Terpal 3x4m' || key === 'Terpal 5x6m') {
+                                dptTerpal = true;
+                            } else {
+                                // Jika ada semen, bata, kayu, dll yang nilainya lebih dari 0
+                                dptMaterialLain = true; 
+                            }
+                        }
+                    }
+                }
+
+                let inputSuratSatuDua = '';
+                let inputSuratTiga = '';
+
+                // Tampilkan 2 surat awal HANYA JIKA dapat material selain terpal
+                if (dptMaterialLain) {
+                    inputSuratSatuDua = `
+                        ${createEditableField(data, 'No. Perintah Pengiriman Bantuan', data.noSuratPengiriman, 'No. Surat Pengiriman', 'noSuratPengiriman', 'text')}
+                        ${createEditableField(data, 'No. B.A Penyerahan Barang', data.noBAPenyerahan, 'No. B.A Penyerahan', 'noBAPenyerahan', 'text')}
+                    `;
+                }
+
+                // Tampilkan surat ke-3 HANYA JIKA dapat terpal
                 if (dptTerpal) {
-                    terpalField = createEditableField(data, 'No. B.A Penyerahan (Khusus Terpal)', data.noBATerpal, 'No. B.A Terpal', 'noBATerpal', 'text');
+                    inputSuratTiga = createEditableField(data, 'No. B.A Penyerahan (Khusus Terpal)', data.noBATerpal, 'No. B.A Terpal', 'noBATerpal', 'text');
                 }
 
                 regSuratHtml = `
@@ -4114,9 +4143,8 @@ function openImagePreview(originalUrl) {
                             <span class="material-symbols-outlined text-base">tag</span> Register Nomor Surat
                         </h4>
                         <div class="flex flex-col gap-1">
-                            ${createEditableField(data, 'No. Perintah Pengiriman Bantuan', data.noSuratPengiriman, 'No. Surat Pengiriman', 'noSuratPengiriman', 'text')}
-                            ${createEditableField(data, 'No. B.A Penyerahan Barang', data.noBAPenyerahan, 'No. B.A Penyerahan', 'noBAPenyerahan', 'text')}
-                            ${terpalField}
+                            ${inputSuratSatuDua}
+                            ${inputSuratTiga}
                         </div>
                     </div>
                 `;
