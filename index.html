@@ -4038,16 +4038,16 @@ function openImagePreview(originalUrl) {
             let rekViewContent = '';
             if (rekArray.length > 0) {
                 rekViewContent = `<ol class="list-decimal list-outside ml-4 text-sm text-gray-700 dark:text-gray-300 mb-3 space-y-1">
-                    ${rekArray.map(r => `<li>${r}</li>`).join('')}
-                </ol>
-                <button onclick="toggleEditRekomendasi()" class="mt-2 w-full sm:w-auto inline-flex justify-center items-center gap-1.5 px-4 py-2 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/20 dark:hover:bg-purple-900/40 text-purple-700 dark:text-purple-400 text-xs font-bold rounded-lg border border-purple-200 dark:border-purple-700/50 transition-all duration-200 hover:shadow-sm active:scale-95">
-                    <span class="material-symbols-outlined text-[16px]">edit_note</span> Edit Rekomendasi
-                </button>`;
+    ${rekArray.map(r => `<li>${r}</li>`).join('')}
+</ol>
+${isLoggedIn ? `<button onclick="toggleEditRekomendasi()" class="mt-2 w-full sm:w-auto inline-flex justify-center items-center gap-1.5 px-4 py-2 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/20 dark:hover:bg-purple-900/40 text-purple-700 dark:text-purple-400 text-xs font-bold rounded-lg border border-purple-200 dark:border-purple-700/50 transition-all duration-200 hover:shadow-sm active:scale-95">
+    <span class="material-symbols-outlined text-[16px]">edit_note</span> Edit Rekomendasi
+</button>` : ''}`;
             } else {
                 rekViewContent = `<p class="text-sm text-gray-500 italic mb-3">Belum ada rekomendasi yang diberikan.</p>
-                <button onclick="toggleEditRekomendasi()" class="mt-2 w-full sm:w-auto inline-flex justify-center items-center gap-1.5 px-4 py-2 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/20 dark:hover:bg-purple-900/40 text-purple-700 dark:text-purple-400 text-xs font-bold rounded-lg border border-purple-200 dark:border-purple-700/50 transition-all duration-200 hover:shadow-sm active:scale-95">
-                    <span class="material-symbols-outlined text-[16px]">add_circle</span> Tambah Rekomendasi
-                </button>`;
+${isLoggedIn ? `<button onclick="toggleEditRekomendasi()" class="mt-2 w-full sm:w-auto inline-flex justify-center items-center gap-1.5 px-4 py-2 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/20 dark:hover:bg-purple-900/40 text-purple-700 dark:text-purple-400 text-xs font-bold rounded-lg border border-purple-200 dark:border-purple-700/50 transition-all duration-200 hover:shadow-sm active:scale-95">
+    <span class="material-symbols-outlined text-[16px]">add_circle</span> Tambah Rekomendasi
+</button>` : ''}`;
             }
 
             // Buat HTML untuk Mode Edit (Input Fields)
