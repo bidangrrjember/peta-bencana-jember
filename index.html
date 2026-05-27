@@ -2003,13 +2003,13 @@ let activeDropdown = null;
                 }
             } catch (err) {
                 console.error(err);
-                alert("Gagal memverifikasi biometrik. Silakan gunakan password manual.");
+                customAlert("Gagal memverifikasi biometrik. Silakan gunakan password manual.", "error");
             }
         }
 
 async function registerBiometric() {
             if (!window.PublicKeyCredential) {
-                alert("Browser ini tidak mendukung fitur Biometrik/Passkeys.");
+                customAlert("Browser ini tidak mendukung fitur Biometrik/Passkeys.", "warning");
                 return;
             }
 
@@ -2017,7 +2017,7 @@ async function registerBiometric() {
 
             await new Promise(r => setTimeout(r, 500));
 
-            const confirmBio = confirm("Mau aktifkan Login Cepat (Sidik Jari / PIN / Wajah)?\n\nKlik OK untuk mendaftar.");
+            const confirmBio = await customConfirm("Mau aktifkan Login Cepat (Sidik Jari / PIN / Wajah)?", "Login Cepat");
             if (!confirmBio) return;
 
             try {
@@ -2051,14 +2051,14 @@ async function registerBiometric() {
                 const rawId = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
                 localStorage.setItem('biometric_cred_id', rawId);
                 
-                alert("BERHASIL! Perangkat ini sudah terdaftar.\nSilakan Logout dan coba Login kembali tanpa password.");
+                customAlert("Perangkat ini sudah terdaftar. Silakan Logout dan coba Login kembali tanpa password.", "success", "Berhasil Didaftarkan");
                 
                 const btnBio = document.getElementById('btn-biometric-login');
                 if(btnBio) btnBio.classList.remove('hidden');
                 
             } catch (err) {
                 console.error("Gagal Biometrik:", err);
-                alert("Gagal mendaftarkan biometrik: " + err.message + "\n\nCek Console (F12) untuk detailnya.");
+                customAlert("Gagal mendaftarkan biometrik: " + err.message, "error");
             }
         }
 
@@ -3368,10 +3368,10 @@ function fetchData() {
             // Validasi Tanggal Wajib Isi
             if (docType === 'serahTerima') {
                 const tglInput = document.getElementById('input-tgl-serahTerima');
-                if (tglInput && !tglInput.value) return alert('Mohon isi Tanggal B.A Serah Terima terlebih dahulu!');
+                if (tglInput && !tglInput.value) return customAlert('Mohon isi Tanggal B.A Serah Terima terlebih dahulu!', 'warning');
             } else if (docType === 'monitoring') {
                 const tglInput = document.getElementById('input-tgl-monitoring');
-                if (tglInput && !tglInput.value) return alert('Mohon isi Tanggal Monitoring terlebih dahulu!');
+                if (tglInput && !tglInput.value) return customAlert('Mohon isi Tanggal Monitoring terlebih dahulu!', 'warning');
             }
 
             // Loading diarahkan ke tombol yang di-klik
@@ -4471,7 +4471,7 @@ async function generateDampakAI() {
 
     // Validasi sederhana
     if (dataPayload.bencana === 'bencana' || dataPayload.kecamatan === 'kecamatan tersebut') {
-        alert("Mohon isi minimal 'Jenis Bencana' dan 'Kecamatan' di form atas agar AI bisa menyusun narasi yang akurat.");
+        customAlert("Mohon isi minimal 'Jenis Bencana' dan 'Kecamatan' di form agar AI bisa menyusun narasi.", "warning");
         return;
     }
 
@@ -4991,11 +4991,11 @@ function toggleFormView() {
             btnAdd.addEventListener('click', (e) => {
                 e.preventDefault(); // Cegah submit form
                 let val = (selectEl.value === 'Lainnya') ? inputLain.value : selectEl.value;
-                if(!val) return alert("Pilih atau isi data dulu!");
+                if(!val) return customAlert("Pilih atau isi data dulu!", "warning");
                 
                 // Cek duplikat
                 let exists = Array.from(container.querySelectorAll('li')).some(li => li.dataset.value === val);
-                if(exists) return alert("Item sudah ditambahkan!");
+                if(exists) return customAlert("Item sudah ditambahkan!", "info");
 
                 const li = document.createElement('li');
                 li.dataset.value = val;
@@ -5162,7 +5162,8 @@ function toggleFormView() {
             const namaKK = document.getElementById('namaKK').value;
             const alamatDesa = document.getElementById('alamatDesa').value;
             if (!namaKK && !alamatDesa) {
-                if (!confirm('Nama KK dan Desa masih kosong. Yakin ingin mengirim?')) return;
+                const lanjut = await customConfirm('Nama KK dan Desa masih kosong. Yakin ingin mengirim?', 'Data Tidak Lengkap');
+if (!lanjut) return;
             }
             submitButton.disabled = true;
             submitButton.innerHTML = '<span class="material-symbols-outlined animate-spin text-base">progress_activity</span> Mengirim...';
@@ -5457,6 +5458,101 @@ formData.nilaiKerusakan = luas * (totalPersentase / 100) * hargaKonstruksi;
             </div>
         </div>
     </div>
+
+<!-- ============================================================ -->
+<!-- CUSTOM POPUP (PENGGANTI alert/confirm bawaan browser) -->
+<!-- ============================================================ -->
+<div id="custom-popup-overlay" class="fixed inset-0 z-[999999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden" onclick="if(event.target===this && window._popupCancelable) closeCustomPopup(false)">
+  <div id="custom-popup-box" class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all duration-200 scale-95 opacity-0">
+    <div class="flex items-start gap-3 mb-4">
+      <div id="custom-popup-icon" class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-xl"></div>
+      <div class="flex-1">
+        <h3 id="custom-popup-title" class="font-bold text-gray-800 dark:text-gray-100 text-base mb-1"></h3>
+        <p id="custom-popup-message" class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed"></p>
+      </div>
+    </div>
+    <div id="custom-popup-buttons" class="flex gap-2 justify-end mt-4"></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CUSTOM POPUP SYSTEM
+// ============================================================
+window._popupCancelable = false;
+
+function showCustomPopup({ title, message, type = 'info', confirmText = 'OK', cancelText = null, cancelable = false }) {
+  return new Promise(resolve => {
+    const overlay  = document.getElementById('custom-popup-overlay');
+    const box      = document.getElementById('custom-popup-box');
+    const iconEl   = document.getElementById('custom-popup-icon');
+    const titleEl  = document.getElementById('custom-popup-title');
+    const msgEl    = document.getElementById('custom-popup-message');
+    const btnsEl   = document.getElementById('custom-popup-buttons');
+
+    window._popupCancelable = cancelable;
+
+    // Icon & warna berdasarkan type
+    const config = {
+      info:    { icon: 'info',          bg: 'bg-blue-100 dark:bg-blue-900/40',   text: 'text-blue-600 dark:text-blue-400',   btn: 'bg-blue-500 hover:bg-blue-600' },
+      success: { icon: 'check_circle',  bg: 'bg-green-100 dark:bg-green-900/40', text: 'text-green-600 dark:text-green-400', btn: 'bg-green-500 hover:bg-green-600' },
+      warning: { icon: 'warning',       bg: 'bg-yellow-100 dark:bg-yellow-900/40', text: 'text-yellow-600 dark:text-yellow-400', btn: 'bg-yellow-500 hover:bg-yellow-600' },
+      error:   { icon: 'error',         bg: 'bg-red-100 dark:bg-red-900/40',     text: 'text-red-600 dark:text-red-400',     btn: 'bg-red-500 hover:bg-red-600' },
+      confirm: { icon: 'help',          bg: 'bg-purple-100 dark:bg-purple-900/40', text: 'text-purple-600 dark:text-purple-400', btn: 'bg-purple-500 hover:bg-purple-600' },
+    };
+    const c = config[type] || config.info;
+
+    iconEl.className = `w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${c.bg} ${c.text}`;
+    iconEl.innerHTML = `<span class="material-symbols-outlined text-xl">${c.icon}</span>`;
+    titleEl.textContent  = title;
+    msgEl.textContent    = message;
+
+    // Tombol
+    btnsEl.innerHTML = '';
+    if (cancelText) {
+      const btnCancel = document.createElement('button');
+      btnCancel.textContent = cancelText;
+      btnCancel.className = 'px-4 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all';
+      btnCancel.onclick = () => closeCustomPopup(false, resolve);
+      btnsEl.appendChild(btnCancel);
+    }
+    const btnOk = document.createElement('button');
+    btnOk.textContent = confirmText;
+    btnOk.className = `px-4 py-2 text-sm rounded-lg text-white font-semibold transition-all ${c.btn}`;
+    btnOk.onclick = () => closeCustomPopup(true, resolve);
+    btnsEl.appendChild(btnOk);
+
+    // Tampilkan
+    overlay.classList.remove('hidden');
+    requestAnimationFrame(() => {
+      box.classList.remove('scale-95', 'opacity-0');
+      box.classList.add('scale-100', 'opacity-100');
+    });
+
+    window._popupResolve = resolve;
+    setTimeout(() => btnOk.focus(), 100);
+  });
+}
+
+function closeCustomPopup(result, resolve) {
+  const overlay = document.getElementById('custom-popup-overlay');
+  const box     = document.getElementById('custom-popup-box');
+  box.classList.add('scale-95', 'opacity-0');
+  box.classList.remove('scale-100', 'opacity-100');
+  setTimeout(() => overlay.classList.add('hidden'), 200);
+  const fn = resolve || window._popupResolve;
+  if (fn) fn(result);
+}
+
+// Shorthand functions (pengganti alert & confirm)
+function customAlert(message, type = 'info', title = null) {
+  const titles = { info: 'Informasi', success: 'Berhasil', warning: 'Perhatian', error: 'Terjadi Kesalahan' };
+  return showCustomPopup({ title: title || titles[type] || 'Informasi', message, type, confirmText: 'OK' });
+}
+function customConfirm(message, title = 'Konfirmasi') {
+  return showCustomPopup({ title, message, type: 'confirm', confirmText: 'Ya', cancelText: 'Batal', cancelable: true });
+}
+</script>
 
 </body>
 </html>
