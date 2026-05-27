@@ -311,12 +311,46 @@
 
 <body class="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark font-display select-none">
     
-<div id="loader" class="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-background-light dark:bg-background-dark z-[9999]">
-    <div class="flex space-x-2">
-        <div class="dot animate-loader-dot"></div>
-        <div class="dot animate-loader-dot animation-delay-200"></div>
-        <div class="dot animate-loader-dot animation-delay-400"></div>
+<div id="loader" class="fixed inset-0 w-full h-full flex flex-col items-center justify-center bg-background-light dark:bg-background-dark z-[100000] transition-opacity duration-700 ease-out opacity-100">
+    <div class="flex flex-col items-center justify-center relative w-full max-w-sm px-6">
+        
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 bg-primary/10 rounded-full blur-[50px] pointer-events-none"></div>
+        
+        <img src="https://bidangrrjember.github.io/peta-bencana-jember/logo-bpbd.png" alt="Logo BPBD" 
+             class="w-24 h-24 sm:w-28 sm:h-28 drop-shadow-xl mb-6 relative z-10 opacity-0"
+             style="animation: fadeInUp 0.8s ease-out forwards;">
+        
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800 dark:text-gray-100 tracking-tight mb-2 relative z-10 opacity-0"
+            style="animation: fadeInUp 0.8s ease-out 0.2s forwards;">
+            JITUPASNA
+        </h1>
+        
+        <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-bold tracking-widest uppercase mb-10 text-center leading-relaxed relative z-10 opacity-0"
+           style="animation: fadeInUp 0.8s ease-out 0.4s forwards;">
+            Badan Penanggulangan Bencana Daerah<br>Kabupaten Jember
+        </p>
+        
+        <div class="w-48 h-1 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden relative z-10 opacity-0"
+             style="animation: fadeIn 0.8s ease-out 0.6s forwards;">
+            <div class="w-1/2 h-full bg-primary rounded-full relative"
+                 style="animation: slideLoading 1.5s ease-in-out infinite;"></div>
+        </div>
     </div>
+    
+    <style>
+        @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        @keyframes slideLoading {
+            0% { left: -50%; }
+            100% { left: 150%; }
+        }
+    </style>
 </div>
 
     <div id="notification" class="hidden fixed top-24 left-1/2 -translate-x-1/2 bg-green-500 text-white py-3 px-6 rounded-lg shadow-lg z-[9998] transition-all duration-500 ease-in-out"></div>
@@ -2942,8 +2976,11 @@ function fetchData() {
         .then(rawData => {
             
             if (loader) {
-                loader.style.opacity = '0';
-                setTimeout(() => { loader.style.display = 'none'; }, 500);
+                // Tahan Splash Screen minimal 1.5 detik agar animasinya terlihat estetik
+                setTimeout(() => {
+                    loader.style.opacity = '0';
+                    setTimeout(() => { loader.style.display = 'none'; }, 700); // 700ms adalah waktu transisi pudar
+                }, 1500); 
             }
 
             const currentDataString = JSON.stringify(rawData);
