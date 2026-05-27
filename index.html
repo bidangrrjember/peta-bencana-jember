@@ -3268,8 +3268,8 @@ function fetchData() {
             document.querySelectorAll('[id^="view-field-"]').forEach(el => el.classList.remove('hidden'));
             
             // 2. Tutup edit bantuan
-            document.querySelectorAll('[id^="edit-bantuan-"]').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('[id^="view-bantuan-"]').forEach(el => el.classList.remove('hidden'));
+            document.querySelectorAll('div[id^="edit-bantuan-"]').forEach(el => el.classList.add('hidden'));
+	    document.querySelectorAll('div[id^="view-bantuan-"]').forEach(el => el.classList.remove('hidden'));
             
             // 3. Tutup edit personil
             document.querySelectorAll('[id^="edit-personil-"]').forEach(el => el.classList.add('hidden'));
